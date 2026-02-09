@@ -60,3 +60,35 @@ label {
 .form-error {
   @apply text-error text-sm mt-1;
 }
+
+/* Light Mode Override */
+.light {
+  --color-bg-primary: #f3f4f6;
+  --color-bg-secondary: #ffffff;
+  --color-bg-card: #e5e7eb;
+  --color-bg-hover: #d1d5db;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #9ca3af;
+}
+
+.light ::-webkit-scrollbar-track {
+  background: #e5e7eb;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

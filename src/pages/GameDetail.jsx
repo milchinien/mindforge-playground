@@ -1,0 +1,192 @@
+import { useEffect } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { ArrowLeft, Eye, Play, Heart, ThumbsDown, Calendar } from 'lucide-react'
+import { getGameById } from '../data/mockGames'
+import { formatNumber, formatDate } from '../utils/formatters'
+import TagList from '../components/game/TagList'
+import LikeDislike from '../components/game/LikeDislike'
+
+const subjectGradients = {
+  mathematik: 'from-blue-600 to-blue-800',
+  physik: 'from-purple-600 to-purple-800',
+  chemie: 'from-green-600 to-green-800',
+  biologie: 'from-emerald-600 to-emerald-800',
+  deutsch: 'from-red-600 to-red-800',
+  englisch: 'from-yellow-600 to-yellow-800',
+  geschichte: 'from-amber-600 to-amber-800',
+  geographie: 'from-teal-600 to-teal-800',
+  informatik: 'from-cyan-600 to-cyan-800',
+  kunst: 'from-pink-600 to-pink-800',
+  musik: 'from-violet-600 to-violet-800'
+}
+
+function ThumbnailPlaceholder({ title, subject, className = '' }) {
+  const gradient = subjectGradients[subject] || 'from-gray-600 to-gray-800'
+  return (
+    <div className={`bg-gradient-to-br ${gradient} flex items-center justify-center ${className}`}>
+      <span className="text-6xl font-bold text-white/30">{title.charAt(0)}</span>
+    </div>
+  )
+}
+
+export default function GameDetail() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const game = getGameById(id)
+
+  useEffect(() => {
+    if (game) {
+      console.log(`View fuer Spiel ${id} gezaehlt`)
+    }
+  }, [id, game])
+
+  if (!game) {
+    return (
+      <div className="text-center py-20">
+        <h1 className="text-6xl font-bold text-text-muted mb-4">404</h1>
+        <p className="text-xl text-text-secondary mb-6">
+          Dieses Spiel wurde nicht gefunden.
+        </p>
+        <Link to="/browse" className="text-accent hover:underline">
+          Zurueck zum Mindbrowser
+        </Link>
+      </div>
+    )
+  }
+
+  return (
+    <div className="py-4">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-6 cursor-pointer"
+      >
+        <ArrowLeft size={20} />
+        <span>Zurueck</span>
+      </button>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* Left Column: Images */}
+        <div className="lg:col-span-3">
+          {/* Main Thumbnail */}
+          {game.thumbnail ? (
+            <img
+              src={game.thumbnail}
+              alt={game.title}
+              className="w-full aspect-video object-cover rounded-xl"
+              onError={(e) => {
+                e.target.style.display = 'none'
+                e.target.nextSibling.style.display = 'flex'
+              }}
+            />
+          ) : null}
+          {!game.thumbnail && (
+            <ThumbnailPlaceholder
+              title={game.title}
+              subject={game.subject}
+              className="w-full aspect-video rounded-xl"
+            />
+          )}
+          {game.thumbnail && (
+            <div className="hidden w-full aspect-video rounded-xl">
+              <ThumbnailPlaceholder title={game.title} subject={game.subject} className="w-full h-full rounded-xl" />
+            </div>
+          )}
+
+          {/* Screenshots Gallery */}
+          {game.screenshots && game.screenshots.length > 0 && (
+            <div className="flex gap-2 mt-4 overflow-x-auto hide-scrollbar">
+              {game.screenshots.map((src, idx) => (
+                <img
+                  key={idx}
+                  src={src}
+                  alt={`Screenshot ${idx + 1}`}
+                  className="w-24 h-16 object-cover rounded-lg flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Info */}
+        <div className="lg:col-span-2">
+          {/* Title + Premium Badge */}
+          <div className="flex items-start gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-text-primary">{game.title}</h1>
+            {game.premium && (
+              <span className="bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-md mt-1 flex-shrink-0">
+                {game.price > 0 ? `${game.price} MC` : 'Premium'}
+              </span>
+            )}
+          </div>
+
+          {/* Creator */}
+          <p className="text-text-secondary mb-4">
+            von{' '}
+            <Link
+              to={`/profile/${game.creator}`}
+              className="text-accent hover:underline"
+            >
+              {game.creator}
+            </Link>
+          </p>
+
+          {/* Description */}
+          <p className="text-text-secondary mb-4 leading-relaxed">
+            {game.description}
+          </p>
+
+          {/* Tags */}
+          <div className="mb-6">
+            <TagList tags={game.tags} maxTags={10} size="md" />
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-bg-hover mb-4" />
+
+          {/* Stats */}
+          <div className="space-y-2 mb-6">
+            <div className="flex items-center gap-2 text-text-secondary">
+              <Eye size={16} className="text-text-muted" />
+              <span>{formatNumber(game.views)} Views</span>
+            </div>
+            <div className="flex items-center gap-2 text-text-secondary">
+              <Play size={16} className="text-text-muted" />
+              <span>{formatNumber(game.plays)} Plays</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-2 text-text-secondary">
+                <Heart size={16} className="text-text-muted" />
+                {formatNumber(game.likes)} Likes
+              </span>
+              <span className="flex items-center gap-2 text-text-secondary">
+                <ThumbsDown size={16} className="text-text-muted" />
+                {formatNumber(game.dislikes)} Dislikes
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-text-secondary">
+              <Calendar size={16} className="text-text-muted" />
+              <span>Erstellt am {formatDate(game.createdAt)}</span>
+            </div>
+          </div>
+
+          {/* Play Button */}
+          <button
+            onClick={() => navigate(`/play/${game.id}`)}
+            className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors mb-4 cursor-pointer text-lg"
+          >
+            Jetzt spielen
+          </button>
+
+          {/* Like / Dislike */}
+          <LikeDislike
+            gameId={game.id}
+            initialLikes={game.likes}
+            initialDislikes={game.dislikes}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}

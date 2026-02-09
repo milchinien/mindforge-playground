@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, Bell, Settings, Coins, Menu, X } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import AvatarRenderer from '../profile/AvatarRenderer'
 
 export default function Navbar({ onToggleSidebar }) {
   const { user, logout } = useAuth()
@@ -60,8 +61,18 @@ export default function Navbar({ onToggleSidebar }) {
             <button className="text-text-secondary hover:text-text-primary relative">
               <Bell className="w-5 h-5" />
             </button>
-            <Link to={`/profile/${user.username}`} className="text-sm text-text-secondary hover:text-text-primary hidden sm:block">
-              {user.username}
+            <Link to={`/profile/${user.username}`} className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="w-7 h-7 rounded-full overflow-hidden">
+                <AvatarRenderer
+                  skinColor={user.avatar?.skinColor}
+                  hairColor={user.avatar?.hairColor}
+                  hairStyle={user.avatar?.hairStyle}
+                  eyeType={user.avatar?.eyes || user.avatar?.eyeType}
+                  size={28}
+                  username={user.username}
+                />
+              </div>
+              <span className="text-sm text-text-secondary">{user.username}</span>
             </Link>
             <Link to="/settings" className="text-text-secondary hover:text-text-primary">
               <Settings className="w-5 h-5" />

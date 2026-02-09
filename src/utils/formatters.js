@@ -4,8 +4,18 @@ export function formatNumber(num) {
   return num.toString()
 }
 
+export function formatDate(dateString) {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
+
 export function timeAgo(date) {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  const d = typeof date === 'string' ? new Date(date) : date
+  const seconds = Math.floor((Date.now() - d.getTime()) / 1000)
   if (seconds < 60) return 'Gerade eben'
   const minutes = Math.floor(seconds / 60)
   if (minutes < 60) return `vor ${minutes} Min.`

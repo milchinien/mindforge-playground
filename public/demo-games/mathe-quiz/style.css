@@ -1,0 +1,148 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #111827;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-container {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+}
+
+/* Start Screen */
+#start-screen {
+  text-align: center;
+}
+
+#start-screen h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #f97316;
+}
+
+#start-screen p {
+  font-size: 1.1rem;
+  color: #9ca3af;
+  margin-bottom: 2rem;
+}
+
+/* Buttons */
+#start-btn, #restart-btn {
+  background: #f97316;
+  color: white;
+  border: none;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+#start-btn:hover, #restart-btn:hover {
+  background: #ea580c;
+}
+
+/* Question Screen */
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0.75rem 1rem;
+  background: #1f2937;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+#question {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: #1f2937;
+  border-radius: 1rem;
+}
+
+#answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.answer-btn {
+  background: #374151;
+  color: white;
+  border: 2px solid transparent;
+  padding: 1.2rem;
+  font-size: 1.3rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.answer-btn:hover {
+  background: #4b5563;
+  border-color: #f97316;
+}
+
+.answer-btn.correct {
+  background: #065f46;
+  border-color: #10b981;
+}
+
+.answer-btn.wrong {
+  background: #7f1d1d;
+  border-color: #ef4444;
+}
+
+/* Result Screen */
+#result-screen {
+  text-align: center;
+}
+
+#result-screen h1 {
+  font-size: 2rem;
+  color: #f97316;
+  margin-bottom: 1.5rem;
+}
+
+#final-score {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+#final-time {
+  font-size: 1.1rem;
+  color: #9ca3af;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  #game-container {
+    padding: 1rem;
+  }
+  #question {
+    font-size: 1.5rem;
+    padding: 1.5rem;
+  }
+  .answer-btn {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+}
