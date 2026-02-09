@@ -1,28 +1,22 @@
 import { useNavigate } from 'react-router-dom'
 import { Heart, Play } from 'lucide-react'
 import { formatNumber } from '../../utils/formatters'
+import { getSubjectConfig } from '../../data/subjectConfig'
 import TagList from './TagList'
 
-const subjectGradients = {
-  mathematik: 'from-blue-600 to-blue-800',
-  physik: 'from-purple-600 to-purple-800',
-  chemie: 'from-green-600 to-green-800',
-  biologie: 'from-emerald-600 to-emerald-800',
-  deutsch: 'from-red-600 to-red-800',
-  englisch: 'from-yellow-600 to-yellow-800',
-  geschichte: 'from-amber-600 to-amber-800',
-  geographie: 'from-teal-600 to-teal-800',
-  informatik: 'from-cyan-600 to-cyan-800',
-  kunst: 'from-pink-600 to-pink-800',
-  musik: 'from-violet-600 to-violet-800'
-}
-
 function ThumbnailPlaceholder({ title, subject }) {
-  const gradient = subjectGradients[subject] || 'from-gray-600 to-gray-800'
+  const config = getSubjectConfig(subject)
 
   return (
-    <div className={`w-full h-40 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-      <span className="text-4xl font-bold text-white/40">{title.charAt(0)}</span>
+    <div className={`w-full h-40 bg-gradient-to-br ${config.gradient} flex flex-col items-center justify-center relative overflow-hidden`}>
+      {/* Decorative background pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-2 left-3 text-6xl">{config.icon}</div>
+        <div className="absolute bottom-1 right-2 text-4xl rotate-12">{config.icon}</div>
+      </div>
+      {/* Main icon */}
+      <span className="text-4xl mb-1 drop-shadow-lg">{config.icon}</span>
+      <span className="text-xs font-medium text-white/60 tracking-wider uppercase">{config.label}</span>
     </div>
   )
 }

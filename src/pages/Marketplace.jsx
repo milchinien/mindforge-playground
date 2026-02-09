@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { MOCK_ASSETS, ASSET_TYPES, SORT_OPTIONS } from '../data/mockAssets'
 import AssetCard from '../components/marketplace/AssetCard'
+import useEscapeKey from '../hooks/useEscapeKey'
 
 const TYPE_ICONS = {
   '3d-model': '\u{1F9CA}',
@@ -11,9 +12,11 @@ const TYPE_ICONS = {
 
 function AssetDetailModal({ asset, onClose }) {
   const isFree = asset.price === 0
+  useEscapeKey(onClose)
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+         role="dialog" aria-modal="true" aria-label={asset.name}
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-lg w-full overflow-hidden"
            onClick={(e) => e.stopPropagation()}>
@@ -31,7 +34,7 @@ function AssetDetailModal({ asset, onClose }) {
                 von {asset.creator.username}
               </p>
             </div>
-            <button onClick={onClose} className="text-text-muted hover:text-text-primary text-xl">
+            <button onClick={onClose} aria-label="Schliessen" className="text-text-muted hover:text-text-primary text-xl">
               {'\u2715'}
             </button>
           </div>
@@ -155,6 +158,7 @@ export default function Marketplace() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
+          aria-label="Sortierung"
           className="bg-bg-card text-text-primary border border-gray-700 rounded-lg px-4 py-2
                      text-sm ml-auto"
         >

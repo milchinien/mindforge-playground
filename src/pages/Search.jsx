@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { Search as SearchIcon, SlidersHorizontal, Eye, Heart, ThumbsDown, Play } from 'lucide-react'
 import { mockGames } from '../data/mockGames'
 import { formatNumber } from '../utils/formatters'
+import { getSubjectConfig } from '../data/subjectConfig'
 import TagList from '../components/game/TagList'
 
 // Search algorithm
@@ -54,23 +55,9 @@ const SORT_OPTIONS = [
   { value: 'mostPlayed', label: 'Meistgespielt' },
 ]
 
-const subjectGradients = {
-  mathematik: 'from-blue-600 to-blue-800',
-  physik: 'from-purple-600 to-purple-800',
-  chemie: 'from-green-600 to-green-800',
-  biologie: 'from-emerald-600 to-emerald-800',
-  deutsch: 'from-red-600 to-red-800',
-  englisch: 'from-yellow-600 to-yellow-800',
-  geschichte: 'from-amber-600 to-amber-800',
-  geographie: 'from-teal-600 to-teal-800',
-  informatik: 'from-cyan-600 to-cyan-800',
-  kunst: 'from-pink-600 to-pink-800',
-  musik: 'from-violet-600 to-violet-800'
-}
-
 function SearchResultItem({ game }) {
   const navigate = useNavigate()
-  const gradient = subjectGradients[game.subject] || 'from-gray-600 to-gray-800'
+  const config = getSubjectConfig(game.subject)
 
   return (
     <div
@@ -78,11 +65,16 @@ function SearchResultItem({ game }) {
       className="flex gap-4 p-4 bg-bg-secondary hover:bg-bg-card rounded-xl transition-colors duration-200 cursor-pointer"
     >
       {/* Thumbnail */}
-      <div className={`hidden sm:flex w-48 h-28 flex-shrink-0 rounded-lg bg-gradient-to-br ${gradient} items-center justify-center overflow-hidden`}>
+      <div className={`hidden sm:flex w-48 h-28 flex-shrink-0 rounded-lg bg-gradient-to-br ${config.gradient} items-center justify-center overflow-hidden relative`}>
         {game.thumbnail ? (
           <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover" />
         ) : (
-          <span className="text-3xl font-bold text-white/30">{game.title.charAt(0)}</span>
+          <>
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-1 left-2 text-5xl">{config.icon}</div>
+            </div>
+            <span className="text-3xl drop-shadow-lg">{config.icon}</span>
+          </>
         )}
       </div>
 

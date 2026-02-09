@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { isTeacherPremium } from '../utils/premiumChecks'
+import useEscapeKey from '../hooks/useEscapeKey'
 
 const MOCK_CLASSES = [
   {
@@ -291,6 +292,7 @@ function ClassDetail({ cls, onAssignGame }) {
 function CreateClassModal({ isOpen, onClose, onCreate }) {
   const [className, setClassName] = useState('')
   const [classDescription, setClassDescription] = useState('')
+  useEscapeKey(onClose, isOpen)
 
   if (!isOpen) return null
 
@@ -311,6 +313,7 @@ function CreateClassModal({ isOpen, onClose, onCreate }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+         role="dialog" aria-modal="true" aria-label="Neue Klasse erstellen"
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-md w-full p-6"
            onClick={(e) => e.stopPropagation()}>
@@ -370,6 +373,7 @@ function CreateClassModal({ isOpen, onClose, onCreate }) {
 function AssignGameModal({ isOpen, onClose, onAssign, className }) {
   const [selectedGame, setSelectedGame] = useState('')
   const [deadline, setDeadline] = useState('')
+  useEscapeKey(onClose, isOpen)
 
   if (!isOpen) return null
 
@@ -392,6 +396,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+         role="dialog" aria-modal="true" aria-label="Aufgabe zuweisen"
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-md w-full p-6"
            onClick={(e) => e.stopPropagation()}>

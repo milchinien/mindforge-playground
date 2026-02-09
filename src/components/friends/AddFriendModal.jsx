@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import useEscapeKey from '../../hooks/useEscapeKey'
 
 export default function AddFriendModal({ onClose, onSendRequest }) {
+  useEscapeKey(onClose)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [isSearching, setIsSearching] = useState(false)
@@ -35,6 +37,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+         role="dialog" aria-modal="true" aria-label="Freund hinzufuegen"
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-md w-full p-6"
            onClick={(e) => e.stopPropagation()}>

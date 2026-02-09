@@ -1,20 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-
-const subjectGradients = {
-  mathematik: 'from-blue-700 to-blue-900',
-  physik: 'from-purple-700 to-purple-900',
-  chemie: 'from-green-700 to-green-900',
-  biologie: 'from-emerald-700 to-emerald-900',
-  deutsch: 'from-red-700 to-red-900',
-  englisch: 'from-yellow-700 to-yellow-900',
-  geschichte: 'from-amber-700 to-amber-900',
-  geographie: 'from-teal-700 to-teal-900',
-  informatik: 'from-cyan-700 to-cyan-900',
-  kunst: 'from-pink-700 to-pink-900',
-  musik: 'from-violet-700 to-violet-900'
-}
+import { getSubjectConfig } from '../../data/subjectConfig'
 
 export default function FeaturedCarousel({ games }) {
   const [current, setCurrent] = useState(0)
@@ -38,7 +25,8 @@ export default function FeaturedCarousel({ games }) {
   if (!games || games.length === 0) return null
 
   const game = games[current]
-  const gradient = subjectGradients[game.subject] || 'from-gray-700 to-gray-900'
+  const config = getSubjectConfig(game.subject)
+  const gradient = config.gradientDark
 
   return (
     <div
@@ -56,6 +44,14 @@ export default function FeaturedCarousel({ games }) {
           alt=""
           className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
+      )}
+
+      {/* Subject icon decoration */}
+      {!game.thumbnail && (
+        <div className="absolute inset-0 opacity-10 overflow-hidden">
+          <span className="absolute top-8 right-12 text-[120px] sm:text-[180px]">{config.icon}</span>
+          <span className="absolute bottom-4 left-8 text-[80px] rotate-[-15deg]">{config.icon}</span>
+        </div>
       )}
 
       {/* Dark gradient overlay for text readability */}

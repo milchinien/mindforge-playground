@@ -42,7 +42,7 @@ export default function FriendCard({ friend }) {
       </div>
 
       {/* Aktions-Menu */}
-      <button className="text-text-muted hover:text-text-primary p-2">
+      <button className="text-text-muted hover:text-text-primary p-2" aria-label="Mehr Optionen">
         {'\u2022\u2022\u2022'}
       </button>
     </div>

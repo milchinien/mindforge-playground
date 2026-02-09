@@ -1,27 +1,39 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/common/ProtectedRoute'
-import Login from './pages/auth/Login'
-import Register from './pages/auth/Register'
-import Mindbrowser from './pages/Mindbrowser'
-import Home from './pages/Home'
-import GameDetail from './pages/GameDetail'
-import GamePlayer from './pages/GamePlayer'
-import Profile from './pages/Profile'
-import Search from './pages/Search'
-import Create from './pages/Create'
-import Avatar from './pages/Avatar'
-import Settings from './pages/Settings'
-import Inventory from './pages/Inventory'
-import Premium from './pages/Premium'
-import Shop from './pages/Shop'
-import Events from './pages/Events'
-import Achievements from './pages/Achievements'
-import Marketplace from './pages/Marketplace'
-import TeacherDashboard from './pages/TeacherDashboard'
-import Friends from './pages/Friends'
+import LoadingSpinner from './components/common/LoadingSpinner'
+
+// Lazy-loaded pages for code splitting
+const Login = lazy(() => import('./pages/auth/Login'))
+const Register = lazy(() => import('./pages/auth/Register'))
+const Home = lazy(() => import('./pages/Home'))
+const Mindbrowser = lazy(() => import('./pages/Mindbrowser'))
+const GameDetail = lazy(() => import('./pages/GameDetail'))
+const GamePlayer = lazy(() => import('./pages/GamePlayer'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Search = lazy(() => import('./pages/Search'))
+const Create = lazy(() => import('./pages/Create'))
+const Avatar = lazy(() => import('./pages/Avatar'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Inventory = lazy(() => import('./pages/Inventory'))
+const Premium = lazy(() => import('./pages/Premium'))
+const Shop = lazy(() => import('./pages/Shop'))
+const Events = lazy(() => import('./pages/Events'))
+const Achievements = lazy(() => import('./pages/Achievements'))
+const Marketplace = lazy(() => import('./pages/Marketplace'))
+const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'))
+const Friends = lazy(() => import('./pages/Friends'))
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <LoadingSpinner size="lg" />
+    </div>
+  )
+}
 
 function Placeholder({ title }) {
   return (
@@ -37,46 +49,50 @@ function App() {
     <AuthProvider>
       <ToastProvider>
         <Router>
-          <Routes>
-            {/* Auth pages WITHOUT layout */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/play/:id" element={<GamePlayer />} />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Auth pages WITHOUT layout */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/play/:id" element={<GamePlayer />} />
 
-            {/* All other pages WITH layout */}
-            <Route path="/*" element={
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/browse" element={<Mindbrowser />} />
-                  <Route path="/marketplace" element={<Marketplace />} />
-                  <Route path="/events" element={<Events />} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/game/:id" element={<GameDetail />} />
-                  <Route path="/premium" element={<Premium />} />
+              {/* All other pages WITH layout */}
+              <Route path="/*" element={
+                <Layout>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/browse" element={<Mindbrowser />} />
+                      <Route path="/marketplace" element={<Marketplace />} />
+                      <Route path="/events" element={<Events />} />
+                      <Route path="/search" element={<Search />} />
+                      <Route path="/game/:id" element={<GameDetail />} />
+                      <Route path="/premium" element={<Premium />} />
 
-                  {/* Profile - accessible without login to view others */}
-                  <Route path="/profile/:username" element={<Profile />} />
+                      {/* Profile - accessible without login to view others */}
+                      <Route path="/profile/:username" element={<Profile />} />
 
-                  {/* Protected routes */}
-                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                  <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
-                  <Route path="/avatar" element={<ProtectedRoute><Avatar /></ProtectedRoute>} />
-                  <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
-                  <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
-                  <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
+                      {/* Protected routes */}
+                      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                      <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+                      <Route path="/avatar" element={<ProtectedRoute><Avatar /></ProtectedRoute>} />
+                      <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+                      <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+                      <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
 
-                  {/* Premium-only */}
-                  <Route path="/create" element={<ProtectedRoute requirePremium><Create /></ProtectedRoute>} />
+                      {/* Premium-only */}
+                      <Route path="/create" element={<ProtectedRoute requirePremium><Create /></ProtectedRoute>} />
 
-                  {/* Teacher-only */}
-                  <Route path="/teacher" element={<ProtectedRoute requireTeacher><TeacherDashboard /></ProtectedRoute>} />
+                      {/* Teacher-only */}
+                      <Route path="/teacher" element={<ProtectedRoute requireTeacher><TeacherDashboard /></ProtectedRoute>} />
 
-                  <Route path="*" element={<Placeholder title="404 - Seite nicht gefunden" />} />
-                </Routes>
-              </Layout>
-            } />
-          </Routes>
+                      <Route path="*" element={<Placeholder title="404 - Seite nicht gefunden" />} />
+                    </Routes>
+                  </Suspense>
+                </Layout>
+              } />
+            </Routes>
+          </Suspense>
         </Router>
       </ToastProvider>
     </AuthProvider>

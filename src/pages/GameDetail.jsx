@@ -3,28 +3,20 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, Eye, Play, Heart, ThumbsDown, Calendar } from 'lucide-react'
 import { getGameById } from '../data/mockGames'
 import { formatNumber, formatDate } from '../utils/formatters'
+import { getSubjectConfig } from '../data/subjectConfig'
 import TagList from '../components/game/TagList'
 import LikeDislike from '../components/game/LikeDislike'
 
-const subjectGradients = {
-  mathematik: 'from-blue-600 to-blue-800',
-  physik: 'from-purple-600 to-purple-800',
-  chemie: 'from-green-600 to-green-800',
-  biologie: 'from-emerald-600 to-emerald-800',
-  deutsch: 'from-red-600 to-red-800',
-  englisch: 'from-yellow-600 to-yellow-800',
-  geschichte: 'from-amber-600 to-amber-800',
-  geographie: 'from-teal-600 to-teal-800',
-  informatik: 'from-cyan-600 to-cyan-800',
-  kunst: 'from-pink-600 to-pink-800',
-  musik: 'from-violet-600 to-violet-800'
-}
-
 function ThumbnailPlaceholder({ title, subject, className = '' }) {
-  const gradient = subjectGradients[subject] || 'from-gray-600 to-gray-800'
+  const config = getSubjectConfig(subject)
   return (
-    <div className={`bg-gradient-to-br ${gradient} flex items-center justify-center ${className}`}>
-      <span className="text-6xl font-bold text-white/30">{title.charAt(0)}</span>
+    <div className={`bg-gradient-to-br ${config.gradient} flex flex-col items-center justify-center relative overflow-hidden ${className}`}>
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-4 left-6 text-8xl">{config.icon}</div>
+        <div className="absolute bottom-2 right-4 text-6xl rotate-12">{config.icon}</div>
+      </div>
+      <span className="text-6xl mb-2 drop-shadow-lg">{config.icon}</span>
+      <span className="text-sm font-medium text-white/60 tracking-wider uppercase">{config.label}</span>
     </div>
   )
 }
