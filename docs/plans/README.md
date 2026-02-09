@@ -272,8 +272,8 @@ Jeder Plan durchlaeuft diese Schritte:
 ---
 
 ### 19-MARKETPLACE.md
-- [ ] 19.1 - Plan angeschaut
-- [ ] 19.2 - Plan implementiert
+- [x] 19.1 - Plan angeschaut
+- [x] 19.2 - Plan implementiert
 - [ ] 19.3 - Getestet mit Playwright headless
 - [ ] 19.4 - Keine Fehler/Bugs
 - [ ] 19.5 - Nochmal druebergeschaut
@@ -285,8 +285,8 @@ Jeder Plan durchlaeuft diese Schritte:
 ## PHASE 7 - Spaete Features → Gruppe H
 
 ### 21-TEACHER-DASHBOARD.md
-- [ ] 21.1 - Plan angeschaut
-- [ ] 21.2 - Plan implementiert
+- [x] 21.1 - Plan angeschaut
+- [x] 21.2 - Plan implementiert
 - [ ] 21.3 - Getestet mit Playwright headless
 - [ ] 21.4 - Keine Fehler/Bugs
 - [ ] 21.5 - Nochmal druebergeschaut
@@ -296,8 +296,8 @@ Jeder Plan durchlaeuft diese Schritte:
 ---
 
 ### 22-FRIENDS-SYSTEM.md
-- [ ] 22.1 - Plan angeschaut
-- [ ] 22.2 - Plan implementiert
+- [x] 22.1 - Plan angeschaut
+- [x] 22.2 - Plan implementiert
 - [ ] 22.3 - Getestet mit Playwright headless
 - [ ] 22.4 - Keine Fehler/Bugs
 - [ ] 22.5 - Nochmal druebergeschaut
@@ -330,7 +330,7 @@ SCHRITT 6: Gruppe F (Personalisierung)    ✅ FERTIG
 SCHRITT 7: Gruppe G (Gamification)         ✅ FERTIG
   17 → 18 → 16
 
-SCHRITT 8: Gruppe H (Spaete Features)
+SCHRITT 8: Gruppe H (Spaete Features)    ✅ FERTIG
   19 → 21 → 22
 ```
 
@@ -359,7 +359,7 @@ SCHRITT 8: Gruppe H (Spaete Features)
 | 16-NOTIFICATIONS | YELLOW | ✅ Implementiert |
 | 17-EVENTS | YELLOW | ✅ Implementiert |
 | 18-ACHIEVEMENTS | GREEN | ✅ Implementiert |
-| 19-MARKETPLACE | YELLOW | Offen |
+| 19-MARKETPLACE | YELLOW | \u2705 Implementiert |
 | 20-MINDCOINS-PREMIUM | GREEN | ✅ Implementiert |
-| 21-TEACHER-DASHBOARD | YELLOW | Offen |
-| 22-FRIENDS-SYSTEM | YELLOW | Offen |
+| 21-TEACHER-DASHBOARD | YELLOW | \u2705 Implementiert |
+| 22-FRIENDS-SYSTEM | YELLOW | \u2705 Implementiert |

@@ -19,6 +19,9 @@ import Premium from './pages/Premium'
 import Shop from './pages/Shop'
 import Events from './pages/Events'
 import Achievements from './pages/Achievements'
+import Marketplace from './pages/Marketplace'
+import TeacherDashboard from './pages/TeacherDashboard'
+import Friends from './pages/Friends'
 
 function Placeholder({ title }) {
   return (
@@ -46,7 +49,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/browse" element={<Mindbrowser />} />
-                  <Route path="/marketplace" element={<Placeholder title="Marketplace" />} />
+                  <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="/events" element={<Events />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/game/:id" element={<GameDetail />} />
@@ -57,7 +60,7 @@ function App() {
 
                   {/* Protected routes */}
                   <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                  <Route path="/friends" element={<ProtectedRoute><Placeholder title="Freunde" /></ProtectedRoute>} />
+                  <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
                   <Route path="/avatar" element={<ProtectedRoute><Avatar /></ProtectedRoute>} />
                   <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
                   <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
@@ -67,7 +70,7 @@ function App() {
                   <Route path="/create" element={<ProtectedRoute requirePremium><Create /></ProtectedRoute>} />
 
                   {/* Teacher-only */}
-                  <Route path="/teacher" element={<ProtectedRoute requireTeacher><Placeholder title="Lehrer-Dashboard" /></ProtectedRoute>} />
+                  <Route path="/teacher" element={<ProtectedRoute requireTeacher><TeacherDashboard /></ProtectedRoute>} />
 
                   <Route path="*" element={<Placeholder title="404 - Seite nicht gefunden" />} />
                 </Routes>
