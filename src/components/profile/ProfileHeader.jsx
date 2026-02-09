@@ -1,8 +1,9 @@
-import { UserPlus, UserCheck, Edit3, Crown, Globe, Twitter } from 'lucide-react'
+import { Edit3, Crown, Globe, Twitter } from 'lucide-react'
 import { formatNumber } from '../../utils/formatters'
 import AvatarRenderer from './AvatarRenderer'
+import FollowButton from './FollowButton'
 
-export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollowClick, isFollowing, isLoggedIn = false }) {
+export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollowChange, isFollowing, isLoggedIn = false }) {
   const stats = [
     { label: 'Follower', value: user.followers || 0 },
     { label: 'Following', value: user.following || 0 },
@@ -78,28 +79,22 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-4">
+          <div className="mt-4 flex justify-center sm:justify-start">
             {isOwnProfile ? (
               <button
                 onClick={onEditClick}
-                className="flex items-center gap-2 px-4 py-2 bg-bg-card hover:bg-bg-hover text-text-secondary rounded-lg transition-colors cursor-pointer mx-auto sm:mx-0"
+                className="flex items-center gap-2 px-4 py-2 bg-bg-card hover:bg-bg-hover text-text-secondary rounded-lg transition-colors cursor-pointer"
               >
                 <Edit3 size={16} />
                 <span>Profil bearbeiten</span>
               </button>
-            ) : isLoggedIn ? (
-              <button
-                onClick={onFollowClick}
-                className={`flex items-center gap-2 px-5 py-2 rounded-lg transition-colors cursor-pointer mx-auto sm:mx-0 ${
-                  isFollowing
-                    ? 'bg-bg-card border border-accent text-accent hover:bg-error/10 hover:text-error hover:border-error'
-                    : 'bg-accent hover:bg-accent-dark text-white'
-                }`}
-              >
-                {isFollowing ? <UserCheck size={16} /> : <UserPlus size={16} />}
-                <span>{isFollowing ? 'Folgst du' : 'Folgen'}</span>
-              </button>
-            ) : null}
+            ) : (
+              <FollowButton
+                targetUserId={user.uid}
+                initialFollowing={isFollowing}
+                onFollowChange={onFollowChange}
+              />
+            )}
           </div>
         </div>
       </div>

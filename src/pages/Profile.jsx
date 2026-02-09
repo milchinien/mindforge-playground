@@ -71,10 +71,6 @@ export default function Profile() {
     setIsEditModalOpen(false)
   }
 
-  const handleFollowToggle = () => {
-    setIsFollowing(prev => !prev)
-  }
-
   // 404
   if (notFound) {
     return (
@@ -106,7 +102,13 @@ export default function Profile() {
         isOwnProfile={isOwnProfile}
         isLoggedIn={!!currentUser}
         onEditClick={handleEditOpen}
-        onFollowClick={handleFollowToggle}
+        onFollowChange={(nowFollowing) => {
+          setIsFollowing(nowFollowing)
+          setProfileUser(prev => ({
+            ...prev,
+            followers: (prev.followers || 0) + (nowFollowing ? 1 : -1)
+          }))
+        }}
         isFollowing={isFollowing}
       />
 
@@ -149,10 +151,19 @@ export default function Profile() {
         {activeTab === 'achievements' && (
           <div className="text-center py-12">
             <p className="text-4xl mb-4">&#127942;</p>
-            <p className="text-text-secondary">Achievements kommen bald!</p>
-            <p className="text-text-muted text-sm mt-2">
-              Wird in einem zukuenftigen Update implementiert.
+            <p className="text-text-secondary mb-4">
+              {isOwnProfile
+                ? 'Schau dir deine Achievements an!'
+                : `${profileUser.username}s Achievements`}
             </p>
+            {isOwnProfile && (
+              <Link
+                to="/achievements"
+                className="inline-block bg-accent hover:bg-accent-dark text-white px-5 py-2.5 rounded-lg transition-colors font-medium"
+              >
+                Zu den Achievements
+              </Link>
+            )}
           </div>
         )}
       </div>

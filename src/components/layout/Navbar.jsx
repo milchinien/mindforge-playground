@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Bell, Settings, Coins, Menu, X } from 'lucide-react'
+import { Search, Settings, Coins, Menu } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import AvatarRenderer from '../profile/AvatarRenderer'
+import NotificationDropdown from './NotificationDropdown'
 
 export default function Navbar({ onToggleSidebar }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -30,6 +30,7 @@ export default function Navbar({ onToggleSidebar }) {
 
         <div className="hidden md:flex items-center gap-3">
           <Link to="/browse" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Mindbrowser</Link>
+          <Link to="/events" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Events</Link>
           <Link to="/marketplace" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Marketplace</Link>
           {user?.isPremium && (
             <Link to="/create" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Create</Link>
@@ -54,13 +55,12 @@ export default function Navbar({ onToggleSidebar }) {
       <div className="flex items-center gap-3">
         {user ? (
           <>
-            <div className="hidden sm:flex items-center gap-1 text-sm text-accent">
-              <Coins className="w-4 h-4" />
-              <span>{user.mindCoins || 0}</span>
-            </div>
-            <button className="text-text-secondary hover:text-text-primary relative">
-              <Bell className="w-5 h-5" />
-            </button>
+            <Link to="/shop" className="hidden sm:flex items-center gap-1.5 bg-bg-card hover:bg-bg-hover px-3 py-1.5 rounded-lg transition-colors text-sm">
+              <Coins className="w-4 h-4 text-accent" />
+              <span className="font-semibold text-accent">{user.mindCoins || 0}</span>
+              <span className="text-text-muted text-xs">MC</span>
+            </Link>
+            <NotificationDropdown />
             <Link to={`/profile/${user.username}`} className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-7 h-7 rounded-full overflow-hidden">
                 <AvatarRenderer

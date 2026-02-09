@@ -15,6 +15,10 @@ import Create from './pages/Create'
 import Avatar from './pages/Avatar'
 import Settings from './pages/Settings'
 import Inventory from './pages/Inventory'
+import Premium from './pages/Premium'
+import Shop from './pages/Shop'
+import Events from './pages/Events'
+import Achievements from './pages/Achievements'
 
 function Placeholder({ title }) {
   return (
@@ -43,10 +47,10 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/browse" element={<Mindbrowser />} />
                   <Route path="/marketplace" element={<Placeholder title="Marketplace" />} />
-                  <Route path="/events" element={<Placeholder title="Events" />} />
+                  <Route path="/events" element={<Events />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/game/:id" element={<GameDetail />} />
-                  <Route path="/premium" element={<Placeholder title="Premium" />} />
+                  <Route path="/premium" element={<Premium />} />
 
                   {/* Profile - accessible without login to view others */}
                   <Route path="/profile/:username" element={<Profile />} />
@@ -56,8 +60,8 @@ function App() {
                   <Route path="/friends" element={<ProtectedRoute><Placeholder title="Freunde" /></ProtectedRoute>} />
                   <Route path="/avatar" element={<ProtectedRoute><Avatar /></ProtectedRoute>} />
                   <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
-                  <Route path="/achievements" element={<ProtectedRoute><Placeholder title="Achievements" /></ProtectedRoute>} />
-                  <Route path="/shop" element={<ProtectedRoute><Placeholder title="MindCoins Shop" /></ProtectedRoute>} />
+                  <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+                  <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
 
                   {/* Premium-only */}
                   <Route path="/create" element={<ProtectedRoute requirePremium><Create /></ProtectedRoute>} />
