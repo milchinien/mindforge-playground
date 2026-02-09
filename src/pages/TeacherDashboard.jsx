@@ -193,7 +193,7 @@ function ClassSidebar({ classes, selectedClass, onSelect, onCreateNew }) {
 
 function AssignmentCard({ assignment, totalStudents }) {
   const completionCount = Object.values(assignment.completions).filter(Boolean).length
-  const completionPercent = Math.round((completionCount / totalStudents) * 100)
+  const completionPercent = totalStudents > 0 ? Math.round((completionCount / totalStudents) * 100) : 0
   const deadlineDate = new Date(assignment.deadline).toLocaleDateString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   })
@@ -250,7 +250,7 @@ function ClassDetail({ cls, onAssignGame }) {
         </div>
         <button
           onClick={onAssignGame}
-          className="bg-accent hover:bg-orange-600 text-white px-4 py-2
+          className="bg-accent hover:bg-accent-dark text-white px-4 py-2
                      rounded-lg font-medium text-sm transition-colors"
         >
           + Aufgabe zuweisen
@@ -356,7 +356,7 @@ function CreateClassModal({ isOpen, onClose, onCreate }) {
           <button
             onClick={handleCreate}
             disabled={!className.trim()}
-            className="flex-1 bg-accent hover:bg-orange-600 text-white py-2 rounded-lg
+            className="flex-1 bg-accent hover:bg-accent-dark text-white py-2 rounded-lg
                        font-semibold transition-colors disabled:opacity-50"
           >
             Erstellen
@@ -376,6 +376,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
   const handleAssign = () => {
     if (!selectedGame || !deadline) return
     const game = AVAILABLE_GAMES.find(g => g.id === selectedGame)
+    if (!game) return
     onAssign({
       id: `assign-${Date.now()}`,
       gameId: selectedGame,
@@ -440,7 +441,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
           <button
             onClick={handleAssign}
             disabled={!selectedGame || !deadline}
-            className="flex-1 bg-accent hover:bg-orange-600 text-white py-2 rounded-lg
+            className="flex-1 bg-accent hover:bg-accent-dark text-white py-2 rounded-lg
                        font-semibold transition-colors disabled:opacity-50"
           >
             Zuweisen
@@ -454,9 +455,11 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
 export default function TeacherDashboard() {
   const { user } = useAuth()
   const [classes, setClasses] = useState(MOCK_CLASSES)
-  const [selectedClass, setSelectedClass] = useState(MOCK_CLASSES[0])
+  const [selectedClassId, setSelectedClassId] = useState(MOCK_CLASSES[0]?.id)
   const [showCreateClassModal, setShowCreateClassModal] = useState(false)
   const [showAssignGameModal, setShowAssignGameModal] = useState(false)
+
+  const selectedClass = classes.find(c => c.id === selectedClassId) || null
 
   // Redirect wenn kein Teacher Premium
   if (!isTeacherPremium(user)) {
@@ -472,7 +475,7 @@ export default function TeacherDashboard() {
         </p>
         <Link
           to="/premium"
-          className="inline-block bg-accent hover:bg-orange-600 text-white px-8 py-3
+          className="inline-block bg-accent hover:bg-accent-dark text-white px-8 py-3
                      rounded-lg font-semibold transition-colors"
         >
           Teacher Premium entdecken
@@ -483,18 +486,15 @@ export default function TeacherDashboard() {
 
   const handleCreateClass = (newClass) => {
     setClasses(prev => [...prev, newClass])
+    setSelectedClassId(newClass.id)
   }
 
   const handleAssignGame = (newAssignment) => {
     setClasses(prev => prev.map(cls =>
-      cls.id === selectedClass.id
+      cls.id === selectedClassId
         ? { ...cls, assignments: [...cls.assignments, newAssignment] }
         : cls
     ))
-    setSelectedClass(prev => ({
-      ...prev,
-      assignments: [...prev.assignments, newAssignment],
-    }))
   }
 
   return (
@@ -512,7 +512,7 @@ export default function TeacherDashboard() {
         <ClassSidebar
           classes={classes}
           selectedClass={selectedClass}
-          onSelect={setSelectedClass}
+          onSelect={(cls) => setSelectedClassId(cls.id)}
           onCreateNew={() => setShowCreateClassModal(true)}
         />
 

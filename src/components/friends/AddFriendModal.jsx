@@ -4,6 +4,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [isSearching, setIsSearching] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
   const [sentRequests, setSentRequests] = useState([])
 
   const handleSearch = async () => {
@@ -24,6 +25,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
     await new Promise(resolve => setTimeout(resolve, 300))
     setSearchResults(mockResults)
     setIsSearching(false)
+    setHasSearched(true)
   }
 
   const handleSendRequest = (userId) => {
@@ -52,7 +54,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
           <button
             onClick={handleSearch}
             disabled={isSearching || !searchQuery.trim()}
-            className="bg-accent hover:bg-orange-600 text-white px-4 py-2 rounded-lg
+            className="bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded-lg
                        font-medium transition-colors disabled:opacity-50"
           >
             {isSearching ? '...' : 'Suchen'}
@@ -78,7 +80,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
                   ${sentRequests.includes(user.uid)
                     ? 'bg-bg-hover text-text-muted cursor-default'
-                    : 'bg-accent hover:bg-orange-600 text-white'
+                    : 'bg-accent hover:bg-accent-dark text-white'
                   }`}
               >
                 {sentRequests.includes(user.uid) ? 'Gesendet' : 'Anfrage senden'}
@@ -86,7 +88,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
             </div>
           ))}
 
-          {searchResults.length === 0 && searchQuery && !isSearching && (
+          {searchResults.length === 0 && hasSearched && !isSearching && (
             <p className="text-center text-text-muted py-8">
               Kein User mit diesem Namen gefunden.
             </p>

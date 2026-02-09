@@ -5,16 +5,14 @@ import { timeAgo } from '../../utils/formatters'
 export default function FriendRequestCard({ request, onAccept, onDecline }) {
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleAccept = async () => {
+  const handleAccept = () => {
     setIsLoading(true)
-    await onAccept(request.friendshipId)
-    setIsLoading(false)
+    onAccept(request.friendshipId)
   }
 
-  const handleDecline = async () => {
+  const handleDecline = () => {
     setIsLoading(true)
-    await onDecline(request.friendshipId)
-    setIsLoading(false)
+    onDecline(request.friendshipId)
   }
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { MOCK_ASSETS, ASSET_TYPES, SORT_OPTIONS } from '../data/mockAssets'
 import AssetCard from '../components/marketplace/AssetCard'
 
@@ -79,7 +79,7 @@ function AssetDetailModal({ asset, onClose }) {
                 Kostenlos herunterladen
               </button>
             ) : (
-              <button className="w-full bg-accent hover:bg-orange-600 text-white py-3 rounded-lg
+              <button className="w-full bg-accent hover:bg-accent-dark text-white py-3 rounded-lg
                                  font-semibold transition-colors flex items-center justify-center gap-2">
                 {'\u{1F4B0}'} {asset.price} MindCoins - Kaufen
               </button>
@@ -95,21 +95,17 @@ function AssetDetailModal({ asset, onClose }) {
 }
 
 export default function Marketplace() {
-  const [assets] = useState(MOCK_ASSETS)
-  const [filteredAssets, setFilteredAssets] = useState(MOCK_ASSETS)
   const [activeType, setActiveType] = useState('all')
   const [sortBy, setSortBy] = useState('popular')
   const [selectedAsset, setSelectedAsset] = useState(null)
 
-  useEffect(() => {
-    let result = [...assets]
+  const filteredAssets = useMemo(() => {
+    let result = [...MOCK_ASSETS]
 
-    // Nach Typ filtern
     if (activeType !== 'all') {
       result = result.filter(a => a.type === activeType)
     }
 
-    // Sortieren
     switch (sortBy) {
       case 'popular':
         result.sort((a, b) => b.downloads - a.downloads)
@@ -128,8 +124,8 @@ export default function Marketplace() {
         break
     }
 
-    setFilteredAssets(result)
-  }, [assets, activeType, sortBy])
+    return result
+  }, [activeType, sortBy])
 
   return (
     <div className="max-w-6xl mx-auto p-6">
