@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
-import { NavLink } from 'react-router-dom'
-import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, Coins, ChevronLeft, ChevronRight, Diamond, X } from 'lucide-react'
+import { NavLink, Link } from 'react-router-dom'
+import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, Coins, ChevronLeft, ChevronRight, Diamond, X, LogIn } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import AvatarRenderer from '../profile/AvatarRenderer'
 
 const navItems = [
-  { to: '/', icon: Home, label: 'Home' },
+  { to: '/', icon: Home, label: 'Home', public: true },
   { to: '/profile/', icon: User, label: 'Profil', needsUsername: true },
-  { to: '/events', icon: Calendar, label: 'Events' },
+  { to: '/events', icon: Calendar, label: 'Events', public: true },
   { to: '/achievements', icon: Trophy, label: 'Achievements' },
   { to: '/friends', icon: Users, label: 'Friends' },
   { to: '/avatar', icon: Palette, label: 'Avatar' },
@@ -25,8 +25,6 @@ export default function Sidebar({ isOpen, onClose }) {
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', collapsed)
   }, [collapsed])
-
-  if (!user) return null
 
   const sidebarWidth = collapsed ? 'w-16' : 'w-60'
 
@@ -56,34 +54,52 @@ export default function Sidebar({ isOpen, onClose }) {
           <X className="w-5 h-5" />
         </button>
 
-        {/* User Avatar Section */}
+        {/* User Avatar Section / Login Prompt */}
         <div className={`px-3 py-3 border-b border-gray-700 mb-2 ${collapsed ? 'flex justify-center' : ''}`}>
-          <NavLink to={`/profile/${user.username}`} onClick={onClose} className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
-              <AvatarRenderer
-                skinColor={user.avatar?.skinColor}
-                hairColor={user.avatar?.hairColor}
-                hairStyle={user.avatar?.hairStyle}
-                eyeType={user.avatar?.eyes || user.avatar?.eyeType}
-                size={36}
-                username={user.username}
-              />
-            </div>
-            {!collapsed && (
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-text-primary truncate group-hover:text-accent transition-colors">{user.username}</p>
-                {user.activeTitle && (
-                  <p className="text-xs text-accent truncate">{user.activeTitle}</p>
-                )}
+          {user ? (
+            <NavLink to={`/profile/${user.username}`} onClick={onClose} className="flex items-center gap-3 group">
+              <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+                <AvatarRenderer
+                  skinColor={user.avatar?.skinColor}
+                  hairColor={user.avatar?.hairColor}
+                  hairStyle={user.avatar?.hairStyle}
+                  eyeType={user.avatar?.eyes || user.avatar?.eyeType}
+                  size={36}
+                  username={user.username}
+                />
               </div>
-            )}
-          </NavLink>
+              {!collapsed && (
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text-primary truncate group-hover:text-accent transition-colors">{user.username}</p>
+                  {user.activeTitle && (
+                    <p className="text-xs text-accent truncate">{user.activeTitle}</p>
+                  )}
+                </div>
+              )}
+            </NavLink>
+          ) : (
+            <Link to="/login" onClick={onClose} className="flex items-center gap-3 group">
+              <div className="w-9 h-9 rounded-full bg-bg-card flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 text-text-muted" />
+              </div>
+              {!collapsed && (
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text-secondary truncate group-hover:text-accent transition-colors">Anmelden</p>
+                </div>
+              )}
+            </Link>
+          )}
         </div>
 
         {/* Nav items */}
         <nav className="flex-1 flex flex-col gap-1 px-2">
           {navItems.map((item) => {
-            const to = item.needsUsername ? `/profile/${user.username}` : item.to
+            // Skip auth-required items for non-logged-in users
+            if (!user && !item.public) return null
+
+            const to = item.needsUsername
+              ? (user ? `/profile/${user.username}` : '/login')
+              : item.to
             const Icon = item.icon
 
             if (item.disabled) {
@@ -105,7 +121,9 @@ export default function Sidebar({ isOpen, onClose }) {
                 className={({ isActive }) => `
                   flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm
                   ${collapsed ? 'justify-center' : ''}
-                  ${isActive ? 'bg-bg-card text-accent' : 'text-text-secondary hover:bg-bg-card hover:text-text-primary'}
+                  ${isActive
+                    ? 'bg-accent/15 text-accent border-l-3 border-accent font-semibold'
+                    : 'text-text-secondary hover:bg-bg-card hover:text-text-primary'}
                 `}
               >
                 <Icon className="w-5 h-5 shrink-0" />
@@ -116,10 +134,10 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         {/* Premium button */}
-        {!user.isPremium && (
+        {(!user || !user.isPremium) && (
           <div className="px-2 mb-2">
             <NavLink
-              to="/premium"
+              to={user ? '/premium' : '/login'}
               onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors text-sm ${collapsed ? 'justify-center' : ''}`}
             >

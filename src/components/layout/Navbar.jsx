@@ -19,7 +19,7 @@ export default function Navbar({ onToggleSidebar }) {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-bg-secondary border-b border-gray-700 h-16 flex items-center px-4 gap-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-bg-secondary border-b border-gray-700 h-16 flex items-center px-4 gap-4">
       {/* Left: Logo + Nav */}
       <div className="flex items-center gap-4 flex-1">
         <button onClick={onToggleSidebar} className="lg:hidden text-text-secondary hover:text-text-primary">
