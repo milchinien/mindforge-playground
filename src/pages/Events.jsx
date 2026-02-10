@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Coins } from 'lucide-react'
+import MindCoinIcon from '../components/common/MindCoinIcon'
 import { MOCK_EVENTS } from '../data/mockEvents'
 import { useCountdown } from '../hooks/useCountdown'
 
@@ -55,7 +55,7 @@ function ActiveEventCard({ event }) {
 
       {/* Reward */}
       <div className="flex items-center gap-2 bg-bg-hover/50 rounded-lg px-4 py-3">
-        <Coins className="w-5 h-5 text-accent" />
+        <MindCoinIcon size={36} />
         <div>
           <p className="text-sm text-text-muted">Belohnung</p>
           <p className="text-text-primary font-semibold">{event.reward.description}</p>
@@ -83,7 +83,7 @@ function UpcomingEventCard({ event }) {
       <p className="text-xl font-mono font-bold text-warning">{countdown.formatted}</p>
 
       <div className="flex items-center gap-2 mt-3 text-sm">
-        <Coins className="w-4 h-4 text-accent" />
+        <MindCoinIcon size={32} />
         <span className="text-text-secondary">{event.reward.description}</span>
       </div>
     </div>
@@ -127,7 +127,7 @@ function EndedEventCard({ event }) {
       )}
 
       <div className="flex items-center gap-2 text-sm text-text-muted">
-        <Coins className="w-4 h-4" />
+        <MindCoinIcon size={32} />
         <span>{event.reward.description}</span>
         {event.userProgress?.rewardClaimed && (
           <span className="text-success ml-2">&#10003; Erhalten</span>

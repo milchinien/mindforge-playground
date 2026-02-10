@@ -1,5 +1,5 @@
-import { Coins } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import MindCoinIcon from '../components/common/MindCoinIcon'
 
 const MINDCOIN_PACKAGES = [
   {
@@ -55,7 +55,7 @@ function CoinPackageCard({ pkg, onPurchase }) {
       <h3 className="text-lg font-bold text-text-primary text-center mt-2">{pkg.name}</h3>
 
       <div className="text-center my-6">
-        <Coins className="w-10 h-10 text-accent mx-auto" />
+        <MindCoinIcon size={100} className="mx-auto" />
         <p className="text-3xl font-bold text-accent mt-2">
           {pkg.amount.toLocaleString('de-DE')} MC
         </p>
@@ -98,7 +98,7 @@ export default function Shop() {
 
       {/* Current balance */}
       <div className="bg-bg-card rounded-xl p-4 mb-8 inline-flex items-center gap-3 border border-gray-700">
-        <Coins className="w-8 h-8 text-accent" />
+        <MindCoinIcon size={56} />
         <div>
           <p className="text-sm text-text-muted">Dein Guthaben</p>
           <p className="text-2xl font-bold text-accent">{user?.mindCoins || 0} MindCoins</p>

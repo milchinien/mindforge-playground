@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sun, Moon, Lock, Trash2, Download, Bell } from 'lucide-react'
+import { Sun, Moon, Lock, Trash2, Download, Bell, LogOut } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../hooks/useTheme'
 import Modal from '../components/common/Modal'
@@ -25,7 +25,7 @@ function ToggleSwitch({ checked, onChange }) {
 }
 
 export default function Settings() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const { theme, setTheme, isDark } = useTheme()
   const navigate = useNavigate()
 
@@ -214,6 +214,25 @@ export default function Settings() {
             Account loeschen
           </button>
         </div>
+      </section>
+
+      {/* Logout */}
+      <section className="bg-bg-card rounded-xl p-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <LogOut size={20} />
+          Abmelden
+        </h2>
+        <p className="text-sm text-text-muted mb-4">Du wirst zur Login-Seite weitergeleitet.</p>
+        <button
+          onClick={async () => {
+            await logout()
+            navigate('/login')
+          }}
+          className="flex items-center justify-center gap-2 bg-error/10 hover:bg-error/20 text-error py-3 px-6 rounded-lg font-medium border border-error/30 transition-colors cursor-pointer"
+        >
+          <LogOut size={18} />
+          Abmelden
+        </button>
       </section>
 
       {/* Password Modal */}

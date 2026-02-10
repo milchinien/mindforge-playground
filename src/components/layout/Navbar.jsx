@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Settings, Coins, Menu } from 'lucide-react'
+import { Search, Settings, Menu } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import AvatarRenderer from '../profile/AvatarRenderer'
+import MindCoinIcon from '../common/MindCoinIcon'
 import NotificationDropdown from './NotificationDropdown'
 
 export default function Navbar({ onToggleSidebar }) {
@@ -56,7 +57,7 @@ export default function Navbar({ onToggleSidebar }) {
         {user ? (
           <>
             <Link to="/shop" className="hidden sm:flex items-center gap-1.5 bg-bg-card hover:bg-bg-hover px-3 py-1.5 rounded-lg transition-colors text-sm">
-              <Coins className="w-4 h-4 text-accent" />
+              <MindCoinIcon size={32} />
               <span className="font-semibold text-accent">{user.mindCoins || 0}</span>
               <span className="text-text-muted text-xs">MC</span>
             </Link>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, Coins, ChevronLeft, ChevronRight, Diamond, X, LogIn } from 'lucide-react'
+import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import MindCoinIcon from '../common/MindCoinIcon'
 import AvatarRenderer from '../profile/AvatarRenderer'
 
 const navItems = [
@@ -12,7 +13,7 @@ const navItems = [
   { to: '/friends', icon: Users, label: 'Friends' },
   { to: '/avatar', icon: Palette, label: 'Avatar' },
   { to: '/inventory', icon: Backpack, label: 'Inventory' },
-  { to: '/shop', icon: Coins, label: 'Shop' },
+  { to: '/shop', icon: (props) => <MindCoinIcon size={28} className="shrink-0" />, label: 'Shop' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 
