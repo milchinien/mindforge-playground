@@ -103,9 +103,19 @@ export default function GameDetail() {
 
         {/* Right Column: Info */}
         <div className="lg:col-span-2">
-          {/* Title + Premium Badge */}
-          <div className="flex items-start gap-3 mb-2">
+          {/* Title + Badges */}
+          <div className="flex items-start gap-3 mb-2 flex-wrap">
             <h1 className="text-3xl font-bold text-text-primary">{game.title}</h1>
+            {game.mode === 'template' && (
+              <span className="bg-blue-500/20 text-blue-400 text-xs font-bold px-2.5 py-1 rounded-md mt-1 flex-shrink-0">
+                Quiz
+              </span>
+            )}
+            {game.mode === 'freeform' && (
+              <span className="bg-purple-500/20 text-purple-400 text-xs font-bold px-2.5 py-1 rounded-md mt-1 flex-shrink-0">
+                Custom
+              </span>
+            )}
             {game.premium && (
               <span className="bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-md mt-1 flex-shrink-0">
                 {game.price > 0 ? `${game.price} MC` : 'Premium'}
@@ -133,6 +143,13 @@ export default function GameDetail() {
           <div className="mb-6">
             <TagList tags={game.tags} maxTags={10} size="md" />
           </div>
+
+          {/* Question count for template games */}
+          {game.mode === 'template' && game.questions && (
+            <p className="text-text-secondary text-sm mb-4">
+              {game.questions.length} Fragen
+            </p>
+          )}
 
           {/* Divider */}
           <div className="border-t border-bg-hover mb-4" />

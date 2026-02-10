@@ -16,6 +16,7 @@ export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -26,7 +27,7 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      await login(email, password)
+      await login(email, password, rememberMe)
       navigate('/')
     } catch (err) {
       setError(errorMessages[err.code] || 'Fehler beim Einloggen')
@@ -52,6 +53,16 @@ export default function Login() {
             <label>Passwort</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Passwort" required />
           </div>
+
+          <label className="flex items-center gap-2 cursor-pointer !mb-0">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="!w-4 !h-4 rounded"
+            />
+            <span className="text-text-secondary text-sm">Angemeldet bleiben (30 Tage)</span>
+          </label>
 
           {error && <p className="form-error">{error}</p>}
 

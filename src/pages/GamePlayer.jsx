@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getGameById } from '../data/mockGames'
 import { addToRecentlyPlayed } from './Home'
+import GameRenderer from '../components/gameRenderer/GameRenderer'
+import CustomCodeRenderer from '../components/gameRenderer/CustomCodeRenderer'
 
 function EscHint() {
   const [visible, setVisible] = useState(true)
@@ -35,6 +37,10 @@ export default function GamePlayer() {
       return
     }
     setGame(gameData)
+    // Template games don't need iframe loading
+    if (gameData.mode === 'template' || (gameData.mode === 'freeform' && gameData.code)) {
+      setIsLoading(false)
+    }
   }, [id, navigate])
 
   // Play counter + recently played
@@ -45,8 +51,10 @@ export default function GamePlayer() {
     }
   }, [game])
 
-  // ESC key handler
+  // ESC key handler (only for non-template games)
   useEffect(() => {
+    if (game?.mode === 'template') return // Template has its own navigation
+
     function handleKeyDown(e) {
       if (e.key === 'Escape') {
         setIsPaused(prev => !prev)
@@ -54,7 +62,7 @@ export default function GamePlayer() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [game])
 
   function handleRestart() {
     setIsLoading(true)
@@ -64,7 +72,44 @@ export default function GamePlayer() {
 
   if (!game) return null
 
-  // No gameUrl available
+  // Template mode: use GameRenderer (React component)
+  if (game.mode === 'template' && game.questions) {
+    return (
+      <GameRenderer
+        game={game}
+        onBack={() => navigate(`/game/${id}`)}
+        onRestart={handleRestart}
+      />
+    )
+  }
+
+  // Freeform mode with code: use CustomCodeRenderer
+  if (game.mode === 'freeform' && game.code) {
+    return (
+      <div className="fixed inset-0 bg-[#111827]">
+        <CustomCodeRenderer game={game} onBack={() => navigate(`/game/${id}`)} />
+
+        {/* ESC Hint */}
+        {!isPaused && <EscHint />}
+
+        {/* Pause Menu */}
+        {isPaused && (
+          <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-30">
+            <div className="bg-[#1f2937] rounded-2xl p-8 w-80 text-center">
+              <h2 className="text-2xl font-bold text-white mb-6">Pausiert</h2>
+              <div className="space-y-3">
+                <button onClick={() => setIsPaused(false)} className="w-full py-3 bg-[#f97316] hover:bg-[#ea580c] text-white rounded-lg font-semibold transition-colors cursor-pointer">Weiter spielen</button>
+                <button onClick={() => navigate(`/game/${id}`)} className="w-full py-3 bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors cursor-pointer">Zurueck zur Uebersicht</button>
+              </div>
+              <p className="text-[#6b7280] text-sm mt-4">{game.title}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // No gameUrl available (ZIP mode without URL)
   if (!game.gameUrl) {
     return (
       <div className="fixed inset-0 bg-[#111827] flex items-center justify-center">
@@ -83,9 +128,9 @@ export default function GamePlayer() {
     )
   }
 
+  // ZIP mode: iframe
   return (
     <div className="fixed inset-0 bg-[#111827]">
-      {/* iframe */}
       <iframe
         key={iframeKey}
         src={game.gameUrl}
@@ -116,28 +161,11 @@ export default function GamePlayer() {
         <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-30">
           <div className="bg-[#1f2937] rounded-2xl p-8 w-80 text-center">
             <h2 className="text-2xl font-bold text-white mb-6">Pausiert</h2>
-
             <div className="space-y-3">
-              <button
-                onClick={() => setIsPaused(false)}
-                className="w-full py-3 bg-[#f97316] hover:bg-[#ea580c] text-white rounded-lg font-semibold transition-colors cursor-pointer"
-              >
-                Weiter spielen
-              </button>
-              <button
-                onClick={handleRestart}
-                className="w-full py-3 bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors cursor-pointer"
-              >
-                Neu starten
-              </button>
-              <button
-                onClick={() => navigate(`/game/${id}`)}
-                className="w-full py-3 bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors cursor-pointer"
-              >
-                Zurueck zur Uebersicht
-              </button>
+              <button onClick={() => setIsPaused(false)} className="w-full py-3 bg-[#f97316] hover:bg-[#ea580c] text-white rounded-lg font-semibold transition-colors cursor-pointer">Weiter spielen</button>
+              <button onClick={handleRestart} className="w-full py-3 bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors cursor-pointer">Neu starten</button>
+              <button onClick={() => navigate(`/game/${id}`)} className="w-full py-3 bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors cursor-pointer">Zurueck zur Uebersicht</button>
             </div>
-
             <p className="text-[#6b7280] text-sm mt-4">{game.title}</p>
           </div>
         </div>

@@ -1,11 +1,10 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, X, Plus, Image, FileArchive, Tag, Trash2, Edit3 } from 'lucide-react'
+import { Upload, X, Plus, Image, FileArchive, Tag, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { mockGames } from '../data/mockGames'
-import GameCard from '../components/game/GameCard'
-import Modal from '../components/common/Modal'
 import ProgressBar from '../components/common/ProgressBar'
+import ModeSelector from '../components/gameBuilder/ModeSelector'
+import GameBuilderPage from '../components/gameBuilder/GameBuilderPage'
 
 // Suggested tags
 const SUGGESTED_TAGS = [
@@ -85,7 +84,7 @@ function DropZone({ onFileSelect, file, error }) {
   )
 }
 
-export default function Create() {
+function ZipUploadMode({ onBack }) {
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -108,10 +107,6 @@ export default function Create() {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadStep, setUploadStep] = useState('')
-  const [editGame, setEditGame] = useState(null)
-
-  // My games
-  const myGames = user ? mockGames.filter(g => g.creatorId === user.uid) : []
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -176,7 +171,6 @@ export default function Create() {
     setIsUploading(true)
     setErrors({})
 
-    // Simulate upload process
     const steps = [
       { step: 'Validiere Daten...', progress: 10 },
       { step: 'Bereite Upload vor...', progress: 15 },
@@ -194,12 +188,10 @@ export default function Create() {
       await new Promise(r => setTimeout(r, 500))
     }
 
-    // For MVP: simulate success
     setTimeout(() => {
       setIsUploading(false)
       setUploadProgress(0)
       setUploadStep('')
-      // Reset form
       setFormData({
         title: '', description: '', gameFile: null, thumbnail: null,
         thumbnailPreview: null, screenshots: [], screenshotPreviews: [],
@@ -215,32 +207,25 @@ export default function Create() {
 
   return (
     <div className="py-4 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Spiel erstellen</h1>
+      <button onClick={onBack} className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-6 cursor-pointer">
+        <ArrowLeft size={20} />
+        <span>Zurueck zur Modusauswahl</span>
+      </button>
+
+      <h1 className="text-3xl font-bold mb-8">ZIP Upload</h1>
 
       <div className="space-y-6">
         {/* Title */}
         <div>
           <label>Titel</label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => updateField('title', e.target.value)}
-            placeholder="Gib deinem Spiel einen Titel..."
-            maxLength={100}
-          />
+          <input type="text" value={formData.title} onChange={(e) => updateField('title', e.target.value)} placeholder="Gib deinem Spiel einen Titel..." maxLength={100} />
           {errors.title && <p className="form-error">{errors.title}</p>}
         </div>
 
         {/* Description */}
         <div>
           <label>Beschreibung</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => updateField('description', e.target.value)}
-            placeholder="Beschreibe dein Spiel..."
-            rows={5}
-            maxLength={2000}
-          />
+          <textarea value={formData.description} onChange={(e) => updateField('description', e.target.value)} placeholder="Beschreibe dein Spiel..." rows={5} maxLength={2000} />
           <p className="text-text-muted text-xs mt-1 text-right">{formData.description.length}/2000</p>
           {errors.description && <p className="form-error">{errors.description}</p>}
         </div>
@@ -248,11 +233,7 @@ export default function Create() {
         {/* Game File (ZIP) */}
         <div>
           <label>Spiel-Datei (ZIP)</label>
-          <DropZone
-            onFileSelect={(file) => updateField('gameFile', file)}
-            file={formData.gameFile}
-            error={errors.gameFile}
-          />
+          <DropZone onFileSelect={(file) => updateField('gameFile', file)} file={formData.gameFile} error={errors.gameFile} />
           {errors.gameFile && <p className="form-error">{errors.gameFile}</p>}
         </div>
 
@@ -262,15 +243,8 @@ export default function Create() {
           <div className="flex items-center gap-4">
             {formData.thumbnailPreview ? (
               <div className="relative">
-                <img
-                  src={formData.thumbnailPreview}
-                  alt="Thumbnail Vorschau"
-                  className="w-40 h-24 object-cover rounded-lg"
-                />
-                <button
-                  onClick={() => { updateField('thumbnail', null); updateField('thumbnailPreview', null) }}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-error rounded-full flex items-center justify-center text-white"
-                >
+                <img src={formData.thumbnailPreview} alt="Thumbnail Vorschau" className="w-40 h-24 object-cover rounded-lg" />
+                <button onClick={() => { updateField('thumbnail', null); updateField('thumbnailPreview', null) }} className="absolute -top-2 -right-2 w-6 h-6 bg-error rounded-full flex items-center justify-center text-white">
                   <X size={12} />
                 </button>
               </div>
@@ -283,13 +257,7 @@ export default function Create() {
               <label htmlFor="thumbnail-input" className="bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer inline-block !mb-0">
                 Bild auswaehlen
               </label>
-              <input
-                id="thumbnail-input"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={handleThumbnailSelect}
-                className="hidden"
-              />
+              <input id="thumbnail-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleThumbnailSelect} className="hidden" />
               <p className="text-text-muted text-xs mt-1">PNG, JPG oder WebP. Max 5 MB.</p>
             </div>
           </div>
@@ -303,10 +271,7 @@ export default function Create() {
             {formData.screenshotPreviews.map((src, idx) => (
               <div key={idx} className="relative">
                 <img src={src} alt={`Screenshot ${idx + 1}`} className="w-24 h-16 object-cover rounded-lg" />
-                <button
-                  onClick={() => removeScreenshot(idx)}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error rounded-full flex items-center justify-center text-white"
-                >
+                <button onClick={() => removeScreenshot(idx)} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error rounded-full flex items-center justify-center text-white">
                   <X size={10} />
                 </button>
               </div>
@@ -314,13 +279,7 @@ export default function Create() {
             {formData.screenshots.length < 5 && (
               <label className="w-24 h-16 bg-bg-card rounded-lg flex items-center justify-center border border-dashed border-gray-600 cursor-pointer hover:border-gray-500 transition-colors">
                 <Plus size={20} className="text-text-muted" />
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  onChange={handleScreenshotAdd}
-                  className="hidden"
-                  multiple
-                />
+                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleScreenshotAdd} className="hidden" multiple />
               </label>
             )}
           </div>
@@ -333,43 +292,20 @@ export default function Create() {
             {formData.tags.map(tag => (
               <span key={tag} className="flex items-center gap-1 bg-primary/20 text-primary-light px-3 py-1 rounded-full text-sm">
                 #{tag}
-                <button onClick={() => removeTag(tag)} className="hover:text-error transition-colors cursor-pointer">
-                  <X size={12} />
-                </button>
+                <button onClick={() => removeTag(tag)} className="hover:text-error transition-colors cursor-pointer"><X size={12} /></button>
               </span>
             ))}
           </div>
           {formData.tags.length < 10 && (
             <div className="relative">
               <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => { setTagInput(e.target.value); setShowTagSuggestions(true) }}
-                  onFocus={() => setShowTagSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowTagSuggestions(false), 150)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput); setShowTagSuggestions(false) } }}
-                  placeholder="Tag hinzufuegen..."
-                  className="!flex-1"
-                />
-                <button
-                  onClick={() => { addTag(tagInput); setShowTagSuggestions(false) }}
-                  className="bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer"
-                >
-                  <Tag size={16} />
-                </button>
+                <input type="text" value={tagInput} onChange={(e) => { setTagInput(e.target.value); setShowTagSuggestions(true) }} onFocus={() => setShowTagSuggestions(true)} onBlur={() => setTimeout(() => setShowTagSuggestions(false), 150)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput); setShowTagSuggestions(false) } }} placeholder="Tag hinzufuegen..." className="!flex-1" />
+                <button onClick={() => { addTag(tagInput); setShowTagSuggestions(false) }} className="bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer"><Tag size={16} /></button>
               </div>
               {showTagSuggestions && tagInput && filteredSuggestions.length > 0 && (
                 <div className="absolute top-full left-0 right-12 mt-1 bg-bg-secondary border border-gray-700 rounded-lg overflow-hidden z-10 shadow-lg">
                   {filteredSuggestions.map(tag => (
-                    <button
-                      key={tag}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => { addTag(tag); setShowTagSuggestions(false) }}
-                      className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-hover transition-colors cursor-pointer"
-                    >
-                      #{tag}
-                    </button>
+                    <button key={tag} onMouseDown={(e) => e.preventDefault()} onClick={() => { addTag(tag); setShowTagSuggestions(false) }} className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-hover transition-colors cursor-pointer">#{tag}</button>
                   ))}
                 </div>
               )}
@@ -384,31 +320,14 @@ export default function Create() {
           <label>Preis</label>
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer !mb-0">
-              <input
-                type="radio"
-                checked={formData.isFree}
-                onChange={() => updateField('isFree', true)}
-                className="!w-4 !h-4"
-              />
+              <input type="radio" checked={formData.isFree} onChange={() => updateField('isFree', true)} className="!w-4 !h-4" />
               <span className="text-text-primary text-sm">Kostenlos</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer !mb-0">
-              <input
-                type="radio"
-                checked={!formData.isFree}
-                onChange={() => updateField('isFree', false)}
-                className="!w-4 !h-4"
-              />
+              <input type="radio" checked={!formData.isFree} onChange={() => updateField('isFree', false)} className="!w-4 !h-4" />
               <span className="text-text-primary text-sm">MindCoins:</span>
               {!formData.isFree && (
-                <input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => updateField('price', parseInt(e.target.value) || 0)}
-                  min={1}
-                  max={9999}
-                  className="!w-24 !py-1 !text-sm"
-                />
+                <input type="number" value={formData.price} onChange={(e) => updateField('price', parseInt(e.target.value) || 0)} min={1} max={9999} className="!w-24 !py-1 !text-sm" />
               )}
             </label>
           </div>
@@ -424,91 +343,47 @@ export default function Create() {
           </div>
         )}
 
-        {/* Upload Error */}
         {errors.upload && (
           <div className="bg-error/10 border border-error/30 rounded-lg p-4">
             <p className="text-error">{errors.upload}</p>
           </div>
         )}
 
-        {/* Submit Button */}
-        <button
-          onClick={handleUpload}
-          disabled={isUploading}
-          className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-lg"
-        >
+        <button onClick={handleUpload} disabled={isUploading} className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-lg">
           {isUploading ? 'Wird hochgeladen...' : 'Spiel hochladen'}
         </button>
       </div>
-
-      {/* Divider */}
-      <div className="border-t border-gray-700 my-10" />
-
-      {/* My Games */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Meine Spiele ({myGames.length})</h2>
-        {myGames.length > 0 ? (
-          <div className="flex flex-wrap gap-4">
-            {myGames.map(game => (
-              <div key={game.id} className="relative group">
-                <GameCard game={game} />
-                <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setEditGame(game) }}
-                    className="bg-bg-secondary/90 hover:bg-bg-card p-1.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    <Edit3 size={14} className="text-text-secondary" />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); alert('Loeschen ist im MVP nur simuliert.') }}
-                    className="bg-bg-secondary/90 hover:bg-error/20 p-1.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    <Trash2 size={14} className="text-error" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-text-muted text-center py-8">
-            Du hast noch keine Spiele erstellt. Lade dein erstes Spiel hoch!
-          </p>
-        )}
-      </div>
-
-      {/* Edit Game Modal */}
-      <Modal
-        isOpen={!!editGame}
-        onClose={() => setEditGame(null)}
-        title="Spiel bearbeiten"
-      >
-        {editGame && (
-          <div className="space-y-4">
-            <div>
-              <label>Titel</label>
-              <input type="text" defaultValue={editGame.title} />
-            </div>
-            <div>
-              <label>Beschreibung</label>
-              <textarea defaultValue={editGame.description} rows={3} />
-            </div>
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={() => setEditGame(null)}
-                className="flex-1 bg-bg-card hover:bg-bg-hover text-text-secondary py-2.5 rounded-lg transition-colors cursor-pointer"
-              >
-                Abbrechen
-              </button>
-              <button
-                onClick={() => { setEditGame(null); alert('Speichern ist im MVP nur simuliert.') }}
-                className="flex-1 bg-accent hover:bg-accent-dark text-white py-2.5 rounded-lg transition-colors cursor-pointer font-semibold"
-              >
-                Speichern
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
     </div>
   )
+}
+
+const CodeEditorLayout = lazy(() => import('../components/codeEditor/CodeEditorLayout'))
+
+export default function Create() {
+  const { user } = useAuth()
+  const [mode, setMode] = useState(null)
+  const [editDraftId, setEditDraftId] = useState(null)
+
+  const handleBack = () => {
+    setMode(null)
+    setEditDraftId(null)
+  }
+
+  if (mode === 'template') {
+    return <GameBuilderPage editDraftId={editDraftId} onBack={handleBack} />
+  }
+
+  if (mode === 'freeform') {
+    return (
+      <Suspense fallback={<div className="text-center py-20 text-text-muted">Code Editor wird geladen...</div>}>
+        <CodeEditorLayout onBack={handleBack} />
+      </Suspense>
+    )
+  }
+
+  if (mode === 'zip') {
+    return <ZipUploadMode onBack={handleBack} />
+  }
+
+  return <ModeSelector onSelect={setMode} />
 }

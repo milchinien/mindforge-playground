@@ -34,7 +34,10 @@ export default function Navbar({ onToggleSidebar }) {
           <Link to="/events" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Events</Link>
           <Link to="/marketplace" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Marketplace</Link>
           {user?.isPremium && (
-            <Link to="/create" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Create</Link>
+            <>
+              <Link to="/create" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Create</Link>
+              <Link to="/my-games" className="text-text-secondary hover:text-text-primary text-sm transition-colors">Meine Spiele</Link>
+            </>
           )}
         </div>
 

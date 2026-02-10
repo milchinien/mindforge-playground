@@ -1,4 +1,14 @@
-export const mockGames = [
+// Merge published games from localStorage at startup
+function loadPublishedGames() {
+  try {
+    const stored = localStorage.getItem('mindforge_published_games')
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+const baseGames = [
   // === FEATURED GAMES ===
   {
     id: "game-001",
@@ -19,7 +29,8 @@ export const mockGames = [
     createdAt: "2024-12-15",
     category: "quiz",
     subject: "mathematik",
-    gameUrl: "/demo-games/mathe-quiz/index.html"
+    gameUrl: "/demo-games/mathe-quiz/index.html",
+    mode: "zip"
   },
   {
     id: "game-002",
@@ -40,7 +51,8 @@ export const mockGames = [
     createdAt: "2024-11-20",
     category: "simulation",
     subject: "physik",
-    gameUrl: "/demo-games/physik-sim/index.html"
+    gameUrl: "/demo-games/physik-sim/index.html",
+    mode: "zip"
   },
   {
     id: "game-003",
@@ -61,7 +73,8 @@ export const mockGames = [
     createdAt: "2025-01-05",
     category: "simulation",
     subject: "chemie",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-004",
@@ -82,7 +95,8 @@ export const mockGames = [
     createdAt: "2025-01-10",
     category: "quiz",
     subject: "deutsch",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-005",
@@ -103,7 +117,8 @@ export const mockGames = [
     createdAt: "2024-10-28",
     category: "quiz",
     subject: "geographie",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
 
   // === REGULAR GAMES ===
@@ -126,7 +141,8 @@ export const mockGames = [
     createdAt: "2025-01-18",
     category: "puzzle",
     subject: "biologie",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-007",
@@ -147,7 +163,8 @@ export const mockGames = [
     createdAt: "2024-12-01",
     category: "quiz",
     subject: "englisch",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-008",
@@ -168,7 +185,8 @@ export const mockGames = [
     createdAt: "2024-11-15",
     category: "adventure",
     subject: "geschichte",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-009",
@@ -189,7 +207,8 @@ export const mockGames = [
     createdAt: "2024-12-22",
     category: "puzzle",
     subject: "informatik",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-010",
@@ -210,7 +229,8 @@ export const mockGames = [
     createdAt: "2025-01-20",
     category: "simulation",
     subject: "kunst",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-011",
@@ -231,7 +251,8 @@ export const mockGames = [
     createdAt: "2025-02-01",
     category: "puzzle",
     subject: "musik",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-012",
@@ -252,7 +273,8 @@ export const mockGames = [
     createdAt: "2024-12-08",
     category: "quiz",
     subject: "mathematik",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-013",
@@ -273,7 +295,8 @@ export const mockGames = [
     createdAt: "2024-11-05",
     category: "simulation",
     subject: "chemie",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-014",
@@ -294,7 +317,8 @@ export const mockGames = [
     createdAt: "2024-10-15",
     category: "strategy",
     subject: "geschichte",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-015",
@@ -315,7 +339,8 @@ export const mockGames = [
     createdAt: "2024-12-30",
     category: "adventure",
     subject: "informatik",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-016",
@@ -336,7 +361,8 @@ export const mockGames = [
     createdAt: "2025-01-25",
     category: "simulation",
     subject: "biologie",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   },
   {
     id: "game-017",
@@ -357,9 +383,39 @@ export const mockGames = [
     createdAt: "2025-02-05",
     category: "quiz",
     subject: "deutsch",
-    gameUrl: null
+    gameUrl: null,
+    mode: "zip"
   }
 ]
+
+// Merge published games from localStorage into the runtime array
+const publishedGames = loadPublishedGames()
+export const mockGames = [...baseGames, ...publishedGames]
+
+export function addPublishedGame(game) {
+  mockGames.push(game)
+  const stored = loadPublishedGames()
+  stored.push(game)
+  localStorage.setItem('mindforge_published_games', JSON.stringify(stored))
+}
+
+export function removePublishedGame(gameId) {
+  const idx = mockGames.findIndex(g => g.id === gameId)
+  if (idx !== -1) mockGames.splice(idx, 1)
+  const stored = loadPublishedGames().filter(g => g.id !== gameId)
+  localStorage.setItem('mindforge_published_games', JSON.stringify(stored))
+}
+
+export function updatePublishedGame(gameId, updates) {
+  const game = mockGames.find(g => g.id === gameId)
+  if (game) Object.assign(game, updates)
+  const stored = loadPublishedGames()
+  const storedGame = stored.find(g => g.id === gameId)
+  if (storedGame) {
+    Object.assign(storedGame, updates)
+    localStorage.setItem('mindforge_published_games', JSON.stringify(stored))
+  }
+}
 
 // === Hilfsfunktionen ===
 

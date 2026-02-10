@@ -14,6 +14,8 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom'],
           'vendor-router': ['react-router-dom'],
           'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          'vendor-monaco': ['@monaco-editor/react'],
+          'vendor-dndkit': ['@dnd-kit/core', '@dnd-kit/sortable'],
         },
       },
     },

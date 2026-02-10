@@ -3,6 +3,36 @@ import { devAuth, devDb } from '../firebase/devAuth'
 
 const USE_DEV_AUTH = import.meta.env.DEV
 
+const SESSION_KEY = 'mindforge_session'
+
+function getSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY)
+    if (!raw) return null
+    const session = JSON.parse(raw)
+    if (Date.now() > session.expiresAt) {
+      localStorage.removeItem(SESSION_KEY)
+      return null
+    }
+    return session
+  } catch {
+    return null
+  }
+}
+
+function setSession(uid, email, rememberMe) {
+  const duration = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    uid, email, rememberMe,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + duration,
+  }))
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY)
+}
+
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
@@ -11,6 +41,20 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (USE_DEV_AUTH) {
+      // Check for existing session first
+      const session = getSession()
+      if (session && !devAuth.currentUser) {
+        // Restore session
+        devAuth.currentUser = { uid: session.uid, email: session.email }
+        const stored = localStorage.getItem('mindforge_dev_user')
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            devAuth.currentUser = parsed
+          } catch { /* ignore */ }
+        }
+      }
+
       const unsubscribe = devAuth.onAuthStateChanged(async (devUser) => {
         if (devUser) {
           const userDoc = await devDb.getDoc(devDb.doc('users', devUser.uid))
@@ -52,13 +96,14 @@ export function AuthProvider({ children }) {
     return () => { if (unsubscribe) unsubscribe() }
   }, [])
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     if (USE_DEV_AUTH) {
       const result = await devAuth.signInWithEmailAndPassword(email, password)
       const userDoc = await devDb.getDoc(devDb.doc('users', result.user.uid))
       if (userDoc.exists()) {
         setUser({ uid: result.user.uid, ...userDoc.data() })
       }
+      setSession(result.user.uid, email, rememberMe)
       return result
     }
 
@@ -70,6 +115,7 @@ export function AuthProvider({ children }) {
     if (userDoc.exists()) {
       setUser({ uid: result.user.uid, ...userDoc.data() })
     }
+    setSession(result.user.uid, email, rememberMe)
     return result
   }
 
@@ -145,6 +191,7 @@ export function AuthProvider({ children }) {
       await signOut(auth)
     }
     setUser(null)
+    clearSession()
   }
 
   return (

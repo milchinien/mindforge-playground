@@ -34,6 +34,30 @@ const TEST_ACCOUNTS = [
       hasSeenWelcome: true,
     },
   },
+  {
+    uid: 'dev-user-dev',
+    email: 'dev@mindforge.dev',
+    password: 'dev1234',
+    profile: {
+      uid: 'dev-user-dev',
+      username: 'DevAccount',
+      email: 'dev@mindforge.dev',
+      createdAt: new Date('2024-01-01'),
+      avatar: { skinColor: '#f5d0a9', hairColor: '#ff6600', hairStyle: 'short', eyes: 'happy' },
+      bio: 'Developer Super-Account - Voller Zugriff auf alle Features',
+      isPremium: true,
+      premiumTier: 'dev',
+      isTeacher: true,
+      totalPlays: 999,
+      gamesCreated: 50,
+      followers: 9999,
+      following: 0,
+      mindCoins: 99999,
+      theme: 'dark',
+      activeTitle: 'Developer',
+      hasSeenWelcome: true,
+    },
+  },
 ]
 
 const STORAGE_KEY = 'mindforge_dev_user'

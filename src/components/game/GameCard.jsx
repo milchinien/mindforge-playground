@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Heart, Play } from 'lucide-react'
+import { Heart, Play, Layers, Code, FileArchive } from 'lucide-react'
 import { formatNumber } from '../../utils/formatters'
 import { getSubjectConfig } from '../../data/subjectConfig'
 import TagList from './TagList'
@@ -46,6 +46,14 @@ export default function GameCard({ game }) {
         {game.thumbnail && (
           <div className="hidden w-full h-40">
             <ThumbnailPlaceholder title={game.title} subject={game.subject} />
+          </div>
+        )}
+
+        {/* Mode Indicator */}
+        {game.mode && game.mode !== 'zip' && (
+          <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded flex items-center gap-1">
+            {game.mode === 'template' ? <Layers size={10} /> : <Code size={10} />}
+            {game.mode === 'template' ? 'Quiz' : 'Custom'}
           </div>
         )}
 

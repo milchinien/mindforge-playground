@@ -26,6 +26,7 @@ const Achievements = lazy(() => import('./pages/Achievements'))
 const Marketplace = lazy(() => import('./pages/Marketplace'))
 const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'))
 const Friends = lazy(() => import('./pages/Friends'))
+const CreatorDashboard = lazy(() => import('./components/creatorDashboard/CreatorDashboard'))
 
 function PageLoader() {
   return (
@@ -82,6 +83,7 @@ function App() {
 
                       {/* Premium-only */}
                       <Route path="/create" element={<ProtectedRoute requirePremium><Create /></ProtectedRoute>} />
+                      <Route path="/my-games" element={<ProtectedRoute requirePremium><CreatorDashboard /></ProtectedRoute>} />
 
                       {/* Teacher-only */}
                       <Route path="/teacher" element={<ProtectedRoute requireTeacher><TeacherDashboard /></ProtectedRoute>} />

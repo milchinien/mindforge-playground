@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn } from 'lucide-react'
+import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn, Gamepad2 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import MindCoinIcon from '../common/MindCoinIcon'
 import AvatarRenderer from '../profile/AvatarRenderer'
@@ -9,6 +9,7 @@ const navItems = [
   { to: '/', icon: Home, label: 'Home', public: true },
   { to: '/profile/', icon: User, label: 'Profil', needsUsername: true },
   { to: '/events', icon: Calendar, label: 'Events', public: true },
+  { to: '/my-games', icon: Gamepad2, label: 'Meine Spiele', premiumOnly: true },
   { to: '/achievements', icon: Trophy, label: 'Achievements' },
   { to: '/friends', icon: Users, label: 'Friends' },
   { to: '/avatar', icon: Palette, label: 'Avatar' },
@@ -97,6 +98,7 @@ export default function Sidebar({ isOpen, onClose }) {
           {navItems.map((item) => {
             // Skip auth-required items for non-logged-in users
             if (!user && !item.public) return null
+            if (item.premiumOnly && !user?.isPremium) return null
 
             const to = item.needsUsername
               ? (user ? `/profile/${user.username}` : '/login')
