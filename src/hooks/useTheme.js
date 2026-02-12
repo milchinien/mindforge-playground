@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react'
 
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('mindforge-theme')
-    if (saved) return saved
-    if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light'
+    try {
+      const saved = localStorage.getItem('mindforge-theme')
+      if (saved) return saved
+    } catch { /* Private browsing / storage unavailable */ }
+    try {
+      if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light'
+    } catch { /* matchMedia not supported */ }
     return 'dark'
   })
 
@@ -15,7 +19,7 @@ export function useTheme() {
     } else {
       root.classList.remove('light')
     }
-    localStorage.setItem('mindforge-theme', theme)
+    try { localStorage.setItem('mindforge-theme', theme) } catch { /* ignore */ }
   }, [theme])
 
   const toggleTheme = () => {

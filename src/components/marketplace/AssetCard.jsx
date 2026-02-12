@@ -1,13 +1,15 @@
 import { ASSET_TYPES } from '../../data/mockAssets'
+import MindCoinIcon from '../common/MindCoinIcon'
 
 const TYPE_ICONS = {
   '3d-model': '\u{1F9CA}',
   'texture': '\u{1F3A8}',
   'audio': '\u{1F3B5}',
   'script': '\u{1F4DC}',
+  'avatar-item': '\u{1F464}',
 }
 
-export default function AssetCard({ asset, onClick }) {
+export default function AssetCard({ asset, onClick, purchased }) {
   const isFree = asset.price === 0
 
   return (
@@ -22,7 +24,7 @@ export default function AssetCard({ asset, onClick }) {
         {asset.previewImage ? (
           <img src={asset.previewImage} alt={asset.name} className="w-full h-full object-cover" />
         ) : (
-          <span className="opacity-50">{TYPE_ICONS[asset.type] || '\u{1F4E6}'}</span>
+          <span className="opacity-50">{asset.avatarIcon || TYPE_ICONS[asset.type] || '\u{1F4E6}'}</span>
         )}
       </div>
 
@@ -55,11 +57,13 @@ export default function AssetCard({ asset, onClick }) {
 
         {/* Preis */}
         <div className="mt-3 pt-3 border-t border-gray-700">
-          {isFree ? (
+          {purchased ? (
+            <span className="text-success font-semibold">Gekauft</span>
+          ) : isFree ? (
             <span className="text-success font-semibold">Kostenlos</span>
           ) : (
             <span className="flex items-center gap-1 font-semibold text-accent">
-              {'\u{1F4B0}'} {asset.price} MC
+              <MindCoinIcon size={18} /> {asset.price} MC
             </span>
           )}
         </div>

@@ -23,7 +23,7 @@ export default function QuizRenderer({ game, onBack, onRestart }) {
       ? [...allQuestions].sort(() => Math.random() - 0.5)
       : [...allQuestions]
     setQuestions(q)
-  }, [])
+  }, [settings.randomOrder, allQuestions])
 
   // Timer
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function QuizRenderer({ game, onBack, onRestart }) {
   // Reset timer on question change
   useEffect(() => {
     if (settings.timeLimit) setTimeLeft(settings.timeLimit)
-  }, [currentIndex])
+  }, [currentIndex, settings.timeLimit])
 
   const currentQuestion = questions[currentIndex]
 

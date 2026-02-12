@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import { MOCK_ASSETS, ASSET_TYPES, SORT_OPTIONS } from '../data/mockAssets'
 import AssetCard from '../components/marketplace/AssetCard'
+import MindCoinIcon from '../components/common/MindCoinIcon'
 import useEscapeKey from '../hooks/useEscapeKey'
 
 const TYPE_ICONS = {
@@ -8,11 +10,24 @@ const TYPE_ICONS = {
   'texture': '\u{1F3A8}',
   'audio': '\u{1F3B5}',
   'script': '\u{1F4DC}',
+  'avatar-item': '\u{1F464}',
 }
 
-function AssetDetailModal({ asset, onClose }) {
+function AssetDetailModal({ asset, onClose, onPurchase, isPurchased, userCoins }) {
   const isFree = asset.price === 0
+  const canAfford = userCoins >= asset.price
+  const [feedback, setFeedback] = useState(null)
   useEscapeKey(onClose)
+
+  const handleBuy = () => {
+    if (isPurchased) return
+    if (!isFree && !canAfford) {
+      setFeedback({ type: 'error', msg: 'Nicht genug MindCoins!' })
+      return
+    }
+    onPurchase(asset)
+    setFeedback({ type: 'success', msg: 'Erfolgreich gekauft!' })
+  }
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
@@ -22,7 +37,7 @@ function AssetDetailModal({ asset, onClose }) {
            onClick={(e) => e.stopPropagation()}>
         {/* Preview */}
         <div className="aspect-video bg-bg-hover flex items-center justify-center text-6xl">
-          {TYPE_ICONS[asset.type] || '\u{1F4E6}'}
+          {asset.avatarIcon || TYPE_ICONS[asset.type] || '\u{1F4E6}'}
         </div>
 
         {/* Content */}
@@ -74,22 +89,44 @@ function AssetDetailModal({ asset, onClose }) {
             ))}
           </div>
 
+          {/* Feedback */}
+          {feedback && (
+            <div className={`mt-4 p-3 rounded-lg text-sm font-medium ${
+              feedback.type === 'success' ? 'bg-success/20 text-success' : 'bg-error/20 text-error'
+            }`}>
+              {feedback.msg}
+            </div>
+          )}
+
           {/* Kauf-Button */}
           <div className="mt-6 pt-4 border-t border-gray-700">
-            {isFree ? (
-              <button className="w-full bg-success hover:bg-green-600 text-white py-3 rounded-lg
-                                 font-semibold transition-colors">
+            {isPurchased ? (
+              <button disabled className="w-full bg-success/20 text-success py-3 rounded-lg
+                                         font-semibold border border-success/30 cursor-default">
+                Bereits gekauft
+              </button>
+            ) : isFree ? (
+              <button onClick={handleBuy}
+                      className="w-full bg-success hover:bg-green-600 text-white py-3 rounded-lg
+                                 font-semibold transition-colors cursor-pointer">
                 Kostenlos herunterladen
               </button>
             ) : (
-              <button className="w-full bg-accent hover:bg-accent-dark text-white py-3 rounded-lg
-                                 font-semibold transition-colors flex items-center justify-center gap-2">
-                {'\u{1F4B0}'} {asset.price} MindCoins - Kaufen
+              <button onClick={handleBuy}
+                      disabled={!canAfford}
+                      className={`w-full py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
+                        canAfford
+                          ? 'bg-accent hover:bg-accent-dark text-white cursor-pointer'
+                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }`}>
+                <MindCoinIcon size={20} /> {asset.price} MindCoins - Kaufen
               </button>
             )}
-            <p className="text-xs text-text-muted text-center mt-2">
-              Kauf-Funktion kommt bald! (MVP-Platzhalter)
-            </p>
+            {!isPurchased && !isFree && !canAfford && (
+              <p className="text-xs text-error text-center mt-2">
+                Du brauchst {asset.price - userCoins} weitere MindCoins
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -98,9 +135,32 @@ function AssetDetailModal({ asset, onClose }) {
 }
 
 export default function Marketplace() {
+  const { user, updateUser } = useAuth()
   const [activeType, setActiveType] = useState('all')
   const [sortBy, setSortBy] = useState('popular')
   const [selectedAsset, setSelectedAsset] = useState(null)
+
+  const purchasedIds = user?.purchasedItems?.map(i => i.id) || []
+
+  const handlePurchase = async (asset) => {
+    if (purchasedIds.includes(asset.id)) return
+
+    const newCoins = (user?.mindCoins || 0) - asset.price
+    const newItem = {
+      id: asset.id,
+      name: asset.name,
+      type: asset.type,
+      icon: asset.avatarIcon || TYPE_ICONS[asset.type] || '\u{1F4E6}',
+      rarity: asset.rarity || 'common',
+      purchasedAt: new Date().toISOString(),
+    }
+    const currentPurchased = user?.purchasedItems || []
+
+    await updateUser({
+      mindCoins: newCoins,
+      purchasedItems: [...currentPurchased, newItem],
+    })
+  }
 
   const filteredAssets = useMemo(() => {
     let result = [...MOCK_ASSETS]
@@ -176,6 +236,7 @@ export default function Marketplace() {
               key={asset.id}
               asset={asset}
               onClick={() => setSelectedAsset(asset)}
+              purchased={purchasedIds.includes(asset.id)}
             />
           ))}
         </div>
@@ -196,6 +257,9 @@ export default function Marketplace() {
         <AssetDetailModal
           asset={selectedAsset}
           onClose={() => setSelectedAsset(null)}
+          onPurchase={handlePurchase}
+          isPurchased={purchasedIds.includes(selectedAsset.id)}
+          userCoins={user?.mindCoins || 0}
         />
       )}
     </div>

@@ -111,8 +111,129 @@ function renderEyes(type) {
   }
 }
 
-export default function AvatarRenderer({ skinColor, hairColor, hairStyle, eyeType, size = 200, username }) {
-  // Fallback: just initials on colored circle
+function renderEyebrows(type) {
+  switch (type) {
+    case 'normal':
+      return (
+        <>
+          <path d="M 64 92 Q 75 88 86 92" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M 114 92 Q 125 88 136 92" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        </>
+      )
+    case 'thick':
+      return (
+        <>
+          <path d="M 62 93 Q 75 86 88 93" stroke="#333" strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d="M 112 93 Q 125 86 138 93" stroke="#333" strokeWidth="4" fill="none" strokeLinecap="round" />
+        </>
+      )
+    case 'arched':
+      return (
+        <>
+          <path d="M 64 95 Q 72 84 86 90" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M 136 95 Q 128 84 114 90" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        </>
+      )
+    case 'angry':
+      return (
+        <>
+          <path d="M 64 88 Q 75 92 86 88" stroke="#555" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M 114 88 Q 125 92 136 88" stroke="#555" strokeWidth="3" fill="none" strokeLinecap="round" />
+        </>
+      )
+    default:
+      return null
+  }
+}
+
+function renderMouth(type) {
+  switch (type) {
+    case 'smile':
+      return (
+        <path d="M 82 130 Q 100 142 118 130" stroke="#333" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      )
+    case 'neutral':
+      return (
+        <path d="M 85 134 L 115 134" stroke="#333" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      )
+    case 'open':
+      return (
+        <ellipse cx="100" cy="135" rx="12" ry="8" fill="#333" />
+      )
+    case 'smirk':
+      return (
+        <path d="M 85 133 Q 100 133 118 128" stroke="#333" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      )
+    default:
+      return (
+        <path d="M 82 130 Q 100 142 118 130" stroke="#333" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      )
+  }
+}
+
+function renderAccessory(type) {
+  switch (type) {
+    case 'glasses':
+      return (
+        <>
+          <circle cx="75" cy="105" r="14" stroke="#555" strokeWidth="2" fill="none" />
+          <circle cx="125" cy="105" r="14" stroke="#555" strokeWidth="2" fill="none" />
+          <path d="M 89 105 L 111 105" stroke="#555" strokeWidth="2" />
+          <path d="M 61 105 L 50 100" stroke="#555" strokeWidth="2" />
+          <path d="M 139 105 L 150 100" stroke="#555" strokeWidth="2" />
+        </>
+      )
+    case 'sunglasses':
+      return (
+        <>
+          <rect x="58" y="95" width="30" height="20" rx="4" fill="#1a1a1a" stroke="#333" strokeWidth="1.5" />
+          <rect x="112" y="95" width="30" height="20" rx="4" fill="#1a1a1a" stroke="#333" strokeWidth="1.5" />
+          <path d="M 88 103 L 112 103" stroke="#333" strokeWidth="2" />
+          <path d="M 58 103 L 48 99" stroke="#333" strokeWidth="2" />
+          <path d="M 142 103 L 152 99" stroke="#333" strokeWidth="2" />
+        </>
+      )
+    case 'earring':
+      return (
+        <circle cx="38" cy="120" r="4" fill="#FFD700" stroke="#DAA520" strokeWidth="1" />
+      )
+    default:
+      return null
+  }
+}
+
+function renderBackground(bgStyle) {
+  switch (bgStyle) {
+    case 'gray':
+      return <circle cx="100" cy="100" r="98" fill="#374151" />
+    case 'blue':
+      return <circle cx="100" cy="100" r="98" fill="#1e3a5f" />
+    case 'purple':
+      return <circle cx="100" cy="100" r="98" fill="#4a1a6b" />
+    case 'green':
+      return <circle cx="100" cy="100" r="98" fill="#1a4a2e" />
+    case 'sunset':
+      return (
+        <>
+          <defs>
+            <linearGradient id="bg-sunset" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ff6b35" />
+              <stop offset="100%" stopColor="#4a1a6b" />
+            </linearGradient>
+          </defs>
+          <circle cx="100" cy="100" r="98" fill="url(#bg-sunset)" />
+        </>
+      )
+    default:
+      return <circle cx="100" cy="100" r="98" fill="#374151" />
+  }
+}
+
+export default function AvatarRenderer({
+  skinColor, hairColor, hairStyle, eyeType,
+  eyebrows = 'none', mouth = 'smile', accessory = 'none', bgStyle = 'gray',
+  size = 200, username,
+}) {
   if (!skinColor && !hairColor && !hairStyle) {
     return (
       <svg width={size} height={size} viewBox="0 0 200 200">
@@ -126,20 +247,13 @@ export default function AvatarRenderer({ skinColor, hairColor, hairStyle, eyeTyp
 
   return (
     <svg width={size} height={size} viewBox="0 0 200 200">
-      {/* Background circle */}
-      <circle cx="100" cy="100" r="98" fill="#374151" />
-
-      {/* Head */}
+      {renderBackground(bgStyle)}
       <circle cx="100" cy="105" r="72" fill={skinColor || '#F5D6B8'} />
-
-      {/* Hair */}
       {renderHair(hairStyle || 'short', hairColor || '#2C1810')}
-
-      {/* Eyes */}
+      {renderEyebrows(eyebrows)}
       {renderEyes(eyeType || 'round')}
-
-      {/* Mouth */}
-      <path d="M 82 130 Q 100 142 118 130" stroke="#333" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      {renderMouth(mouth)}
+      {renderAccessory(accessory)}
     </svg>
   )
 }

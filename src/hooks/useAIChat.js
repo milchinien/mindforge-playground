@@ -1041,7 +1041,8 @@ Sag mir was du brauchst oder tippe \`hilfe\` fuer mein volles Arsenal!`,
     const smartMatch = SMART_RESPONSES.find((r) => {
       const hasTrigger = r.triggers.some((t) => lowerText.includes(t))
       const hasExact = r.exactTriggers?.some((t) => {
-        const regex = new RegExp(`\\b${t}\\b`, 'i')
+        const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const regex = new RegExp(`\\b${escaped}\\b`, 'i')
         return regex.test(lowerText)
       })
       return hasTrigger || hasExact

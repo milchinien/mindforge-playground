@@ -87,7 +87,7 @@ export default function SettingsTab({ gameData, onChange }) {
           }`}
         >
           <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-            settings.randomOrder ? 'translate-x-5.5' : 'translate-x-0.5'
+            settings.randomOrder ? 'translate-x-[22px]' : 'translate-x-[2px]'
           }`} />
         </button>
       </div>
@@ -108,7 +108,7 @@ export default function SettingsTab({ gameData, onChange }) {
           }`}
         >
           <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-            settings.showPoints ? 'translate-x-5.5' : 'translate-x-0.5'
+            settings.showPoints ? 'translate-x-[22px]' : 'translate-x-[2px]'
           }`} />
         </button>
       </div>

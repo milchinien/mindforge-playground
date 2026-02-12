@@ -92,6 +92,9 @@ export function AuthProvider({ children }) {
         }
         setLoading(false)
       })
+    }).catch((err) => {
+      console.error('Firebase init failed:', err)
+      setLoading(false)
     })
     return () => { if (unsubscribe) unsubscribe() }
   }, [])
@@ -182,6 +185,18 @@ export function AuthProvider({ children }) {
     return result
   }
 
+  const updateUser = async (updates) => {
+    if (!user) return
+    if (USE_DEV_AUTH) {
+      await devDb.setDoc(devDb.doc('users', user.uid), updates, { merge: true })
+    } else {
+      const { doc, updateDoc } = await import('firebase/firestore')
+      const { db } = await import('../firebase/config')
+      await updateDoc(doc(db, 'users', user.uid), updates)
+    }
+    setUser(prev => ({ ...prev, ...updates }))
+  }
+
   const logout = async () => {
     if (USE_DEV_AUTH) {
       await devAuth.signOut()
@@ -195,7 +210,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

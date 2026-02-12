@@ -136,7 +136,7 @@ export default function GamePlayer() {
         src={game.gameUrl}
         className="w-full h-full border-0"
         title={game.title}
-        sandbox="allow-scripts allow-same-origin"
+        sandbox="allow-scripts"
         onLoad={() => setIsLoading(false)}
       />
 

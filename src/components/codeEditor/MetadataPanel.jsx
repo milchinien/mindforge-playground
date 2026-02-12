@@ -58,7 +58,7 @@ export default function MetadataPanel({ metadata, onChange, onClose }) {
               {(metadata.tags || []).map(tag => (
                 <span key={tag} className="flex items-center gap-1 bg-accent/15 text-accent px-2 py-0.5 rounded-full text-xs">
                   #{tag}
-                  <button onClick={() => onChange({ tags: metadata.tags.filter(t => t !== tag) })} className="cursor-pointer"><X size={10} /></button>
+                  <button onClick={() => onChange({ tags: (metadata.tags || []).filter(t => t !== tag) })} className="cursor-pointer"><X size={10} /></button>
                 </span>
               ))}
             </div>

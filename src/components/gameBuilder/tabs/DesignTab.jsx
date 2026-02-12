@@ -13,14 +13,15 @@ export default function DesignTab({ gameData, onChange }) {
     if (gameData.thumbnailRef && !thumbnailUrl) {
       loadImageUrl(gameData.thumbnailRef).then(url => { if (url) setThumbnailUrl(url) })
     }
-  }, [gameData.thumbnailRef])
+  }, [gameData.thumbnailRef, loadImageUrl])
 
   const handleThumbnailUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const { key, url } = await uploadImage(file, 'thumb')
-    onChange({ thumbnailRef: key, thumbnailUrl: url })
-    setThumbnailUrl(url)
+    const result = await uploadImage(file, 'thumb')
+    if (!result) return
+    onChange({ thumbnailRef: result.key, thumbnailUrl: result.url })
+    setThumbnailUrl(result.url)
   }
 
   const removeThumbnail = () => {
@@ -36,9 +37,10 @@ export default function DesignTab({ gameData, onChange }) {
     const newUrls = [...screenshotUrls]
 
     for (const file of files) {
-      const { key, url } = await uploadImage(file, 'screen')
-      newRefs.push(key)
-      newUrls.push(url)
+      const result = await uploadImage(file, 'screen')
+      if (!result) continue
+      newRefs.push(result.key)
+      newUrls.push(result.url)
     }
 
     onChange({ screenshotRefs: newRefs })

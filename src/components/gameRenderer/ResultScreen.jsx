@@ -1,7 +1,7 @@
 import { CheckCircle, XCircle, Clock, RotateCcw, ArrowLeft } from 'lucide-react'
 
 export default function ResultScreen({ score, totalQuestions, totalTime, answers, questions, theme, onRestart, onBack }) {
-  const percentage = Math.round((score / totalQuestions) * 100)
+  const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0
   const minutes = Math.floor(totalTime / 60)
   const seconds = totalTime % 60
 

@@ -61,15 +61,33 @@ const TEST_ACCOUNTS = [
 ]
 
 const STORAGE_KEY = 'mindforge_dev_user'
+const DB_STORAGE_KEY = 'mindforge_dev_firestore'
 
-// In-memory Firestore mock
-const devFirestore = {}
+// Firestore mock with localStorage persistence
+function loadDevFirestore() {
+  try {
+    const stored = localStorage.getItem(DB_STORAGE_KEY)
+    if (stored) return JSON.parse(stored)
+  } catch { /* ignore */ }
+  return {}
+}
 
-// Initialize test data
+const devFirestore = loadDevFirestore()
+
+function persistFirestore() {
+  try {
+    localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(devFirestore))
+  } catch { /* ignore */ }
+}
+
+// Initialize test data (only if not already persisted)
 TEST_ACCOUNTS.forEach((acc) => {
   if (!devFirestore['users']) devFirestore['users'] = {}
-  devFirestore['users'][acc.uid] = acc.profile
+  if (!devFirestore['users'][acc.uid]) {
+    devFirestore['users'][acc.uid] = acc.profile
+  }
 })
+persistFirestore()
 
 function getStoredUser() {
   try {
@@ -88,16 +106,16 @@ function storeUser(user) {
   }
 }
 
-let authStateCallback = null
+const authStateCallbacks = new Set()
 
 export const devAuth = {
   currentUser: getStoredUser(),
 
   onAuthStateChanged(callback) {
-    authStateCallback = callback
+    authStateCallbacks.add(callback)
     // Fire immediately with current state
     setTimeout(() => callback(this.currentUser), 0)
-    return () => { authStateCallback = null }
+    return () => { authStateCallbacks.delete(callback) }
   },
 
   async signInWithEmailAndPassword(email, password) {
@@ -112,7 +130,7 @@ export const devAuth = {
     const user = { uid: account.uid, email: account.email }
     this.currentUser = user
     storeUser(user)
-    if (authStateCallback) authStateCallback(user)
+    authStateCallbacks.forEach(cb => cb(user))
     return { user }
   },
 
@@ -126,14 +144,14 @@ export const devAuth = {
     const user = { uid, email }
     this.currentUser = user
     storeUser(user)
-    if (authStateCallback) authStateCallback(user)
+    authStateCallbacks.forEach(cb => cb(user))
     return { user }
   },
 
   async signOut() {
     this.currentUser = null
     storeUser(null)
-    if (authStateCallback) authStateCallback(null)
+    authStateCallbacks.forEach(cb => cb(null))
   },
 }
 
@@ -150,9 +168,17 @@ export const devDb = {
     }
   },
 
-  async setDoc(ref, data) {
+  async setDoc(ref, data, options) {
     if (!devFirestore[ref._collection]) devFirestore[ref._collection] = {}
-    devFirestore[ref._collection][ref._id] = { ...data }
+    if (options?.merge) {
+      devFirestore[ref._collection][ref._id] = {
+        ...(devFirestore[ref._collection][ref._id] || {}),
+        ...data,
+      }
+    } else {
+      devFirestore[ref._collection][ref._id] = { ...data }
+    }
+    persistFirestore()
   },
 
   async getDocs(queryRef) {

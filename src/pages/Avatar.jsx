@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import AvatarRenderer from '../components/profile/AvatarRenderer'
 
@@ -38,6 +38,42 @@ const EYE_TYPES = [
   { id: 'almond', name: 'Mandel' },
   { id: 'sleepy', name: 'Schlaefrig' },
   { id: 'cat', name: 'Katze' },
+]
+
+const EYEBROW_TYPES = [
+  { id: 'none', name: 'Keine' },
+  { id: 'normal', name: 'Normal' },
+  { id: 'thick', name: 'Dick' },
+  { id: 'arched', name: 'Geschwungen' },
+  { id: 'angry', name: 'Wuetend' },
+]
+
+const MOUTH_TYPES = [
+  { id: 'smile', name: 'Laecheln' },
+  { id: 'neutral', name: 'Neutral' },
+  { id: 'open', name: 'Offen' },
+  { id: 'smirk', name: 'Grinsen' },
+]
+
+const ACCESSORY_TYPES = [
+  { id: 'none', name: 'Keine' },
+  { id: 'glasses', name: 'Brille' },
+  { id: 'sunglasses', name: 'Sonnenbrille' },
+  { id: 'earring', name: 'Ohrring' },
+]
+
+const BG_STYLES = [
+  { id: 'gray', name: 'Grau', color: '#374151' },
+  { id: 'blue', name: 'Blau', color: '#1e3a5f' },
+  { id: 'purple', name: 'Lila', color: '#4a1a6b' },
+  { id: 'green', name: 'Gruen', color: '#1a4a2e' },
+  { id: 'sunset', name: 'Sunset', color: 'linear-gradient(#ff6b35, #4a1a6b)' },
+]
+
+const TABS = [
+  { id: 'basis', name: 'Basis' },
+  { id: 'gesicht', name: 'Gesicht' },
+  { id: 'style', name: 'Style' },
 ]
 
 function ColorPicker({ label, colors, selected, onChange }) {
@@ -87,40 +123,77 @@ function StylePicker({ label, options, selected, onChange }) {
 }
 
 export default function Avatar() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
+  const [activeTab, setActiveTab] = useState('basis')
 
   const [avatarConfig, setAvatarConfig] = useState({
     skinColor: user?.avatar?.skinColor || '#F5D6B8',
     hairColor: user?.avatar?.hairColor || '#2C1810',
     hairStyle: user?.avatar?.hairStyle || 'short',
     eyeType: user?.avatar?.eyes || 'round',
+    eyebrows: user?.avatar?.eyebrows || 'none',
+    mouth: user?.avatar?.mouth || 'smile',
+    accessory: user?.avatar?.accessory || 'none',
+    bgStyle: user?.avatar?.bgStyle || 'gray',
   })
 
-  const [savedConfig] = useState(avatarConfig)
-  const [isSaving, setIsSaving] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [saveStatus, setSaveStatus] = useState('saved') // 'saved' | 'saving' | 'pending'
+  const debounceRef = useRef(null)
+  const latestConfig = useRef(avatarConfig)
+
+  const saveToServer = useCallback(async (config) => {
+    setSaveStatus('saving')
+    try {
+      await updateUser({
+        avatar: {
+          skinColor: config.skinColor,
+          hairColor: config.hairColor,
+          hairStyle: config.hairStyle,
+          eyes: config.eyeType,
+          eyebrows: config.eyebrows,
+          mouth: config.mouth,
+          accessory: config.accessory,
+          bgStyle: config.bgStyle,
+        },
+      })
+      setSaveStatus('saved')
+    } catch {
+      setSaveStatus('pending')
+    }
+  }, [updateUser])
 
   const updateConfig = (key, value) => {
-    setAvatarConfig(prev => ({ ...prev, [key]: value }))
-    setHasChanges(true)
+    const newConfig = { ...avatarConfig, [key]: value }
+    setAvatarConfig(newConfig)
+    latestConfig.current = newConfig
+    setSaveStatus('pending')
+
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      saveToServer(latestConfig.current)
+    }, 800)
   }
 
-  const handleSave = async () => {
-    setIsSaving(true)
-    // Simulate save
-    await new Promise(r => setTimeout(r, 800))
-    setIsSaving(false)
-    setHasChanges(false)
-  }
-
-  const handleReset = () => {
-    setAvatarConfig(savedConfig)
-    setHasChanges(false)
-  }
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
 
   return (
     <div className="max-w-5xl mx-auto py-4">
-      <h1 className="text-3xl font-bold mb-8">Avatar anpassen</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Avatar anpassen</h1>
+        <span className={`text-sm px-3 py-1 rounded-full ${
+          saveStatus === 'saved' ? 'bg-success/20 text-success' :
+          saveStatus === 'saving' ? 'bg-accent/20 text-accent' :
+          'bg-warning/20 text-warning'
+        }`}>
+          {saveStatus === 'saved' ? 'Gespeichert' :
+           saveStatus === 'saving' ? 'Speichere...' :
+           'Ungespeichert'}
+        </span>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left: Live Preview */}
@@ -130,7 +203,11 @@ export default function Avatar() {
             hairColor={avatarConfig.hairColor}
             hairStyle={avatarConfig.hairStyle}
             eyeType={avatarConfig.eyeType}
-            size={250}
+            eyebrows={avatarConfig.eyebrows}
+            mouth={avatarConfig.mouth}
+            accessory={avatarConfig.accessory}
+            bgStyle={avatarConfig.bgStyle}
+            size={280}
             username={user?.username}
           />
           <p className="mt-4 text-lg font-semibold">{user?.username}</p>
@@ -138,51 +215,103 @@ export default function Avatar() {
         </div>
 
         {/* Right: Customization Panel */}
-        <div className="bg-bg-card rounded-xl p-6 space-y-6">
-          <ColorPicker
-            label="Hautfarbe"
-            colors={SKIN_COLORS}
-            selected={avatarConfig.skinColor}
-            onChange={(color) => updateConfig('skinColor', color)}
-          />
+        <div className="bg-bg-card rounded-xl overflow-hidden">
+          {/* Tab Navigation */}
+          <div className="flex border-b border-gray-700">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 py-3 text-sm font-medium transition-colors cursor-pointer relative ${
+                  activeTab === tab.id
+                    ? 'text-accent'
+                    : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                {tab.name}
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+                )}
+              </button>
+            ))}
+          </div>
 
-          <ColorPicker
-            label="Haarfarbe"
-            colors={HAIR_COLORS}
-            selected={avatarConfig.hairColor}
-            onChange={(color) => updateConfig('hairColor', color)}
-          />
+          {/* Tab Content */}
+          <div className="p-6 space-y-6">
+            {activeTab === 'basis' && (
+              <>
+                <ColorPicker
+                  label="Hautfarbe"
+                  colors={SKIN_COLORS}
+                  selected={avatarConfig.skinColor}
+                  onChange={(color) => updateConfig('skinColor', color)}
+                />
+                <ColorPicker
+                  label="Haarfarbe"
+                  colors={HAIR_COLORS}
+                  selected={avatarConfig.hairColor}
+                  onChange={(color) => updateConfig('hairColor', color)}
+                />
+                <StylePicker
+                  label="Frisur"
+                  options={HAIR_STYLES}
+                  selected={avatarConfig.hairStyle}
+                  onChange={(style) => updateConfig('hairStyle', style)}
+                />
+              </>
+            )}
 
-          <StylePicker
-            label="Frisur"
-            options={HAIR_STYLES}
-            selected={avatarConfig.hairStyle}
-            onChange={(style) => updateConfig('hairStyle', style)}
-          />
+            {activeTab === 'gesicht' && (
+              <>
+                <StylePicker
+                  label="Augenform"
+                  options={EYE_TYPES}
+                  selected={avatarConfig.eyeType}
+                  onChange={(type) => updateConfig('eyeType', type)}
+                />
+                <StylePicker
+                  label="Augenbrauen"
+                  options={EYEBROW_TYPES}
+                  selected={avatarConfig.eyebrows}
+                  onChange={(type) => updateConfig('eyebrows', type)}
+                />
+                <StylePicker
+                  label="Mund"
+                  options={MOUTH_TYPES}
+                  selected={avatarConfig.mouth}
+                  onChange={(type) => updateConfig('mouth', type)}
+                />
+              </>
+            )}
 
-          <StylePicker
-            label="Augenform"
-            options={EYE_TYPES}
-            selected={avatarConfig.eyeType}
-            onChange={(type) => updateConfig('eyeType', type)}
-          />
-
-          {/* Buttons */}
-          <div className="flex gap-4 pt-4">
-            <button
-              onClick={handleSave}
-              disabled={!hasChanges || isSaving}
-              className="flex-1 bg-accent hover:bg-accent-dark text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            >
-              {isSaving ? 'Speichere...' : 'Speichern'}
-            </button>
-            <button
-              onClick={handleReset}
-              disabled={!hasChanges}
-              className="flex-1 bg-bg-hover hover:bg-gray-500 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            >
-              Zuruecksetzen
-            </button>
+            {activeTab === 'style' && (
+              <>
+                <StylePicker
+                  label="Accessoire"
+                  options={ACCESSORY_TYPES}
+                  selected={avatarConfig.accessory}
+                  onChange={(type) => updateConfig('accessory', type)}
+                />
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">Hintergrund</label>
+                  <div className="flex flex-wrap gap-3">
+                    {BG_STYLES.map((bg) => (
+                      <button
+                        key={bg.id}
+                        onClick={() => updateConfig('bgStyle', bg.id)}
+                        title={bg.name}
+                        className={`w-10 h-10 rounded-full border-2 transition-all cursor-pointer ${
+                          avatarConfig.bgStyle === bg.id
+                            ? 'border-accent scale-110 ring-2 ring-accent ring-offset-2 ring-offset-bg-card'
+                            : 'border-gray-600 hover:border-gray-400'
+                        }`}
+                        style={{ background: bg.color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

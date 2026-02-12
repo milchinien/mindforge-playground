@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 const RARITY_CONFIG = {
   common: {
@@ -32,28 +33,23 @@ const RARITY_CONFIG = {
   },
 }
 
-const MOCK_AVATAR_ITEMS = [
-  { id: 'item-1', name: 'Goldener Rahmen', description: 'Ein glaenzender goldener Rahmen fuer deinen Avatar', icon: '🖼️', rarity: 'rare', type: 'frame', equipped: false, source: 'Event: Neujahrs-Challenge' },
-  { id: 'item-2', name: 'Feuer-Haarfarbe', description: 'Leuchtend rote Haare mit Flammen-Effekt', icon: '🔥', rarity: 'common', type: 'hair_color', equipped: true, source: 'Shop' },
-  { id: 'item-3', name: 'Diamant-Krone', description: 'Eine funkelnde Krone fuer die Koepfe der Besten', icon: '👑', rarity: 'epic', type: 'accessory', equipped: false, source: 'Achievement: Mathe-Genie' },
-  { id: 'item-4', name: 'Neon-Augen', description: 'Leuchtende Neon-Augen die im Dunkeln strahlen', icon: '👁️', rarity: 'rare', type: 'eyes', equipped: false, source: 'Marketplace' },
-  { id: 'item-5', name: 'Sternen-Hintergrund', description: 'Ein animierter Sternenhimmel als Avatar-Hintergrund', icon: '✨', rarity: 'legendary', type: 'background', equipped: false, source: 'Event: Weihnachts-Special' },
-  { id: 'item-6', name: 'Pixel-Brille', description: 'Eine stylische Pixel-Art Sonnenbrille', icon: '🕶️', rarity: 'common', type: 'accessory', equipped: false, source: 'Shop' },
-  { id: 'item-7', name: 'Regenbogen-Aura', description: 'Ein schimmernder Regenbogen-Effekt um deinen Avatar', icon: '🌈', rarity: 'epic', type: 'effect', equipped: false, source: 'Event: Pride Month' },
-  { id: 'item-8', name: 'Wikinger-Helm', description: 'Ein beeindruckender Helm mit Hoernern', icon: '⚔️', rarity: 'rare', type: 'accessory', equipped: false, source: 'Marketplace' },
+const DEFAULT_ITEMS = [
+  { id: 'item-1', name: 'Goldener Rahmen', icon: '\u{1F5BC}\uFE0F', rarity: 'rare', type: 'frame', source: 'Starterset' },
+  { id: 'item-2', name: 'Feuer-Haarfarbe', icon: '\u{1F525}', rarity: 'common', type: 'hair_color', source: 'Starterset' },
+  { id: 'item-3', name: 'Sternen-Hintergrund', icon: '\u2728', rarity: 'rare', type: 'background', source: 'Starterset' },
 ]
 
 const TABS = [
-  { id: 'avatarItems', label: 'Avatar Items', count: MOCK_AVATAR_ITEMS.length },
-  { id: 'games', label: 'Gekaufte Spiele', count: 0 },
-  { id: 'assets', label: 'Assets', count: 0 },
+  { id: 'avatarItems', label: 'Avatar Items' },
+  { id: 'games', label: 'Gekaufte Spiele' },
+  { id: 'assets', label: 'Assets' },
 ]
 
-function InventoryItemCard({ item, onEquip }) {
-  const rarity = RARITY_CONFIG[item.rarity]
+function InventoryItemCard({ item }) {
+  const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
 
   return (
-    <div className={`bg-bg-card rounded-xl p-4 border ${rarity.borderColor} hover:scale-[1.02] transition-transform cursor-pointer`}>
+    <div className={`bg-bg-card rounded-xl p-4 border ${rarity.borderColor} hover:scale-[1.02] transition-transform`}>
       <div className={`w-full aspect-square rounded-lg ${rarity.bgColor} flex items-center justify-center text-4xl mb-3`}>
         {item.icon}
       </div>
@@ -61,16 +57,9 @@ function InventoryItemCard({ item, onEquip }) {
       <span className={`inline-block text-xs px-2 py-0.5 rounded-full mt-1 ${rarity.badgeBg} ${rarity.color}`}>
         {rarity.name}
       </span>
-      <button
-        onClick={(e) => { e.stopPropagation(); onEquip() }}
-        className={`w-full mt-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-          item.equipped
-            ? 'bg-success/20 text-success border border-success/30'
-            : 'bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30'
-        }`}
-      >
-        {item.equipped ? 'Angelegt' : 'Anlegen'}
-      </button>
+      {item.source && (
+        <p className="text-xs text-text-muted mt-1 truncate">{item.source}</p>
+      )}
     </div>
   )
 }
@@ -94,17 +83,23 @@ function EmptyTabState({ icon, title, description, actionLabel, actionLink }) {
 }
 
 export default function Inventory() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('avatarItems')
-  const [items, setItems] = useState(MOCK_AVATAR_ITEMS)
 
-  const handleEquip = (itemId) => {
-    setItems(prevItems =>
-      prevItems.map(item => ({
-        ...item,
-        equipped: item.id === itemId ? !item.equipped : item.equipped,
-      }))
-    )
-  }
+  const allItems = useMemo(() => {
+    const purchased = (user?.purchasedItems || []).map(item => ({
+      ...item,
+      source: 'Marketplace',
+    }))
+    const purchasedIds = new Set(purchased.map(i => i.id))
+    const defaults = DEFAULT_ITEMS.filter(i => !purchasedIds.has(i.id))
+    return [...defaults, ...purchased]
+  }, [user?.purchasedItems])
+
+  const tabs = TABS.map(tab => ({
+    ...tab,
+    count: tab.id === 'avatarItems' ? allItems.length : 0,
+  }))
 
   return (
     <div className="py-4 max-w-5xl mx-auto">
@@ -112,7 +107,7 @@ export default function Inventory() {
 
       {/* Tab Navigation */}
       <div className="flex border-b border-gray-700 mb-6">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -124,7 +119,7 @@ export default function Inventory() {
           >
             {tab.label}
             <span className="ml-2 text-xs bg-bg-hover px-2 py-0.5 rounded-full">
-              {tab.id === 'avatarItems' ? items.length : tab.count}
+              {tab.count}
             </span>
             {activeTab === tab.id && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
@@ -135,20 +130,26 @@ export default function Inventory() {
 
       {/* Tab Content */}
       {activeTab === 'avatarItems' && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {items.map((item) => (
-            <InventoryItemCard
-              key={item.id}
-              item={item}
-              onEquip={() => handleEquip(item.id)}
-            />
-          ))}
-        </div>
+        allItems.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {allItems.map((item) => (
+              <InventoryItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        ) : (
+          <EmptyTabState
+            icon={'\u{1F464}'}
+            title="Keine Avatar Items"
+            description="Kaufe Items im Marketplace, um deinen Avatar anzupassen!"
+            actionLabel="Zum Marketplace"
+            actionLink="/marketplace"
+          />
+        )
       )}
 
       {activeTab === 'games' && (
         <EmptyTabState
-          icon="🎮"
+          icon={'\u{1F3AE}'}
           title="Keine gekauften Spiele"
           description="Spiele die du im Marketplace kaufst, erscheinen hier."
           actionLabel="Zum Marketplace"
@@ -158,7 +159,7 @@ export default function Inventory() {
 
       {activeTab === 'assets' && (
         <EmptyTabState
-          icon="📦"
+          icon={'\u{1F4E6}'}
           title="Keine Assets"
           description="Assets die du herunterlaedst oder kaufst, erscheinen hier."
           actionLabel="Assets durchsuchen"

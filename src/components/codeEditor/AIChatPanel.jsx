@@ -145,7 +145,10 @@ function PreviewCard({ card, codeResponse, onApplyCode }) {
               <div className="flex items-center justify-between bg-[#1a1a2e] px-3 py-1 border-t border-[#333]">
                 <span className="text-xs text-gray-400 font-mono">{block.language}</span>
                 <button
-                  onClick={() => onApplyCode(block.code)}
+                  onClick={() => {
+                    const lang = block.language === 'javascript' || block.language === 'js' ? 'js' : block.language
+                    onApplyCode({ [lang]: block.code })
+                  }}
                   className="text-xs text-accent hover:text-accent-light cursor-pointer"
                 >
                   Nur diesen Code
