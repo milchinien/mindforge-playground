@@ -34,10 +34,18 @@ const RARITY_CONFIG = {
 }
 
 const DEFAULT_ITEMS = [
-  { id: 'item-1', name: 'Goldener Rahmen', icon: '\u{1F5BC}\uFE0F', rarity: 'rare', type: 'frame', source: 'Starterset' },
-  { id: 'item-2', name: 'Feuer-Haarfarbe', icon: '\u{1F525}', rarity: 'common', type: 'hair_color', source: 'Starterset' },
-  { id: 'item-3', name: 'Sternen-Hintergrund', icon: '\u2728', rarity: 'rare', type: 'background', source: 'Starterset' },
+  { id: 'item-1', name: 'Goldener Rahmen', icon: '\u{1F5BC}\uFE0F', rarity: 'rare', type: 'frame', effect: 'golden', source: 'Starterset' },
+  { id: 'item-2', name: 'Feuer-Haarfarbe', icon: '\u{1F525}', rarity: 'common', type: 'hair_color', effect: '#FF4500', source: 'Starterset' },
+  { id: 'item-3', name: 'Sternen-Hintergrund', icon: '\u2728', rarity: 'rare', type: 'background', effect: 'galaxy', source: 'Starterset' },
 ]
+
+const TYPE_LABELS = {
+  frame: 'Rahmen',
+  hair_color: 'Haarfarbe',
+  background: 'Hintergrund',
+  effect: 'Effekt',
+  accessory: 'Accessoire',
+}
 
 const TABS = [
   { id: 'avatarItems', label: 'Avatar Items' },
@@ -45,21 +53,41 @@ const TABS = [
   { id: 'assets', label: 'Assets' },
 ]
 
-function InventoryItemCard({ item }) {
+function InventoryItemCard({ item, isEquipped, onToggleEquip }) {
   const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
 
   return (
-    <div className={`bg-bg-card rounded-xl p-4 border ${rarity.borderColor} hover:scale-[1.02] transition-transform`}>
-      <div className={`w-full aspect-square rounded-lg ${rarity.bgColor} flex items-center justify-center text-4xl mb-3`}>
+    <div className={`bg-bg-card rounded-xl p-4 border ${isEquipped ? 'border-accent ring-2 ring-accent/30' : rarity.borderColor} hover:scale-[1.02] transition-transform`}>
+      <div className={`w-full aspect-square rounded-lg ${rarity.bgColor} flex items-center justify-center text-4xl mb-3 relative`}>
         {item.icon}
+        {isEquipped && (
+          <div className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center">
+            <span className="text-white text-xs">✓</span>
+          </div>
+        )}
       </div>
       <h3 className="text-sm font-semibold text-text-primary truncate">{item.name}</h3>
-      <span className={`inline-block text-xs px-2 py-0.5 rounded-full mt-1 ${rarity.badgeBg} ${rarity.color}`}>
-        {rarity.name}
-      </span>
+      <div className="flex items-center gap-2 mt-1">
+        <span className={`inline-block text-xs px-2 py-0.5 rounded-full ${rarity.badgeBg} ${rarity.color}`}>
+          {rarity.name}
+        </span>
+        {item.type && (
+          <span className="text-xs text-text-muted">{TYPE_LABELS[item.type] || item.type}</span>
+        )}
+      </div>
       {item.source && (
         <p className="text-xs text-text-muted mt-1 truncate">{item.source}</p>
       )}
+      <button
+        onClick={() => onToggleEquip(item)}
+        className={`w-full mt-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+          isEquipped
+            ? 'bg-accent/20 text-accent border border-accent/30 hover:bg-error/20 hover:text-error hover:border-error/30'
+            : 'bg-bg-hover text-text-secondary hover:bg-accent/20 hover:text-accent'
+        }`}
+      >
+        {isEquipped ? 'Ablegen' : 'Anlegen'}
+      </button>
     </div>
   )
 }
@@ -83,8 +111,10 @@ function EmptyTabState({ icon, title, description, actionLabel, actionLink }) {
 }
 
 export default function Inventory() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [activeTab, setActiveTab] = useState('avatarItems')
+
+  const equippedItems = user?.equippedItems || {}
 
   const allItems = useMemo(() => {
     const purchased = (user?.purchasedItems || []).map(item => ({
@@ -96,6 +126,27 @@ export default function Inventory() {
     return [...defaults, ...purchased]
   }, [user?.purchasedItems])
 
+  const handleToggleEquip = async (item) => {
+    const newEquipped = { ...equippedItems }
+
+    if (newEquipped[item.type] === item.id) {
+      delete newEquipped[item.type]
+    } else {
+      newEquipped[item.type] = item.id
+    }
+
+    const effectMap = {}
+    for (const [type, itemId] of Object.entries(newEquipped)) {
+      const found = allItems.find(i => i.id === itemId)
+      if (found) effectMap[type] = found.effect || found.id
+    }
+
+    await updateUser({
+      equippedItems: newEquipped,
+      equippedEffects: effectMap,
+    })
+  }
+
   const tabs = TABS.map(tab => ({
     ...tab,
     count: tab.id === 'avatarItems' ? allItems.length : 0,
@@ -104,6 +155,30 @@ export default function Inventory() {
   return (
     <div className="py-4 max-w-5xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Inventar</h1>
+
+      {/* Active Equipment Summary */}
+      {Object.keys(equippedItems).length > 0 && (
+        <div className="bg-bg-card rounded-xl p-4 mb-6 border border-accent/20">
+          <h3 className="text-sm font-semibold text-accent mb-2">Ausgeruestet</h3>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(equippedItems).map(([type, itemId]) => {
+              const item = allItems.find(i => i.id === itemId)
+              if (!item) return null
+              return (
+                <span key={type} className="inline-flex items-center gap-1.5 bg-accent/10 text-accent px-3 py-1 rounded-full text-xs font-medium">
+                  {item.icon} {item.name}
+                  <button
+                    onClick={() => handleToggleEquip(item)}
+                    className="ml-1 hover:text-error cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Tab Navigation */}
       <div className="flex border-b border-gray-700 mb-6">
@@ -133,7 +208,12 @@ export default function Inventory() {
         allItems.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {allItems.map((item) => (
-              <InventoryItemCard key={item.id} item={item} />
+              <InventoryItemCard
+                key={item.id}
+                item={item}
+                isEquipped={equippedItems[item.type] === item.id}
+                onToggleEquip={handleToggleEquip}
+              />
             ))}
           </div>
         ) : (

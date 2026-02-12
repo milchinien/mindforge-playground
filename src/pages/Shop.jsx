@@ -43,34 +43,105 @@ const MINDCOIN_PACKAGES = [
 ]
 
 const VALID_CODES = {
-  'MindForge': { discount: 1.0, label: '100% Rabatt' },
+  'MindForge': { discount: 1.0, label: '100% Rabatt', type: 'multi', maxUses: Infinity },
+  'WELCOME10': { discount: 0.1, label: '10% Rabatt', type: 'once', maxUses: 1 },
+  'EVENT2025': { discount: 0.5, label: '50% Rabatt', type: 'once', maxUses: 1 },
+  'WINTER25': { discount: 0.25, label: '25% Rabatt', type: 'once', maxUses: 1, expiresAt: '2025-03-31' },
 }
 
-function PurchaseModal({ pkg, onClose, onConfirm }) {
+const SEASONAL_OFFERS = [
+  {
+    id: 'winter-pack',
+    name: 'Winter-Paket',
+    emoji: '\u2744\uFE0F',
+    description: '800 MindCoins + Exklusiver Schnee-Hintergrund',
+    amount: 800,
+    bonus: 200,
+    price: '5,99',
+    priceNum: 5.99,
+    availableUntil: '2026-03-31T23:59:59',
+    badge: 'LIMITIERT',
+  },
+  {
+    id: 'valentines-pack',
+    name: 'Valentins-Paket',
+    emoji: '\u2764\uFE0F',
+    description: '1500 MindCoins + Herz-Rahmen',
+    amount: 1500,
+    bonus: 300,
+    price: '9,99',
+    priceNum: 9.99,
+    availableUntil: '2026-02-28T23:59:59',
+    badge: 'EVENT',
+  },
+]
+
+function CountdownTimer({ targetDate }) {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const diff = new Date(targetDate) - new Date()
+    return Math.max(0, diff)
+  })
+
+  useState(() => {
+    const interval = setInterval(() => {
+      const diff = new Date(targetDate) - new Date()
+      setTimeLeft(Math.max(0, diff))
+    }, 60000)
+    return () => clearInterval(interval)
+  })
+
+  if (timeLeft <= 0) return <span className="text-error text-xs">Abgelaufen</span>
+
+  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+
+  return (
+    <span className="text-warning text-xs font-medium">
+      Noch {days}T {hours}h
+    </span>
+  )
+}
+
+function PurchaseModal({ pkg, onClose, onConfirm, userBalance, usedCodes }) {
   const [discountCode, setDiscountCode] = useState('')
   const [appliedCode, setAppliedCode] = useState(null)
   const [codeError, setCodeError] = useState(null)
   const [purchased, setPurchased] = useState(false)
   useEscapeKey(onClose)
 
-  const totalCoins = pkg.amount + pkg.bonus
+  const totalCoins = pkg.amount + (pkg.bonus || 0)
   const discount = appliedCode ? VALID_CODES[appliedCode].discount : 0
   const finalPrice = pkg.priceNum * (1 - discount)
   const isFree = finalPrice === 0
 
   const handleApplyCode = () => {
     const trimmed = discountCode.trim()
-    if (VALID_CODES[trimmed]) {
-      setAppliedCode(trimmed)
-      setCodeError(null)
-    } else {
+    const codeConfig = VALID_CODES[trimmed]
+
+    if (!codeConfig) {
       setCodeError('Ungueltiger Rabattcode')
       setAppliedCode(null)
+      return
     }
+
+    if (codeConfig.expiresAt && new Date(codeConfig.expiresAt) < new Date()) {
+      setCodeError('Dieser Code ist abgelaufen')
+      setAppliedCode(null)
+      return
+    }
+
+    if (codeConfig.type === 'once' && usedCodes?.includes(trimmed)) {
+      setCodeError('Dieser Code wurde bereits verwendet')
+      setAppliedCode(null)
+      return
+    }
+
+    setAppliedCode(trimmed)
+    setCodeError(null)
   }
 
   const handlePurchase = () => {
-    onConfirm(totalCoins)
+    onConfirm(totalCoins, appliedCode)
     setPurchased(true)
   }
 
@@ -80,12 +151,11 @@ function PurchaseModal({ pkg, onClose, onConfirm }) {
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-md w-full overflow-hidden"
            onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
         <div className="p-6 border-b border-gray-700">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-text-primary">MindCoins kaufen</h2>
             <button onClick={onClose} aria-label="Schliessen"
-                    className="text-text-muted hover:text-text-primary text-xl">
+                    className="text-text-muted hover:text-text-primary text-xl cursor-pointer">
               {'\u2715'}
             </button>
           </div>
@@ -99,6 +169,9 @@ function PurchaseModal({ pkg, onClose, onConfirm }) {
               <p className="text-text-secondary mt-2">
                 {totalCoins.toLocaleString('de-DE')} MindCoins wurden gutgeschrieben.
               </p>
+              <p className="text-sm text-accent mt-1">
+                Neues Guthaben: {((userBalance || 0) + totalCoins).toLocaleString('de-DE')} MC
+              </p>
               <button onClick={onClose}
                       className="mt-6 bg-accent hover:bg-accent-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors cursor-pointer">
                 Schliessen
@@ -106,7 +179,6 @@ function PurchaseModal({ pkg, onClose, onConfirm }) {
             </div>
           ) : (
             <>
-              {/* Paket-Zusammenfassung */}
               <div className="bg-bg-card rounded-lg p-4">
                 <div className="flex items-center gap-4">
                   <MindCoinIcon size={56} />
@@ -115,14 +187,13 @@ function PurchaseModal({ pkg, onClose, onConfirm }) {
                     <p className="text-accent font-semibold">
                       {totalCoins.toLocaleString('de-DE')} MindCoins
                     </p>
-                    {pkg.bonus > 0 && (
+                    {(pkg.bonus || 0) > 0 && (
                       <p className="text-sm text-success">+{pkg.bonus} Bonus inkludiert</p>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Zahlungsmethode */}
               <div>
                 <h3 className="text-sm font-medium text-text-secondary mb-2">Zahlungsmethode</h3>
                 <div className="bg-bg-card rounded-lg p-4 text-center border border-gray-700">
@@ -132,7 +203,6 @@ function PurchaseModal({ pkg, onClose, onConfirm }) {
                 </div>
               </div>
 
-              {/* Rabattcode */}
               <div>
                 <h3 className="text-sm font-medium text-text-secondary mb-2">Rabattcode</h3>
                 <div className="flex gap-2">
@@ -160,9 +230,11 @@ function PurchaseModal({ pkg, onClose, onConfirm }) {
                     {VALID_CODES[appliedCode].label} angewendet!
                   </p>
                 )}
+                <p className="text-xs text-text-muted mt-2">
+                  Verfuegbare Codes: WELCOME10 (10%), EVENT2025 (50%), MindForge (100%)
+                </p>
               </div>
 
-              {/* Preis-Zusammenfassung */}
               <div className="border-t border-gray-700 pt-4">
                 <div className="flex justify-between text-sm text-text-secondary">
                   <span>Paketpreis</span>
@@ -180,7 +252,6 @@ function PurchaseModal({ pkg, onClose, onConfirm }) {
                 </div>
               </div>
 
-              {/* Kaufen-Button */}
               <button
                 onClick={handlePurchase}
                 disabled={!isFree}
@@ -253,15 +324,99 @@ function CoinPackageCard({ pkg, onPurchase }) {
   )
 }
 
+function TransactionHistory({ transactions }) {
+  const [filter, setFilter] = useState('all')
+
+  const filtered = transactions.filter(t => {
+    if (filter === 'all') return true
+    return t.type === filter
+  })
+
+  const typeColors = {
+    purchase: 'text-success',
+    spend: 'text-error',
+    earn: 'text-accent',
+  }
+
+  const typeLabels = {
+    purchase: 'Einkauf',
+    spend: 'Ausgabe',
+    earn: 'Gutschrift',
+  }
+
+  return (
+    <section className="bg-bg-card rounded-xl p-6 border border-gray-700">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">Transaktionsverlauf</h2>
+        <div className="flex gap-2">
+          {['all', 'purchase', 'spend', 'earn'].map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                filter === f ? 'bg-accent text-white' : 'bg-bg-hover text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {f === 'all' ? 'Alle' : typeLabels[f]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-text-muted text-center py-8 text-sm">Noch keine Transaktionen.</p>
+      ) : (
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {filtered.map((t, i) => (
+            <div key={i} className="flex items-center justify-between py-2 border-b border-gray-700/50 last:border-0">
+              <div>
+                <p className="text-sm text-text-primary">{t.description}</p>
+                <p className="text-xs text-text-muted">
+                  {new Date(t.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+              <span className={`font-bold text-sm ${typeColors[t.type] || 'text-text-primary'}`}>
+                {t.type === 'spend' ? '-' : '+'}{t.amount} MC
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
 export default function Shop() {
   const { user, updateUser } = useAuth()
   const [selectedPkg, setSelectedPkg] = useState(null)
 
-  const handleConfirmPurchase = async (coins) => {
-    await updateUser({
-      mindCoins: (user?.mindCoins || 0) + coins,
-    })
+  const transactions = user?.transactions || []
+
+  const addTransaction = (type, amount, description) => {
+    return {
+      type,
+      amount,
+      description,
+      date: new Date().toISOString(),
+    }
   }
+
+  const handleConfirmPurchase = async (coins, usedCode) => {
+    const newTransactions = [...transactions, addTransaction('purchase', coins, `${selectedPkg.name}-Paket gekauft`)]
+
+    const updates = {
+      mindCoins: (user?.mindCoins || 0) + coins,
+      transactions: newTransactions,
+    }
+
+    if (usedCode && VALID_CODES[usedCode]?.type === 'once') {
+      updates.usedCodes = [...(user?.usedCodes || []), usedCode]
+    }
+
+    await updateUser(updates)
+  }
+
+  const activeSeasonalOffers = SEASONAL_OFFERS.filter(o => new Date(o.availableUntil) > new Date())
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -277,11 +432,51 @@ export default function Shop() {
         </div>
       </div>
 
+      {/* Seasonal Offers */}
+      {activeSeasonalOffers.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <span className="text-2xl">{'\u{1F381}'}</span> Aktuelle Angebote
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {activeSeasonalOffers.map(offer => (
+              <div key={offer.id} className="bg-gradient-to-br from-accent/10 to-purple-500/10 rounded-xl p-5 border border-accent/30 relative overflow-hidden">
+                <span className="absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full bg-warning text-black">
+                  {offer.badge}
+                </span>
+                <div className="flex items-center gap-4">
+                  <span className="text-4xl">{offer.emoji}</span>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-text-primary">{offer.name}</h3>
+                    <p className="text-sm text-text-secondary">{offer.description}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-accent font-bold">{offer.price}&euro;</span>
+                      <CountdownTimer targetDate={offer.availableUntil} />
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPkg(offer)}
+                  className="w-full mt-4 bg-accent hover:bg-accent-dark text-white py-2 rounded-lg font-semibold transition-colors cursor-pointer text-sm"
+                >
+                  Kaufen
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Packages grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         {MINDCOIN_PACKAGES.map(pkg => (
           <CoinPackageCard key={pkg.id} pkg={pkg} onPurchase={setSelectedPkg} />
         ))}
+      </div>
+
+      {/* Transaction History */}
+      <div className="mb-12">
+        <TransactionHistory transactions={transactions} />
       </div>
 
       {/* What are MindCoins for? */}
@@ -318,6 +513,8 @@ export default function Shop() {
           pkg={selectedPkg}
           onClose={() => setSelectedPkg(null)}
           onConfirm={handleConfirmPurchase}
+          userBalance={user?.mindCoins || 0}
+          usedCodes={user?.usedCodes}
         />
       )}
     </div>

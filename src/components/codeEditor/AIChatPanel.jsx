@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, Copy, Check, ChevronDown, ChevronUp, Code2, Zap, Eye, EyeOff } from 'lucide-react'
+import { Send, Copy, Check, ChevronDown, ChevronUp, Code2, Zap, Eye, EyeOff, Bot } from 'lucide-react'
 import { useAIChat } from '../../hooks/useAIChat'
 
 function parseCodeBlocks(text) {
@@ -226,12 +226,40 @@ export default function AIChatPanel({ onApplyCode, codeContext }) {
   const { messages, isLoading, sendMessage, requestCount, maxRequests } = useAIChat(codeContext)
   const [input, setInput] = useState('')
   const [isMinimized, setIsMinimized] = useState(false)
+  const [autoApply, setAutoApply] = useState(false)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
+  const lastProcessedIdx = useRef(0)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isLoading])
+
+  // Auto-apply: automatically insert code when new assistant messages with codeResponse arrive
+  useEffect(() => {
+    if (!autoApply) return
+    const newMessages = messages.slice(lastProcessedIdx.current)
+    lastProcessedIdx.current = messages.length
+    for (const msg of newMessages) {
+      if (msg.role === 'assistant' && msg.codeResponse) {
+        const blocks = []
+        const regex = /```(\w*)\n?([\s\S]*?)```/g
+        let match
+        while ((match = regex.exec(msg.codeResponse)) !== null) {
+          blocks.push({ language: match[1] || 'code', code: match[2].trim() })
+        }
+        if (blocks.length > 0) {
+          const codeObj = {}
+          blocks.forEach(block => {
+            if (block.language === 'html') codeObj.html = block.code
+            else if (block.language === 'css') codeObj.css = block.code
+            else if (block.language === 'javascript' || block.language === 'js') codeObj.js = block.code
+          })
+          onApplyCode(codeObj)
+        }
+      }
+    }
+  }, [messages, autoApply, onApplyCode])
 
   const handleSend = () => {
     if (!input.trim()) return
@@ -277,6 +305,18 @@ export default function AIChatPanel({ onApplyCode, codeContext }) {
           <span className="text-xs text-gray-500 ml-3">{requestCount}/{maxRequests} Anfragen</span>
         </div>
         <div className="flex items-center gap-1 pr-2">
+          <button
+            onClick={() => setAutoApply(!autoApply)}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+              autoApply
+                ? 'bg-accent/20 text-accent border border-accent/30'
+                : 'bg-[#2a2a2a] text-gray-500 hover:text-gray-300 border border-transparent'
+            }`}
+            title={autoApply ? 'Auto-Code-Einfuegen aktiv' : 'Auto-Code-Einfuegen aktivieren'}
+          >
+            <Bot size={11} />
+            Auto
+          </button>
           <button
             onClick={() => setIsMinimized(true)}
             className="text-gray-400 hover:text-white p-1 cursor-pointer"

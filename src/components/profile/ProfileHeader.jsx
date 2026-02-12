@@ -27,8 +27,13 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
               hairColor={user.avatar?.hairColor}
               hairStyle={user.avatar?.hairStyle}
               eyeType={user.avatar?.eyes || user.avatar?.eyeType}
+              eyebrows={user.avatar?.eyebrows}
+              mouth={user.avatar?.mouth}
+              accessory={user.avatar?.accessory}
+              bgStyle={user.avatar?.bgStyle}
               size={128}
               username={user.username}
+              animated
             />
           </div>
         </div>

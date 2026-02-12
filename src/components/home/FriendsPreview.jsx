@@ -37,6 +37,10 @@ export default function FriendsPreview({ friends, maxDisplay = 5 }) {
                   hairColor={friend.avatar?.hairColor}
                   hairStyle={friend.avatar?.hairStyle}
                   eyeType={friend.avatar?.eyes || friend.avatar?.eyeType}
+                  eyebrows={friend.avatar?.eyebrows}
+                  mouth={friend.avatar?.mouth}
+                  accessory={friend.avatar?.accessory}
+                  bgStyle={friend.avatar?.bgStyle}
                   size={40}
                   username={friend.username}
                 />

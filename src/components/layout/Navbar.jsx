@@ -72,6 +72,10 @@ export default function Navbar({ onToggleSidebar }) {
                   hairColor={user.avatar?.hairColor}
                   hairStyle={user.avatar?.hairStyle}
                   eyeType={user.avatar?.eyes || user.avatar?.eyeType}
+                  eyebrows={user.avatar?.eyebrows}
+                  mouth={user.avatar?.mouth}
+                  accessory={user.avatar?.accessory}
+                  bgStyle={user.avatar?.bgStyle}
                   size={28}
                   username={user.username}
                 />
