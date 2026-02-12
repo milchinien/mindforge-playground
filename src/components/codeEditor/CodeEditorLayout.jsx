@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, Settings2, Rocket, MessageCircle, Monitor } from 'lucide-react'
+import { ArrowLeft, Settings2, Rocket, Monitor, GripHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { usePublishedGames } from '../../hooks/usePublishedGames'
@@ -24,7 +24,6 @@ export default function CodeEditorLayout({ onBack }) {
   })
   const [activeFile, setActiveFile] = useState('html')
   const [showMetadata, setShowMetadata] = useState(false)
-  const [showChat, setShowChat] = useState(false)
   const [metadata, setMetadata] = useState({
     title: '',
     description: '',
@@ -36,12 +35,44 @@ export default function CodeEditorLayout({ onBack }) {
   })
   const [isMobile, setIsMobile] = useState(false)
 
+  // Resizable AI panel
+  const [aiPanelHeight, setAiPanelHeight] = useState(280)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartY = useRef(0)
+  const dragStartHeight = useRef(0)
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
+
+  // Drag resize handler
+  useEffect(() => {
+    if (!isDragging) return
+
+    const handleMouseMove = (e) => {
+      const delta = dragStartY.current - e.clientY
+      const newHeight = Math.max(48, Math.min(window.innerHeight * 0.6, dragStartHeight.current + delta))
+      setAiPanelHeight(newHeight)
+    }
+
+    const handleMouseUp = () => setIsDragging(false)
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging])
+
+  const handleDragStart = (e) => {
+    setIsDragging(true)
+    dragStartY.current = e.clientY
+    dragStartHeight.current = aiPanelHeight
+  }
 
   const handleCodeChange = (file, value) => {
     setCode(prev => ({ ...prev, [file]: value }))
@@ -86,7 +117,18 @@ export default function CodeEditorLayout({ onBack }) {
   }
 
   const handleApplyCode = (codeBlock) => {
-    // Try to detect if it's HTML, CSS or JS
+    // Object format from PreviewCard: { html, css, js }
+    if (typeof codeBlock === 'object' && codeBlock !== null) {
+      setCode(prev => ({
+        ...prev,
+        ...(codeBlock.html !== undefined ? { html: codeBlock.html } : {}),
+        ...(codeBlock.css !== undefined ? { css: codeBlock.css } : {}),
+        ...(codeBlock.js !== undefined ? { js: codeBlock.js } : {}),
+      }))
+      return
+    }
+
+    // String format: detect type by content
     if (codeBlock.includes('<') && codeBlock.includes('>')) {
       setCode(prev => ({ ...prev, html: codeBlock }))
       setActiveFile('html')
@@ -115,36 +157,27 @@ export default function CodeEditorLayout({ onBack }) {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="fixed inset-0 z-[60] flex flex-col h-screen bg-[#1e1e1e]" style={{ userSelect: isDragging ? 'none' : 'auto' }} data-testid="editor-fullscreen">
       {/* Toolbar */}
-      <div className="flex items-center justify-between bg-bg-secondary px-4 py-2 border-b border-gray-700">
+      <div className="flex items-center justify-between bg-[#181818] px-4 py-2 border-b border-[#2a2a2a] flex-shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-text-muted hover:text-text-primary cursor-pointer">
+          <button onClick={onBack} className="text-gray-500 hover:text-gray-300 cursor-pointer transition-colors">
             <ArrowLeft size={18} />
           </button>
-          <span className="text-sm font-medium text-text-primary">{metadata.title || 'Neues Spiel'}</span>
-          <span className="text-xs text-text-muted">Freier Modus</span>
+          <span className="text-sm font-medium text-gray-200">{metadata.title || 'Neues Spiel'}</span>
+          <span className="text-xs text-gray-600 bg-[#2a2a2a] px-2 py-0.5 rounded">Freier Modus</span>
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowChat(!showChat)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${
-              showChat ? 'bg-accent/20 text-accent' : 'bg-bg-card text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            <MessageCircle size={14} />
-            KI-Chat
-          </button>
-          <button
             onClick={() => setShowMetadata(true)}
-            className="flex items-center gap-1.5 bg-bg-card text-text-secondary hover:text-text-primary px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 bg-[#2a2a2a] text-gray-400 hover:text-gray-200 px-3 py-1.5 rounded text-sm transition-colors cursor-pointer"
           >
             <Settings2 size={14} />
             Metadaten
           </button>
           <button
             onClick={handlePublish}
-            className="flex items-center gap-1.5 bg-accent hover:bg-accent-dark text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 bg-accent hover:bg-accent-dark text-white px-4 py-1.5 rounded text-sm font-semibold transition-colors cursor-pointer"
           >
             <Rocket size={14} />
             Veroeffentlichen
@@ -152,37 +185,41 @@ export default function CodeEditorLayout({ onBack }) {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Editor + Preview */}
-        <div className="flex-1 flex flex-col">
-          {/* Monaco Editor */}
-          <div className="flex-1 min-h-0">
-            <MonacoWrapper
-              code={code}
-              activeFile={activeFile}
-              onFileChange={setActiveFile}
-              onCodeChange={handleCodeChange}
-            />
-          </div>
-
-          {/* Live Preview */}
-          <div className="h-[40%] border-t border-gray-700">
-            <div className="bg-[#2d2d2d] px-3 py-1 text-xs text-gray-400 border-b border-[#333]">
-              Live Preview
-            </div>
-            <div className="h-[calc(100%-28px)]">
-              <LivePreview html={code.html} css={code.css} js={code.js} />
-            </div>
-          </div>
+      {/* Main Content: Editor (left) + Preview (right) */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        {/* Monaco Editor */}
+        <div className="flex-1 min-w-0">
+          <MonacoWrapper
+            code={code}
+            activeFile={activeFile}
+            onFileChange={setActiveFile}
+            onCodeChange={handleCodeChange}
+          />
         </div>
 
-        {/* AI Chat Panel */}
-        {showChat && (
-          <div className="w-80 border-l border-gray-700 flex-shrink-0">
-            <AIChatPanel onClose={() => setShowChat(false)} onApplyCode={handleApplyCode} />
+        {/* Live Preview */}
+        <div className="w-[40%] border-l border-[#2a2a2a] flex flex-col flex-shrink-0">
+          <div className="bg-[#181818] px-3 py-1 text-xs text-gray-500 border-b border-[#2a2a2a] flex-shrink-0">
+            Live Preview
           </div>
-        )}
+          <div className="flex-1 min-h-0">
+            <LivePreview html={code.html} css={code.css} js={code.js} />
+          </div>
+        </div>
+      </div>
+
+      {/* Resize Handle */}
+      <div
+        className="h-1 bg-[#2a2a2a] hover:bg-gray-600 cursor-ns-resize flex items-center justify-center flex-shrink-0 transition-colors"
+        onMouseDown={handleDragStart}
+        data-testid="resize-handle"
+      >
+        <GripHorizontal size={12} className="text-gray-700" />
+      </div>
+
+      {/* AI Panel - always at bottom like VS Code terminal */}
+      <div style={{ height: aiPanelHeight }} className="flex-shrink-0" data-testid="ai-panel">
+        <AIChatPanel onApplyCode={handleApplyCode} codeContext={code} />
       </div>
 
       {/* Metadata Panel */}
