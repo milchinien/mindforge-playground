@@ -69,6 +69,10 @@ const HAIR_STYLES = [
   { id: 'bob', name: 'Bob' },
   { id: 'spiky', name: 'Stachelig' },
   { id: 'braids', name: 'Zoepfe' },
+  { id: 'afro', name: 'Afro' },
+  { id: 'pixie', name: 'Pixie' },
+  { id: 'sidepart', name: 'Seitenscheitel' },
+  { id: 'undercut', name: 'Undercut' },
 ]
 
 const EYE_TYPES = [
@@ -104,6 +108,9 @@ const ACCESSORY_TYPES = [
   { id: 'headphones', name: 'Kopfhoerer', price: 50 },
   { id: 'mask', name: 'Maske', price: 75 },
   { id: 'scarf', name: 'Schal', price: 60 },
+  { id: 'monocle', name: 'Monokel', price: 120 },
+  { id: 'bowtie', name: 'Fliege', price: 80 },
+  { id: 'bandana', name: 'Bandana', price: 40 },
 ]
 
 const HAT_TYPES = [
@@ -119,6 +126,12 @@ const HAT_TYPES = [
   { id: 'viking', name: 'Wikingerhelm', price: 350, rarity: 'epic' },
   { id: 'helmet', name: 'Helm', price: 200, rarity: 'rare' },
   { id: 'crown', name: 'Krone', price: 500, rarity: 'legendary' },
+  { id: 'fedora', name: 'Fedora', price: 180, rarity: 'epic' },
+  { id: 'beret', name: 'Baskenmtze', price: 120, rarity: 'rare' },
+  { id: 'partyhat', name: 'Partyhut', price: 100, rarity: 'rare' },
+  { id: 'bunnyears', name: 'Hasenohren', price: 200, rarity: 'epic' },
+  { id: 'chef', name: 'Kochmuetze', price: 150, rarity: 'rare' },
+  { id: 'astronaut', name: 'Astronaut', price: 400, rarity: 'legendary' },
 ]
 
 const CLOTHING_TYPES = [
@@ -142,6 +155,10 @@ const BG_STYLES = [
   { id: 'ocean', name: 'Ozean', color: 'linear-gradient(180deg, #0077b6, #03045e)' },
   { id: 'forest', name: 'Wald', color: 'linear-gradient(180deg, #2d6a4f, #1b4332)' },
   { id: 'neon', name: 'Neon', color: 'linear-gradient(90deg, #7b2ff7, #00e5ff)' },
+  { id: 'arctic', name: 'Arktis', color: 'linear-gradient(180deg, #e3f2fd, #42a5f5)' },
+  { id: 'cherry', name: 'Kirsche', color: 'linear-gradient(180deg, #f8bbd0, #880e4f)' },
+  { id: 'candy', name: 'Candy', color: 'linear-gradient(90deg, #f48fb1, #80deea)' },
+  { id: 'mindforge', name: 'MindForge', color: 'linear-gradient(180deg, #f97316, #9a3412)' },
 ]
 
 const RARITY_CONFIG = {
