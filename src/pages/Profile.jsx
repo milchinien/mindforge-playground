@@ -10,7 +10,7 @@ import Modal from '../components/common/Modal'
 
 export default function Profile() {
   const { username } = useParams()
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, updateUser } = useAuth()
   const [profileUser, setProfileUser] = useState(null)
   const [activeTab, setActiveTab] = useState('games')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -110,6 +110,10 @@ export default function Profile() {
           }))
         }}
         isFollowing={isFollowing}
+        onTitleChange={async (title) => {
+          setProfileUser(prev => ({ ...prev, activeTitle: title }))
+          await updateUser({ activeTitle: title })
+        }}
       />
 
       {/* Tabs */}

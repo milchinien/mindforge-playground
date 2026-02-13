@@ -115,17 +115,17 @@ export const ACHIEVEMENT_CATEGORIES = [
 ]
 
 export const MOCK_USER_PROGRESS = {
-  games_played: 7,
-  games_completed: 4,
-  daily_streak: 2,
-  likes_given: 3,
-  total_playtime_minutes: 45,
-  following_count: 3,
-  followers_count: 1,
-  friends_count: 2,
-  avatar_customized: 1,
+  games_played: 0,
+  games_completed: 0,
+  daily_streak: 0,
+  likes_given: 0,
+  total_playtime_minutes: 0,
+  following_count: 0,
+  followers_count: 0,
+  friends_count: 0,
+  avatar_customized: 0,
   profile_complete: 0,
-  events_participated: 1,
+  events_participated: 0,
   events_completed: 0,
   games_created: 0,
   total_likes_received: 0,
@@ -134,13 +134,13 @@ export const MOCK_USER_PROGRESS = {
   is_premium: 0,
   game_approval_rate: 0,
   category_games_completed: {
-    mathe: 3, physik: 1, chemie: 0, biologie: 0,
+    mathe: 0, physik: 0, chemie: 0, biologie: 0,
     geschichte: 0, sprachen: 0, informatik: 0, musik: 0,
   },
   category_perfect_scores: {
-    mathe: 1, physik: 0,
+    mathe: 0, physik: 0,
   },
-  unique_categories_played: 2,
+  unique_categories_played: 0,
 }
 
 export {

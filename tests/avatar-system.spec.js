@@ -10,8 +10,14 @@ async function login(page) {
   await page.waitForURL('**/', { timeout: 5000 })
 }
 
-test.describe('Avatar System - Roblox Style Editor', () => {
-  test('Avatar page loads with title and sidebar categories', async ({ browser }) => {
+// Helper: click a category tab by name
+async function clickCategoryTab(page, name) {
+  await page.locator('button', { hasText: name }).filter({ has: page.locator('svg') }).click()
+  await page.waitForTimeout(200)
+}
+
+test.describe('Avatar System - Editor', () => {
+  test('Avatar page loads with title and category tabs', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
@@ -20,13 +26,16 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     // Page title
     await expect(page.getByRole('heading', { name: 'Avatar anpassen' })).toBeVisible()
 
-    // Sidebar category buttons with tooltips
-    const sidebar = page.locator('.w-14')
-    await expect(sidebar).toBeVisible()
-
-    // Check all 8 category buttons exist
-    const categoryButtons = sidebar.locator('button')
-    await expect(categoryButtons).toHaveCount(8)
+    // Category tabs should be visible with text labels
+    await expect(page.locator('button', { hasText: 'Presets' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Koerper' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Haut' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Haare' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Gesicht' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Huete' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Kleidung' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Accessoires' }).filter({ has: page.locator('svg') })).toBeVisible()
+    await expect(page.locator('button', { hasText: 'Hintergrund' }).filter({ has: page.locator('svg') })).toBeVisible()
 
     // Save status indicator
     await expect(page.locator('text=Gespeichert')).toBeVisible()
@@ -70,17 +79,55 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await context.close()
   })
 
+  test('Body type category shows all body type options', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
+
+    // Click body category tab
+    await clickCategoryTab(page, 'Koerper')
+
+    // Body type options should be visible
+    await expect(page.locator('text=Waehle die Statur')).toBeVisible()
+    await expect(page.locator('p.text-sm:text("Schmal")')).toBeVisible()
+    await expect(page.locator('p.text-sm:text("Normal")')).toBeVisible()
+    await expect(page.locator('p.text-sm:text("Sportlich")')).toBeVisible()
+    await expect(page.locator('p.text-sm:text("Breit")')).toBeVisible()
+    await expect(page.locator('p.text-sm:text("Staemmig")')).toBeVisible()
+
+    await context.close()
+  })
+
+  test('Body type selection changes avatar and triggers save', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
+
+    // Click body category tab
+    await clickCategoryTab(page, 'Koerper')
+
+    // Click "Breit"
+    await page.click('text=Breit')
+
+    // Should trigger save
+    await expect(page.locator('text=Ungespeichert')).toBeVisible({ timeout: 500 })
+    await expect(page.locator('text=Gespeichert')).toBeVisible({ timeout: 3000 })
+
+    await context.close()
+  })
+
   test('Clicking skin category shows skin color pickers', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
-    // Click skin category (2nd button in sidebar)
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(1).click()
+    // Click skin category tab
+    await clickCategoryTab(page, 'Haut')
 
-    // Skin color picker visible (use h4 to avoid matching tooltip and heading)
+    // Skin color picker visible
     await expect(page.locator('h4:text("Hautfarbe")')).toBeVisible()
 
     // 7 skin color buttons exist
@@ -98,9 +145,8 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await login(page)
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
-    // Click hair category (3rd button)
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(2).click()
+    // Click hair category tab
+    await clickCategoryTab(page, 'Haare')
 
     await expect(page.locator('text=Frisur')).toBeVisible()
     await expect(page.locator('text=Haarfarbe')).toBeVisible()
@@ -119,9 +165,8 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await login(page)
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
-    // Click face category (4th button)
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(3).click()
+    // Click face category tab
+    await clickCategoryTab(page, 'Gesicht')
 
     await expect(page.locator('text=Augenform')).toBeVisible()
     await expect(page.locator('text=Augenfarbe')).toBeVisible()
@@ -137,9 +182,8 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await login(page)
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
-    // Click hats category (5th button)
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(4).click()
+    // Click hats category tab
+    await clickCategoryTab(page, 'Huete')
 
     // Hat description text
     await expect(page.locator('text=Kostenlose und Premium-Huete')).toBeVisible()
@@ -154,7 +198,7 @@ test.describe('Avatar System - Roblox Style Editor', () => {
 
     // Check "Gratis" labels exist for free hats
     const gratisLabels = page.locator('text=Gratis')
-    expect(await gratisLabels.count()).toBeGreaterThanOrEqual(3) // none, baseball, beanie
+    expect(await gratisLabels.count()).toBeGreaterThanOrEqual(3)
 
     await context.close()
   })
@@ -165,9 +209,8 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await login(page)
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
-    // Click clothing category (6th button)
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(5).click()
+    // Click clothing category tab
+    await clickCategoryTab(page, 'Kleidung')
 
     await expect(page.locator('text=Kleidungsstil')).toBeVisible()
     await expect(page.locator('text=Kleidungsfarbe')).toBeVisible()
@@ -186,13 +229,12 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await login(page)
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
-    // Click accessories category (7th button)
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(6).click()
+    // Click accessories category tab
+    await clickCategoryTab(page, 'Accessoires')
 
     await expect(page.locator('text=Accessoires fuer deinen Avatar')).toBeVisible()
 
-    // Free accessories (use exact match to avoid "Sonnenbrille" matching "Brille")
+    // Free accessories
     await expect(page.getByRole('button', { name: 'Brille Gratis', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Sonnenbrille Gratis' })).toBeVisible()
 
@@ -205,9 +247,8 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await login(page)
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
-    // Click background category (8th button)
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(7).click()
+    // Click background category tab
+    await clickCategoryTab(page, 'Hintergrund')
 
     await expect(page.locator('h4:text("Hintergrund")')).toBeVisible()
 
@@ -226,9 +267,7 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
     // Go to hair category
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(2).click()
-    await page.waitForTimeout(200)
+    await clickCategoryTab(page, 'Haare')
 
     // Click a different hair style
     await page.click('button:text("Lockig")')
@@ -265,7 +304,7 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
     // MindCoin display should be visible
-    const coinDisplay = page.locator('.rounded-full', { hasText: /\d/ })
+    const coinDisplay = page.locator('.rounded-xl', { hasText: /\d/ })
     expect(await coinDisplay.count()).toBeGreaterThan(0)
 
     await context.close()
@@ -278,21 +317,61 @@ test.describe('Avatar System - Roblox Style Editor', () => {
     await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
 
     // Go to hair, change to Lockig
-    const sidebar = page.locator('.w-14')
-    await sidebar.locator('button').nth(2).click()
+    await clickCategoryTab(page, 'Haare')
     await page.click('button:text("Lockig")')
     await page.waitForTimeout(200)
 
     // Switch to face
-    await sidebar.locator('button').nth(3).click()
-    await page.waitForTimeout(200)
+    await clickCategoryTab(page, 'Gesicht')
 
     // Switch back to hair
-    await sidebar.locator('button').nth(2).click()
+    await clickCategoryTab(page, 'Haare')
 
     // Lockig should still be selected
     const lockigBtn = page.locator('button:text("Lockig")')
     await expect(lockigBtn).toHaveClass(/accent/)
+
+    await context.close()
+  })
+
+  test('Visual screenshot - all presets look good', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
+
+    // Take screenshot of presets page
+    await page.screenshot({ path: 'tests/screenshots/avatar-presets.png', fullPage: false })
+
+    await context.close()
+  })
+
+  test('Visual screenshot - body types', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
+
+    // Click body category tab
+    await clickCategoryTab(page, 'Koerper')
+
+    // Take screenshot of body types
+    await page.screenshot({ path: 'tests/screenshots/avatar-body-types.png', fullPage: false })
+
+    await context.close()
+  })
+
+  test('Visual screenshot - face customization', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/avatar`, { waitUntil: 'networkidle' })
+
+    // Click face category tab
+    await clickCategoryTab(page, 'Gesicht')
+
+    // Take screenshot
+    await page.screenshot({ path: 'tests/screenshots/avatar-face.png', fullPage: false })
 
     await context.close()
   })

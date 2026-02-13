@@ -1,518 +1,747 @@
 import { useState, useMemo } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { MOCK_ASSETS, ASSET_TYPES, SORT_OPTIONS } from '../data/mockAssets'
-import AssetCard from '../components/marketplace/AssetCard'
+import AvatarRenderer from '../components/profile/AvatarRenderer'
 import MindCoinIcon from '../components/common/MindCoinIcon'
 import useEscapeKey from '../hooks/useEscapeKey'
+import {
+  Crown, Scissors, Glasses, Shirt, Palette, Smile,
+  Package, ShoppingBag, Check, X, Search, Filter,
+  CircleDollarSign, Gift,
+} from 'lucide-react'
+import {
+  HAT_TYPES, HAIR_STYLES, ACCESSORY_TYPES, CLOTHING_TYPES,
+  BG_STYLES, EYE_TYPES, EYEBROW_TYPES, MOUTH_TYPES,
+  HAIR_COLORS, CLOTHING_COLORS, RARITY_CONFIG,
+  MARKETPLACE_CATEGORIES,
+} from '../data/avatarItems'
 
-const TYPE_ICONS = {
-  '3d-model': '\u{1F9CA}',
-  'texture': '\u{1F3A8}',
-  'audio': '\u{1F3B5}',
-  'script': '\u{1F4DC}',
-  'avatar-item': '\u{1F464}',
+const CATEGORY_ICONS = {
+  all: Package,
+  hats: Crown,
+  hair: Scissors,
+  accessories: Glasses,
+  clothing: Shirt,
+  background: Palette,
+  face: Smile,
 }
 
-function StarRating({ rating, onRate, interactive = false }) {
-  const [hovered, setHovered] = useState(0)
+const PRICE_FILTERS = [
+  { id: 'all', name: 'Alle Items', icon: Package },
+  { id: 'free', name: 'Kostenlos', icon: Gift },
+  { id: 'premium', name: 'Premium', icon: CircleDollarSign },
+]
 
-  return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map(star => (
-        <button
-          key={star}
-          onClick={() => interactive && onRate?.(star)}
-          onMouseEnter={() => interactive && setHovered(star)}
-          onMouseLeave={() => interactive && setHovered(0)}
-          disabled={!interactive}
-          className={`text-lg transition-colors ${interactive ? 'cursor-pointer' : 'cursor-default'}`}
-        >
-          <span className={
-            (hovered || rating) >= star
-              ? 'text-yellow-400'
-              : 'text-gray-600'
-          }>
-            {'\u2605'}
-          </span>
-        </button>
-      ))}
-    </div>
-  )
+// Build a unified list of all marketplace items
+function buildMarketplaceItems() {
+  const items = []
+
+  // Hats (skip 'none')
+  HAT_TYPES.filter(h => h.id !== 'none').forEach(hat => {
+    items.push({
+      id: `hat-${hat.id}`,
+      itemId: hat.id,
+      category: 'hats',
+      name: hat.name,
+      price: hat.price,
+      rarity: hat.rarity || 'common',
+      avatarKey: 'hat',
+    })
+  })
+
+  // Hair styles
+  HAIR_STYLES.forEach(hair => {
+    items.push({
+      id: `hair-${hair.id}`,
+      itemId: hair.id,
+      category: 'hair',
+      name: hair.name,
+      price: hair.price || 0,
+      rarity: (hair.price || 0) >= 50 ? 'rare' : 'common',
+      avatarKey: 'hairStyle',
+    })
+  })
+
+  // Hair colors
+  HAIR_COLORS.forEach(color => {
+    items.push({
+      id: `haircolor-${color.hex}`,
+      itemId: color.hex,
+      category: 'hair',
+      name: `Haarfarbe: ${color.name}`,
+      price: 0,
+      rarity: 'common',
+      avatarKey: 'hairColor',
+      isColor: true,
+      colorHex: color.hex,
+    })
+  })
+
+  // Accessories (skip 'none')
+  ACCESSORY_TYPES.filter(a => a.id !== 'none').forEach(acc => {
+    items.push({
+      id: `acc-${acc.id}`,
+      itemId: acc.id,
+      category: 'accessories',
+      name: acc.name,
+      price: acc.price,
+      rarity: acc.price >= 100 ? 'epic' : acc.price >= 50 ? 'rare' : 'common',
+      avatarKey: 'accessory',
+    })
+  })
+
+  // Clothing types
+  CLOTHING_TYPES.forEach(cloth => {
+    items.push({
+      id: `cloth-${cloth.id}`,
+      itemId: cloth.id,
+      category: 'clothing',
+      name: cloth.name,
+      price: cloth.price || 0,
+      rarity: (cloth.price || 0) >= 50 ? 'rare' : 'common',
+      avatarKey: 'clothing',
+    })
+  })
+
+  // Clothing colors
+  CLOTHING_COLORS.forEach(color => {
+    items.push({
+      id: `clothcolor-${color.hex}`,
+      itemId: color.hex,
+      category: 'clothing',
+      name: `Farbe: ${color.name}`,
+      price: 0,
+      rarity: 'common',
+      avatarKey: 'clothingColor',
+      isColor: true,
+      colorHex: color.hex,
+    })
+  })
+
+  // Backgrounds
+  BG_STYLES.forEach(bg => {
+    items.push({
+      id: `bg-${bg.id}`,
+      itemId: bg.id,
+      category: 'background',
+      name: bg.name,
+      price: bg.price || 0,
+      rarity: (bg.price || 0) >= 100 ? 'epic' : (bg.price || 0) >= 40 ? 'rare' : 'common',
+      avatarKey: 'bgStyle',
+      bgColor: bg.color,
+    })
+  })
+
+  // Face - Eye types
+  EYE_TYPES.forEach(eye => {
+    items.push({
+      id: `eye-${eye.id}`,
+      itemId: eye.id,
+      category: 'face',
+      name: `Augen: ${eye.name}`,
+      price: 0,
+      rarity: 'common',
+      avatarKey: 'eyeType',
+    })
+  })
+
+  // Face - Eyebrows
+  EYEBROW_TYPES.forEach(eb => {
+    items.push({
+      id: `eyebrow-${eb.id}`,
+      itemId: eb.id,
+      category: 'face',
+      name: `Brauen: ${eb.name}`,
+      price: 0,
+      rarity: 'common',
+      avatarKey: 'eyebrows',
+    })
+  })
+
+  // Face - Mouth
+  MOUTH_TYPES.forEach(mouth => {
+    items.push({
+      id: `mouth-${mouth.id}`,
+      itemId: mouth.id,
+      category: 'face',
+      name: `Mund: ${mouth.name}`,
+      price: 0,
+      rarity: 'common',
+      avatarKey: 'mouth',
+    })
+  })
+
+  return items
 }
 
-function RatingSection({ asset, isPurchased, userRating, onSubmitRating }) {
-  const [newRating, setNewRating] = useState(userRating?.stars || 0)
-  const [comment, setComment] = useState(userRating?.comment || '')
-  const [submitted, setSubmitted] = useState(!!userRating)
+const ALL_ITEMS = buildMarketplaceItems()
 
-  const handleSubmit = () => {
-    if (newRating === 0) return
-    onSubmitRating(asset.id, newRating, comment)
-    setSubmitted(true)
+const SORT_OPTIONS = [
+  { id: 'default', name: 'Standard' },
+  { id: 'price-asc', name: 'Preis aufsteigend' },
+  { id: 'price-desc', name: 'Preis absteigend' },
+  { id: 'name', name: 'Name A-Z' },
+  { id: 'rarity', name: 'Seltenheit' },
+]
+
+const RARITY_ORDER = { common: 0, rare: 1, epic: 2, legendary: 3 }
+
+function getAvatarConfig(user) {
+  return {
+    skinColor: user?.avatar?.skinColor || '#F5D6B8',
+    hairColor: user?.avatar?.hairColor || '#2C1810',
+    hairStyle: user?.avatar?.hairStyle || 'short',
+    eyeType: user?.avatar?.eyes || user?.avatar?.eyeType || 'round',
+    eyeColor: user?.avatar?.eyeColor || '#6B3A2A',
+    eyebrows: user?.avatar?.eyebrows || 'none',
+    mouth: user?.avatar?.mouth || 'smile',
+    accessory: user?.avatar?.accessory || 'none',
+    hat: user?.avatar?.hat || 'none',
+    clothing: user?.avatar?.clothing || 'tshirt',
+    clothingColor: user?.avatar?.clothingColor || '#374151',
+    bgStyle: user?.avatar?.bgStyle || 'gray',
+    bodyType: user?.avatar?.bodyType || 'normal',
   }
+}
 
-  if (!isPurchased) return null
+function isItemOwned(item, user) {
+  if (item.price === 0) return true
+  if (item.category === 'hats') return (user?.ownedHats || []).includes(item.itemId)
+  if (item.category === 'accessories') return (user?.ownedAccessories || []).includes(item.itemId)
+  if (item.category === 'hair') return (user?.ownedHairStyles || []).includes(item.itemId)
+  if (item.category === 'clothing') return (user?.ownedClothing || []).includes(item.itemId)
+  if (item.category === 'background') return (user?.ownedBackgrounds || []).includes(item.itemId)
+  return true
+}
+
+function isItemEquipped(item, avatarConfig) {
+  return avatarConfig[item.avatarKey] === item.itemId
+}
+
+// ============= ITEM CARD =============
+function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, onClick }) {
+  const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
+  const previewConfig = { ...avatarConfig, [item.avatarKey]: item.itemId }
 
   return (
-    <div className="mt-4 pt-4 border-t border-gray-700">
-      <h4 className="text-sm font-medium text-text-secondary mb-2">
-        {submitted ? 'Deine Bewertung' : 'Bewerte dieses Item'}
-      </h4>
-      <StarRating rating={newRating} onRate={submitted ? undefined : setNewRating} interactive={!submitted} />
-      {!submitted ? (
-        <>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Optionaler Kommentar..."
-            rows={2}
-            className="w-full mt-2 bg-bg-card border border-gray-700 rounded-lg px-3 py-2 text-text-primary text-sm
-                       focus:outline-none focus:border-accent resize-none"
+    <button
+      onClick={() => onClick(item)}
+      className={`relative rounded-2xl p-2.5 border-2 transition-all duration-200 cursor-pointer text-left hover:scale-[1.02] group ${
+        isEquipped
+          ? 'border-accent bg-accent/10 shadow-lg shadow-accent/15'
+          : `border-gray-700/30 ${rarity.bg} hover:border-gray-500/50 ${rarity.glow ? `shadow-md ${rarity.glow}` : ''}`
+      }`}
+    >
+      {/* Avatar Preview */}
+      <div className="w-full aspect-square rounded-xl bg-bg-primary/40 flex items-center justify-center overflow-hidden mb-2">
+        {item.isColor ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div
+              className="w-14 h-14 rounded-xl border-2 border-gray-600/30 shadow-inner"
+              style={{ background: item.colorHex }}
+            />
+          </div>
+        ) : item.bgColor ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div
+              className="w-14 h-14 rounded-xl border-2 border-gray-600/30 shadow-inner"
+              style={{ background: item.bgColor }}
+            />
+          </div>
+        ) : (
+          <AvatarRenderer
+            skinColor={previewConfig.skinColor}
+            hairColor={previewConfig.hairColor}
+            hairStyle={previewConfig.hairStyle}
+            eyeType={previewConfig.eyeType}
+            eyeColor={previewConfig.eyeColor}
+            eyebrows={previewConfig.eyebrows}
+            mouth={previewConfig.mouth}
+            accessory={previewConfig.accessory}
+            hat={previewConfig.hat}
+            clothing={previewConfig.clothing}
+            clothingColor={previewConfig.clothingColor}
+            bgStyle={previewConfig.bgStyle}
+            bodyType={previewConfig.bodyType}
+            size={80}
           />
-          <button
-            onClick={handleSubmit}
-            disabled={newRating === 0}
-            className={`mt-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              newRating > 0
-                ? 'bg-accent text-white hover:bg-accent-dark cursor-pointer'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            Bewertung absenden
-          </button>
-        </>
-      ) : (
-        comment && <p className="text-xs text-text-muted mt-1">"{comment}"</p>
+        )}
+      </div>
+
+      {/* Name */}
+      <p className="text-xs font-semibold text-text-primary truncate">{item.name}</p>
+
+      {/* Rarity & Price */}
+      <div className="flex items-center justify-between mt-1">
+        <span className={`text-[10px] font-medium ${rarity.color}`}>{rarity.name}</span>
+        {item.price === 0 ? (
+          <span className="text-[10px] text-success font-semibold">Gratis</span>
+        ) : isOwned ? (
+          <span className="text-[10px] text-accent font-semibold">Gekauft</span>
+        ) : (
+          <span className="flex items-center gap-0.5 text-[10px] text-warning font-semibold">
+            <MindCoinIcon size={10} /> {item.price}
+          </span>
+        )}
+      </div>
+
+      {/* Equipped badge */}
+      {isEquipped && (
+        <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-accent rounded-full flex items-center justify-center shadow-md">
+          <Check size={10} className="text-white" />
+        </div>
       )}
-    </div>
+    </button>
   )
 }
 
-function ConfirmPurchaseModal({ asset, onClose, onConfirm, userCoins }) {
-  const canAfford = userCoins >= asset.price
+// ============= ITEM DETAIL MODAL =============
+function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, onClose, onBuyAndEquip, onEquip }) {
   useEscapeKey(onClose)
 
+  const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
+  const canAfford = (user?.mindCoins || 0) >= item.price
+  const previewConfig = { ...avatarConfig, [item.avatarKey]: item.itemId }
+  const needsPurchase = item.price > 0 && !isOwned
+
   return (
-    <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-bg-secondary rounded-xl max-w-sm w-full p-6" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-bold text-text-primary mb-3">Kauf bestaetigen</h3>
-        <div className="flex items-center gap-3 bg-bg-card rounded-lg p-3 mb-4">
-          <span className="text-3xl">{asset.avatarIcon || TYPE_ICONS[asset.type] || '\u{1F4E6}'}</span>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-bg-secondary rounded-2xl max-w-md w-full overflow-hidden border border-gray-700 shadow-2xl" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="p-5 border-b border-gray-700/50 flex items-center justify-between">
           <div>
-            <p className="font-semibold text-text-primary">{asset.name}</p>
-            <p className="text-sm text-accent flex items-center gap-1">
-              <MindCoinIcon size={16} /> {asset.price} MC
-            </p>
+            <h2 className="text-lg font-bold text-text-primary">{item.name}</h2>
+            <span className={`text-xs font-medium ${rarity.color}`}>{rarity.name}</span>
           </div>
-        </div>
-        {!canAfford && (
-          <p className="text-error text-sm mb-3">Dir fehlen {asset.price - userCoins} MindCoins.</p>
-        )}
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2 bg-bg-card text-text-secondary rounded-lg text-sm font-medium hover:bg-bg-hover transition-colors cursor-pointer"
-          >
-            Abbrechen
-          </button>
-          <button
-            onClick={() => { onConfirm(); onClose() }}
-            disabled={!canAfford}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              canAfford
-                ? 'bg-accent text-white hover:bg-accent-dark cursor-pointer'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            Kaufen
+          <button onClick={onClose} className="text-text-muted hover:text-text-primary text-lg cursor-pointer transition-colors">
+            <X size={20} />
           </button>
         </div>
-      </div>
-    </div>
-  )
-}
 
-function CartPanel({ cart, onRemove, onCheckout, userCoins }) {
-  const total = cart.reduce((sum, item) => sum + item.price, 0)
-  const canAfford = userCoins >= total
+        {/* Avatar Preview */}
+        <div className="p-6 flex justify-center bg-bg-primary/30">
+          <div className="flex gap-6 items-center">
+            {/* Current */}
+            <div className="text-center">
+              <p className="text-[10px] text-text-muted mb-2 uppercase tracking-wider font-medium">Aktuell</p>
+              <div className="rounded-xl overflow-hidden border-2 border-gray-700/30">
+                <AvatarRenderer
+                  skinColor={avatarConfig.skinColor}
+                  hairColor={avatarConfig.hairColor}
+                  hairStyle={avatarConfig.hairStyle}
+                  eyeType={avatarConfig.eyeType}
+                  eyeColor={avatarConfig.eyeColor}
+                  eyebrows={avatarConfig.eyebrows}
+                  mouth={avatarConfig.mouth}
+                  accessory={avatarConfig.accessory}
+                  hat={avatarConfig.hat}
+                  clothing={avatarConfig.clothing}
+                  clothingColor={avatarConfig.clothingColor}
+                  bgStyle={avatarConfig.bgStyle}
+                  bodyType={avatarConfig.bodyType}
+                  size={120}
+                />
+              </div>
+            </div>
 
-  if (cart.length === 0) return null
+            {/* Arrow */}
+            <div className="text-text-muted text-2xl">{'\u2192'}</div>
 
-  return (
-    <div className="fixed bottom-4 right-4 bg-bg-secondary rounded-xl shadow-2xl border border-gray-700 p-4 w-80 z-40">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold text-text-primary flex items-center gap-2">
-          {'\u{1F6D2}'} Warenkorb
-          <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full">{cart.length}</span>
-        </h3>
-      </div>
-      <div className="space-y-2 max-h-40 overflow-y-auto mb-3">
-        {cart.map(item => (
-          <div key={item.id} className="flex items-center justify-between text-sm">
-            <span className="text-text-primary truncate flex-1">{item.avatarIcon || TYPE_ICONS[item.type] || ''} {item.name}</span>
-            <span className="text-accent font-medium ml-2">{item.price} MC</span>
-            <button onClick={() => onRemove(item.id)} className="ml-2 text-text-muted hover:text-error cursor-pointer text-xs">{'\u2715'}</button>
+            {/* Preview with item */}
+            <div className="text-center">
+              <p className="text-[10px] text-accent mb-2 uppercase tracking-wider font-medium">Vorschau</p>
+              <div className="rounded-xl overflow-hidden border-2 border-accent/40 shadow-lg shadow-accent/10">
+                <AvatarRenderer
+                  skinColor={previewConfig.skinColor}
+                  hairColor={previewConfig.hairColor}
+                  hairStyle={previewConfig.hairStyle}
+                  eyeType={previewConfig.eyeType}
+                  eyeColor={previewConfig.eyeColor}
+                  eyebrows={previewConfig.eyebrows}
+                  mouth={previewConfig.mouth}
+                  accessory={previewConfig.accessory}
+                  hat={previewConfig.hat}
+                  clothing={previewConfig.clothing}
+                  clothingColor={previewConfig.clothingColor}
+                  bgStyle={previewConfig.bgStyle}
+                  bodyType={previewConfig.bodyType}
+                  size={120}
+                />
+              </div>
+            </div>
           </div>
-        ))}
-      </div>
-      <div className="border-t border-gray-700 pt-3">
-        <div className="flex justify-between text-sm font-bold mb-2">
-          <span>Gesamt</span>
-          <span className="text-accent">{total} MC</span>
-        </div>
-        {!canAfford && (
-          <p className="text-error text-xs mb-2">Dir fehlen {total - userCoins} MindCoins.</p>
-        )}
-        <button
-          onClick={onCheckout}
-          disabled={!canAfford}
-          className={`w-full py-2 rounded-lg text-sm font-semibold transition-colors ${
-            canAfford
-              ? 'bg-accent text-white hover:bg-accent-dark cursor-pointer'
-              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          Alle kaufen ({cart.length} Items)
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function AssetDetailModal({ asset, onClose, onPurchase, onAddToCart, isPurchased, userCoins, userRating, onSubmitRating }) {
-  const isFree = asset.price === 0
-  const canAfford = userCoins >= asset.price
-  const [feedback, setFeedback] = useState(null)
-  useEscapeKey(onClose)
-
-  const handleBuy = () => {
-    if (isPurchased) return
-    if (!isFree && !canAfford) {
-      setFeedback({ type: 'error', msg: 'Nicht genug MindCoins!' })
-      return
-    }
-    onPurchase(asset)
-    setFeedback({ type: 'success', msg: 'Erfolgreich gekauft!' })
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-         role="dialog" aria-modal="true" aria-label={asset.name}
-         onClick={onClose}>
-      <div className="bg-bg-secondary rounded-xl max-w-lg w-full overflow-hidden max-h-[90vh] overflow-y-auto"
-           onClick={(e) => e.stopPropagation()}>
-        <div className="aspect-video bg-bg-hover flex items-center justify-center text-6xl">
-          {asset.avatarIcon || TYPE_ICONS[asset.type] || '\u{1F4E6}'}
         </div>
 
-        <div className="p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-text-primary">{asset.name}</h2>
-              <p className="text-text-muted text-sm mt-1">
-                von {asset.creator.username}
-              </p>
-            </div>
-            <button onClick={onClose} aria-label="Schliessen" className="text-text-muted hover:text-text-primary text-xl cursor-pointer">
-              {'\u2715'}
-            </button>
-          </div>
-
-          <p className="text-text-secondary mt-4 text-sm leading-relaxed">
-            {asset.description}
-          </p>
-
-          <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
-            <div className="bg-bg-card rounded-lg p-3">
-              <p className="text-text-muted">Bewertung</p>
-              <p className="text-text-primary font-medium">
-                {'\u2605'} {asset.rating.toFixed(1)} ({asset.ratingCount} Bewertungen)
-              </p>
-            </div>
-            <div className="bg-bg-card rounded-lg p-3">
-              <p className="text-text-muted">Downloads</p>
-              <p className="text-text-primary font-medium">{asset.downloads}</p>
-            </div>
-            <div className="bg-bg-card rounded-lg p-3">
-              <p className="text-text-muted">Dateigroesse</p>
-              <p className="text-text-primary font-medium">{asset.fileSize}</p>
-            </div>
-            <div className="bg-bg-card rounded-lg p-3">
-              <p className="text-text-muted">Format</p>
-              <p className="text-text-primary font-medium">{asset.format}</p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 mt-4">
-            {asset.tags.map((tag) => (
-              <span key={tag} className="text-xs bg-bg-hover text-text-muted px-2 py-1 rounded-full">
-                #{tag}
-              </span>
-            ))}
-          </div>
-
-          {feedback && (
-            <div className={`mt-4 p-3 rounded-lg text-sm font-medium ${
-              feedback.type === 'success' ? 'bg-success/20 text-success' : 'bg-error/20 text-error'
-            }`}>
-              {feedback.msg}
+        {/* Price & Actions */}
+        <div className="p-5 space-y-4">
+          {needsPurchase && (
+            <div className="flex items-center justify-between bg-bg-card/60 rounded-xl p-4 border border-gray-700/30">
+              <div>
+                <p className="text-xs text-text-muted">Preis</p>
+                <p className="text-lg font-bold text-warning flex items-center gap-1.5">
+                  <MindCoinIcon size={20} /> {item.price} MC
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-text-muted">Dein Guthaben</p>
+                <p className={`text-lg font-bold ${canAfford ? 'text-success' : 'text-error'} flex items-center gap-1.5 justify-end`}>
+                  <MindCoinIcon size={20} /> {(user?.mindCoins || 0).toLocaleString('de-DE')} MC
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Rating Section */}
-          <RatingSection
-            asset={asset}
-            isPurchased={isPurchased}
-            userRating={userRating}
-            onSubmitRating={onSubmitRating}
-          />
-
-          {/* Buy/Cart Buttons */}
-          <div className="mt-6 pt-4 border-t border-gray-700">
-            {isPurchased ? (
-              <button disabled className="w-full bg-success/20 text-success py-3 rounded-lg
-                                         font-semibold border border-success/30 cursor-default">
-                Bereits gekauft
-              </button>
-            ) : isFree ? (
-              <button onClick={handleBuy}
-                      className="w-full bg-success hover:bg-green-600 text-white py-3 rounded-lg
-                                 font-semibold transition-colors cursor-pointer">
-                Kostenlos herunterladen
+          {/* Actions */}
+          {isEquipped ? (
+            <div className="w-full py-3 rounded-xl bg-accent/15 text-accent font-semibold text-center border border-accent/30">
+              Aktuell angelegt
+            </div>
+          ) : needsPurchase ? (
+            canAfford ? (
+              <button
+                onClick={() => onBuyAndEquip(item)}
+                className="w-full py-3 rounded-xl bg-accent hover:bg-accent-dark text-white font-semibold transition-colors cursor-pointer shadow-lg shadow-accent/20"
+              >
+                <ShoppingBag size={16} className="inline mr-2 -mt-0.5" />
+                Kaufen & Anlegen ({item.price} MC)
               </button>
             ) : (
-              <div className="flex gap-3">
-                <button onClick={handleBuy}
-                        disabled={!canAfford}
-                        className={`flex-1 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-                          canAfford
-                            ? 'bg-accent hover:bg-accent-dark text-white cursor-pointer'
-                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                        }`}>
-                  <MindCoinIcon size={20} /> {asset.price} MC - Kaufen
+              <div className="text-center space-y-2">
+                <button disabled className="w-full py-3 rounded-xl bg-gray-600 text-gray-400 font-semibold cursor-not-allowed">
+                  Nicht genug MindCoins
                 </button>
-                <button
-                  onClick={() => { onAddToCart(asset); onClose() }}
-                  className="px-4 py-3 bg-bg-card text-text-secondary hover:text-accent rounded-lg font-medium transition-colors cursor-pointer border border-gray-700 hover:border-accent/50"
-                >
-                  {'\u{1F6D2}'}
-                </button>
+                <p className="text-xs text-error">Dir fehlen {item.price - (user?.mindCoins || 0)} MC</p>
               </div>
-            )}
-            {!isPurchased && !isFree && !canAfford && (
-              <p className="text-xs text-error text-center mt-2">
-                Du brauchst {asset.price - userCoins} weitere MindCoins
-              </p>
-            )}
-          </div>
+            )
+          ) : (
+            <button
+              onClick={() => onEquip(item)}
+              className="w-full py-3 rounded-xl bg-accent hover:bg-accent-dark text-white font-semibold transition-colors cursor-pointer shadow-lg shadow-accent/20"
+            >
+              Anlegen
+            </button>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
+// ============= SIDEBAR FILTER =============
+function FilterSidebar({ activeCategory, setActiveCategory, priceFilter, setPriceFilter, categoryCount }) {
+  return (
+    <aside className="w-56 flex-shrink-0 space-y-6">
+      {/* Category Filter */}
+      <div>
+        <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3 flex items-center gap-1.5">
+          <Filter size={12} />
+          Kategorie
+        </h3>
+        <div className="space-y-1">
+          {MARKETPLACE_CATEGORIES.map(cat => {
+            const Icon = CATEGORY_ICONS[cat.id] || Package
+            const isActive = activeCategory === cat.id
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? 'bg-accent/15 text-accent border border-accent/30'
+                    : 'text-text-secondary hover:bg-bg-hover/60 hover:text-text-primary border border-transparent'
+                }`}
+              >
+                <Icon size={16} />
+                <span className="flex-1 text-left">{cat.name}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${
+                  isActive ? 'bg-accent/20 text-accent' : 'bg-bg-hover text-text-muted'
+                }`}>
+                  {categoryCount[cat.id] || 0}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-700/40" />
+
+      {/* Price Filter */}
+      <div>
+        <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3 flex items-center gap-1.5">
+          <CircleDollarSign size={12} />
+          Preis
+        </h3>
+        <div className="space-y-1">
+          {PRICE_FILTERS.map(filter => {
+            const Icon = filter.icon
+            const isActive = priceFilter === filter.id
+            return (
+              <button
+                key={filter.id}
+                onClick={() => setPriceFilter(filter.id)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? 'bg-accent/15 text-accent border border-accent/30'
+                    : 'text-text-secondary hover:bg-bg-hover/60 hover:text-text-primary border border-transparent'
+                }`}
+              >
+                <Icon size={16} />
+                <span className="flex-1 text-left">{filter.name}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+// ============= MAIN COMPONENT =============
 export default function Marketplace() {
   const { user, updateUser } = useAuth()
-  const [activeType, setActiveType] = useState('all')
-  const [sortBy, setSortBy] = useState('popular')
-  const [selectedAsset, setSelectedAsset] = useState(null)
-  const [cart, setCart] = useState([])
-  const [confirmAsset, setConfirmAsset] = useState(null)
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [priceFilter, setPriceFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('default')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedItem, setSelectedItem] = useState(null)
 
-  const purchasedIds = user?.purchasedItems?.map(i => i.id) || []
-  const userRatings = user?.ratings || {}
+  const avatarConfig = getAvatarConfig(user)
 
-  const handlePurchase = async (asset) => {
-    if (purchasedIds.includes(asset.id)) return
+  const filteredItems = useMemo(() => {
+    let result = [...ALL_ITEMS]
 
-    const newCoins = (user?.mindCoins || 0) - asset.price
-    const newItem = {
-      id: asset.id,
-      name: asset.name,
-      type: asset.type,
-      icon: asset.avatarIcon || TYPE_ICONS[asset.type] || '\u{1F4E6}',
-      rarity: asset.rarity || 'common',
-      effect: asset.effect,
-      purchasedAt: new Date().toISOString(),
-    }
-    const currentPurchased = user?.purchasedItems || []
-    const transactions = user?.transactions || []
-
-    await updateUser({
-      mindCoins: newCoins,
-      purchasedItems: [...currentPurchased, newItem],
-      transactions: [...transactions, {
-        type: 'spend',
-        amount: asset.price,
-        description: `${asset.name} im Marketplace gekauft`,
-        date: new Date().toISOString(),
-      }],
-    })
-
-    setCart(prev => prev.filter(c => c.id !== asset.id))
-  }
-
-  const handleAddToCart = (asset) => {
-    if (cart.find(c => c.id === asset.id) || purchasedIds.includes(asset.id)) return
-    setCart(prev => [...prev, asset])
-  }
-
-  const handleRemoveFromCart = (assetId) => {
-    setCart(prev => prev.filter(c => c.id !== assetId))
-  }
-
-  const handleCheckoutAll = async () => {
-    const total = cart.reduce((sum, item) => sum + item.price, 0)
-    if ((user?.mindCoins || 0) < total) return
-
-    const currentPurchased = user?.purchasedItems || []
-    const transactions = user?.transactions || []
-    const newItems = cart.map(asset => ({
-      id: asset.id,
-      name: asset.name,
-      type: asset.type,
-      icon: asset.avatarIcon || TYPE_ICONS[asset.type] || '\u{1F4E6}',
-      rarity: asset.rarity || 'common',
-      effect: asset.effect,
-      purchasedAt: new Date().toISOString(),
-    }))
-
-    await updateUser({
-      mindCoins: (user?.mindCoins || 0) - total,
-      purchasedItems: [...currentPurchased, ...newItems],
-      transactions: [...transactions, {
-        type: 'spend',
-        amount: total,
-        description: `${cart.length} Items im Marketplace gekauft`,
-        date: new Date().toISOString(),
-      }],
-    })
-
-    setCart([])
-  }
-
-  const handleSubmitRating = async (assetId, stars, comment) => {
-    const newRatings = { ...userRatings, [assetId]: { stars, comment, date: new Date().toISOString() } }
-    await updateUser({ ratings: newRatings })
-  }
-
-  const filteredAssets = useMemo(() => {
-    let result = [...MOCK_ASSETS]
-
-    if (activeType !== 'all') {
-      result = result.filter(a => a.type === activeType)
+    // Category filter
+    if (activeCategory !== 'all') {
+      result = result.filter(item => item.category === activeCategory)
     }
 
+    // Price filter
+    if (priceFilter === 'free') {
+      result = result.filter(item => item.price === 0)
+    } else if (priceFilter === 'premium') {
+      result = result.filter(item => item.price > 0)
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim()
+      result = result.filter(item => item.name.toLowerCase().includes(q))
+    }
+
+    // Sort
     switch (sortBy) {
-      case 'popular':
-        result.sort((a, b) => b.downloads - a.downloads)
-        break
-      case 'newest':
-        result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        break
       case 'price-asc':
         result.sort((a, b) => a.price - b.price)
         break
       case 'price-desc':
         result.sort((a, b) => b.price - a.price)
         break
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating)
+      case 'name':
+        result.sort((a, b) => a.name.localeCompare(b.name, 'de'))
+        break
+      case 'rarity':
+        result.sort((a, b) => (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0))
         break
     }
 
     return result
-  }, [activeType, sortBy])
+  }, [activeCategory, priceFilter, sortBy, searchQuery])
+
+  const categoryCount = useMemo(() => {
+    const counts = { all: ALL_ITEMS.length }
+    MARKETPLACE_CATEGORIES.forEach(cat => {
+      if (cat.id !== 'all') {
+        counts[cat.id] = ALL_ITEMS.filter(i => i.category === cat.id).length
+      }
+    })
+    return counts
+  }, [])
+
+  const saveAvatarConfig = async (newConfig) => {
+    await updateUser({
+      avatar: {
+        skinColor: newConfig.skinColor,
+        hairColor: newConfig.hairColor,
+        hairStyle: newConfig.hairStyle,
+        eyes: newConfig.eyeType,
+        eyeType: newConfig.eyeType,
+        eyeColor: newConfig.eyeColor,
+        eyebrows: newConfig.eyebrows,
+        mouth: newConfig.mouth,
+        accessory: newConfig.accessory,
+        hat: newConfig.hat,
+        clothing: newConfig.clothing,
+        clothingColor: newConfig.clothingColor,
+        bgStyle: newConfig.bgStyle,
+        bodyType: newConfig.bodyType,
+      },
+    })
+  }
+
+  const handleEquip = async (item) => {
+    const newConfig = { ...avatarConfig, [item.avatarKey]: item.itemId }
+    await saveAvatarConfig(newConfig)
+    setSelectedItem(null)
+  }
+
+  const handleBuyAndEquip = async (item) => {
+    const newBalance = (user?.mindCoins || 0) - item.price
+    const updates = { mindCoins: newBalance }
+
+    // Add to owned items based on category
+    if (item.category === 'hats') {
+      updates.ownedHats = [...(user?.ownedHats || []), item.itemId]
+    } else if (item.category === 'accessories') {
+      updates.ownedAccessories = [...(user?.ownedAccessories || []), item.itemId]
+    } else if (item.category === 'hair') {
+      updates.ownedHairStyles = [...(user?.ownedHairStyles || []), item.itemId]
+    } else if (item.category === 'clothing') {
+      updates.ownedClothing = [...(user?.ownedClothing || []), item.itemId]
+    } else if (item.category === 'background') {
+      updates.ownedBackgrounds = [...(user?.ownedBackgrounds || []), item.itemId]
+    }
+
+    // Transaction
+    updates.transactions = [...(user?.transactions || []), {
+      type: 'spend',
+      amount: item.price,
+      description: `${item.name} im Marketplace gekauft`,
+      date: new Date().toISOString(),
+    }]
+
+    // Equip
+    const newConfig = { ...avatarConfig, [item.avatarKey]: item.itemId }
+    updates.avatar = {
+      skinColor: newConfig.skinColor,
+      hairColor: newConfig.hairColor,
+      hairStyle: newConfig.hairStyle,
+      eyes: newConfig.eyeType,
+      eyeType: newConfig.eyeType,
+      eyeColor: newConfig.eyeColor,
+      eyebrows: newConfig.eyebrows,
+      mouth: newConfig.mouth,
+      accessory: newConfig.accessory,
+      hat: newConfig.hat,
+      clothing: newConfig.clothing,
+      clothingColor: newConfig.clothingColor,
+      bgStyle: newConfig.bgStyle,
+      bodyType: newConfig.bodyType,
+    }
+
+    await updateUser(updates)
+    setSelectedItem(null)
+  }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">Marketplace</h1>
-      <p className="text-text-muted mb-8">Entdecke Assets fuer deine Lernspiele</p>
-
-      {/* Filter & Sort Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="flex flex-wrap gap-2">
-          {ASSET_TYPES.map((type) => (
-            <button
-              key={type.id}
-              onClick={() => setActiveType(type.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                ${activeType === type.id
-                  ? 'bg-accent text-white'
-                  : 'bg-bg-card text-text-secondary hover:bg-bg-hover'
-                }`}
-            >
-              {type.icon} {type.name}
-            </button>
-          ))}
+    <div className="w-full">
+      {/* Sub-Header: Description + Balance + Search + Sort */}
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex items-center justify-between">
+          <p className="text-text-muted">Entdecke und kaufe Items fuer deinen Avatar</p>
+          <div className="flex items-center gap-2 bg-bg-secondary/80 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-gray-700/50 shadow-sm">
+            <MindCoinIcon size={20} />
+            <span className="font-bold text-accent text-lg">{(user?.mindCoins || 0).toLocaleString('de-DE')}</span>
+            <span className="text-text-muted text-sm">MC</span>
+          </div>
         </div>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          aria-label="Sortierung"
-          className="bg-bg-card text-text-primary border border-gray-700 rounded-lg px-4 py-2
-                     text-sm ml-auto"
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt.id} value={opt.id}>{opt.name}</option>
-          ))}
-        </select>
+        {/* Search + Sort Row */}
+        <div className="flex gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Items durchsuchen..."
+              className="w-full bg-bg-card border border-gray-700/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-text-primary
+                         placeholder:text-text-muted focus:outline-none focus:border-accent/50 transition-colors"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            aria-label="Sortierung"
+            className="bg-bg-card text-text-primary border border-gray-700/40 rounded-xl px-4 py-2.5 text-sm cursor-pointer hover:border-gray-600 transition-colors"
+          >
+            {SORT_OPTIONS.map(opt => (
+              <option key={opt.id} value={opt.id}>{opt.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Asset Grid */}
-      {filteredAssets.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredAssets.map((asset) => (
-            <AssetCard
-              key={asset.id}
-              asset={asset}
-              onClick={() => setSelectedAsset(asset)}
-              purchased={purchasedIds.includes(asset.id)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-20">
-          <span className="text-6xl block mb-4">{'\u{1F4E6}'}</span>
-          <h3 className="text-xl font-semibold text-text-primary mb-2">
-            Keine Assets gefunden
-          </h3>
-          <p className="text-text-muted">
-            Versuche einen anderen Filter oder erstelle selbst Assets!
-          </p>
-        </div>
-      )}
-
-      {/* Cart Panel */}
-      <CartPanel
-        cart={cart}
-        onRemove={handleRemoveFromCart}
-        onCheckout={handleCheckoutAll}
-        userCoins={user?.mindCoins || 0}
-      />
-
-      {/* Confirm Purchase Modal */}
-      {confirmAsset && (
-        <ConfirmPurchaseModal
-          asset={confirmAsset}
-          onClose={() => setConfirmAsset(null)}
-          onConfirm={() => handlePurchase(confirmAsset)}
-          userCoins={user?.mindCoins || 0}
+      {/* Main Layout: Sidebar + Grid */}
+      <div className="flex gap-6">
+        {/* Left Sidebar */}
+        <FilterSidebar
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          priceFilter={priceFilter}
+          setPriceFilter={setPriceFilter}
+          categoryCount={categoryCount}
         />
-      )}
 
-      {/* Asset Detail Modal */}
-      {selectedAsset && (
-        <AssetDetailModal
-          asset={selectedAsset}
-          onClose={() => setSelectedAsset(null)}
-          onPurchase={handlePurchase}
-          onAddToCart={handleAddToCart}
-          isPurchased={purchasedIds.includes(selectedAsset.id)}
-          userCoins={user?.mindCoins || 0}
-          userRating={userRatings[selectedAsset.id]}
-          onSubmitRating={handleSubmitRating}
+        {/* Separator */}
+        <div className="w-px bg-gray-700/40 flex-shrink-0" />
+
+        {/* Items Grid */}
+        <div className="flex-1 min-w-0">
+          {/* Results count */}
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-text-muted">
+              {filteredItems.length} {filteredItems.length === 1 ? 'Item' : 'Items'}
+              {activeCategory !== 'all' && ` in ${MARKETPLACE_CATEGORIES.find(c => c.id === activeCategory)?.name}`}
+              {priceFilter !== 'all' && ` (${PRICE_FILTERS.find(f => f.id === priceFilter)?.name})`}
+              {searchQuery && ` fuer "${searchQuery}"`}
+            </p>
+          </div>
+
+          {filteredItems.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+              {filteredItems.map(item => (
+                <MarketplaceItemCard
+                  key={item.id}
+                  item={item}
+                  avatarConfig={avatarConfig}
+                  isOwned={isItemOwned(item, user)}
+                  isEquipped={isItemEquipped(item, avatarConfig)}
+                  onClick={setSelectedItem}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <Package size={48} className="mx-auto text-text-muted mb-4" />
+              <h3 className="text-xl font-semibold text-text-primary mb-2">Keine Items gefunden</h3>
+              <p className="text-text-muted">
+                {searchQuery ? 'Versuche einen anderen Suchbegriff.' : 'Versuche eine andere Kategorie oder einen anderen Filter.'}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Item Detail Modal */}
+      {selectedItem && (
+        <ItemDetailModal
+          item={selectedItem}
+          avatarConfig={avatarConfig}
+          user={user}
+          isOwned={isItemOwned(selectedItem, user)}
+          isEquipped={isItemEquipped(selectedItem, avatarConfig)}
+          onClose={() => setSelectedItem(null)}
+          onBuyAndEquip={handleBuyAndEquip}
+          onEquip={handleEquip}
         />
       )}
     </div>

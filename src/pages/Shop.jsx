@@ -42,6 +42,48 @@ const MINDCOIN_PACKAGES = [
   },
 ]
 
+const EXTRA_PACKAGES = [
+  {
+    id: 'mega',
+    name: 'Mega',
+    amount: 3500,
+    bonus: 750,
+    price: '34,99',
+    priceNum: 34.99,
+    pricePerEuro: '121 MC/\u20AC',
+    badge: 'MEGA',
+    popular: false,
+    bestDeal: false,
+    mega: true,
+  },
+  {
+    id: 'ultra',
+    name: 'Ultra',
+    amount: 5000,
+    bonus: 1500,
+    price: '49,99',
+    priceNum: 49.99,
+    pricePerEuro: '130 MC/\u20AC',
+    badge: 'ULTRA',
+    popular: false,
+    bestDeal: false,
+    ultra: true,
+  },
+  {
+    id: 'diamant',
+    name: 'Diamant',
+    amount: 10000,
+    bonus: 4000,
+    price: '99,99',
+    priceNum: 99.99,
+    pricePerEuro: '140 MC/\u20AC',
+    badge: 'LEGENDAER',
+    popular: false,
+    bestDeal: true,
+    legendary: true,
+  },
+]
+
 const VALID_CODES = {
   'MindForge': { discount: 1.0, label: '100% Rabatt', type: 'multi', maxUses: Infinity },
   'WELCOME10': { discount: 0.1, label: '10% Rabatt', type: 'once', maxUses: 1 },
@@ -54,25 +96,31 @@ const SEASONAL_OFFERS = [
     id: 'winter-pack',
     name: 'Winter-Paket',
     emoji: '\u2744\uFE0F',
-    description: '800 MindCoins + Exklusiver Schnee-Hintergrund',
+    description: '800 MindCoins + Exklusiver Schnee-Hintergrund + Titel',
     amount: 800,
     bonus: 200,
     price: '5,99',
     priceNum: 5.99,
     availableUntil: '2026-03-31T23:59:59',
     badge: 'LIMITIERT',
+    oneTimePurchase: true,
+    rewardTitle: 'Schneekoenig',
+    rewardTitleIcon: '\u2744\uFE0F',
   },
   {
     id: 'valentines-pack',
     name: 'Valentins-Paket',
     emoji: '\u2764\uFE0F',
-    description: '1500 MindCoins + Herz-Rahmen',
+    description: '1500 MindCoins + Herz-Rahmen + Titel',
     amount: 1500,
     bonus: 300,
     price: '9,99',
     priceNum: 9.99,
     availableUntil: '2026-02-28T23:59:59',
     badge: 'EVENT',
+    oneTimePurchase: true,
+    rewardTitle: 'Amors Liebling',
+    rewardTitleIcon: '\u2764\uFE0F',
   },
 ]
 
@@ -107,6 +155,7 @@ function PurchaseModal({ pkg, onClose, onConfirm, userBalance, usedCodes }) {
   const [appliedCode, setAppliedCode] = useState(null)
   const [codeError, setCodeError] = useState(null)
   const [purchased, setPurchased] = useState(false)
+  const [newBalance, setNewBalance] = useState(null)
   useEscapeKey(onClose)
 
   const totalCoins = pkg.amount + (pkg.bonus || 0)
@@ -141,6 +190,7 @@ function PurchaseModal({ pkg, onClose, onConfirm, userBalance, usedCodes }) {
   }
 
   const handlePurchase = () => {
+    setNewBalance((userBalance || 0) + totalCoins)
     onConfirm(totalCoins, appliedCode)
     setPurchased(true)
   }
@@ -170,8 +220,15 @@ function PurchaseModal({ pkg, onClose, onConfirm, userBalance, usedCodes }) {
                 {totalCoins.toLocaleString('de-DE')} MindCoins wurden gutgeschrieben.
               </p>
               <p className="text-sm text-accent mt-1">
-                Neues Guthaben: {((userBalance || 0) + totalCoins).toLocaleString('de-DE')} MC
+                Neues Guthaben: {(newBalance || 0).toLocaleString('de-DE')} MC
               </p>
+              {pkg.rewardTitle && (
+                <div className="mt-3 bg-warning/10 border border-warning/30 rounded-lg px-4 py-2 inline-block">
+                  <p className="text-warning text-sm font-semibold">
+                    {pkg.rewardTitleIcon} Titel freigeschaltet: "{pkg.rewardTitle}"
+                  </p>
+                </div>
+              )}
               <button onClick={onClose}
                       className="mt-6 bg-accent hover:bg-accent-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors cursor-pointer">
                 Schliessen
@@ -278,16 +335,31 @@ function PurchaseModal({ pkg, onClose, onConfirm, userBalance, usedCodes }) {
 }
 
 function CoinPackageCard({ pkg, onPurchase }) {
+  const isExtra = pkg.mega || pkg.ultra || pkg.legendary
+
+  const getBorderClass = () => {
+    if (pkg.legendary) return 'border-amber-400 ring-2 ring-amber-400/20'
+    if (pkg.ultra) return 'border-purple-500 ring-2 ring-purple-500/20'
+    if (pkg.mega) return 'border-blue-500 ring-2 ring-blue-500/20'
+    if (pkg.popular) return 'border-accent ring-2 ring-accent/20'
+    if (pkg.bestDeal) return 'border-warning ring-2 ring-warning/20'
+    return 'border-gray-700'
+  }
+
+  const getBadgeClass = () => {
+    if (pkg.legendary) return 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black'
+    if (pkg.ultra) return 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+    if (pkg.mega) return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+    if (pkg.popular) return 'bg-accent text-white'
+    return 'bg-warning text-black'
+  }
+
   return (
-    <div className={`bg-bg-card rounded-xl p-6 border relative
-      ${pkg.popular ? 'border-accent ring-2 ring-accent/20' : ''}
-      ${pkg.bestDeal ? 'border-warning ring-2 ring-warning/20' : ''}
-      ${!pkg.popular && !pkg.bestDeal ? 'border-gray-700' : ''}`}>
+    <div className={`bg-bg-card rounded-xl p-6 border relative ${getBorderClass()}`}>
 
       {pkg.badge && (
         <span className={`absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold
-                          px-3 py-1 rounded-full whitespace-nowrap
-          ${pkg.popular ? 'bg-accent text-white' : 'bg-warning text-black'}`}>
+                          px-3 py-1 rounded-full whitespace-nowrap ${getBadgeClass()}`}>
           {pkg.badge}
         </span>
       )}
@@ -296,13 +368,29 @@ function CoinPackageCard({ pkg, onPurchase }) {
 
       <div className="text-center my-6">
         <MindCoinIcon size={100} className="mx-auto" />
-        <p className="text-3xl font-bold text-accent mt-2">
-          {pkg.amount.toLocaleString('de-DE')} MC
-        </p>
-        {pkg.bonus > 0 && (
-          <p className="text-sm text-success font-medium mt-1">
-            +{pkg.bonus} Bonus MindCoins!
-          </p>
+        {isExtra ? (
+          <>
+            <p className="text-3xl font-bold text-accent mt-2">
+              {(pkg.amount + pkg.bonus).toLocaleString('de-DE')} MC
+            </p>
+            {pkg.bonus > 0 && (
+              <div className={`inline-block mt-2 bg-success/10 border border-success/30 rounded-full font-bold text-success
+                ${pkg.bonus >= 3000 ? 'text-base px-5 py-1.5' : pkg.bonus >= 1000 ? 'text-sm px-4 py-1' : 'text-xs px-3 py-0.5'}`}>
+                davon +{pkg.bonus.toLocaleString('de-DE')} Bonus!
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="text-3xl font-bold text-accent mt-2">
+              {pkg.amount.toLocaleString('de-DE')} MC
+            </p>
+            {pkg.bonus > 0 && (
+              <p className="text-sm text-success font-medium mt-1">
+                +{pkg.bonus} Bonus MindCoins!
+              </p>
+            )}
+          </>
         )}
       </div>
 
@@ -389,8 +477,10 @@ function TransactionHistory({ transactions }) {
 export default function Shop() {
   const { user, updateUser } = useAuth()
   const [selectedPkg, setSelectedPkg] = useState(null)
+  const [showMore, setShowMore] = useState(false)
 
   const transactions = user?.transactions || []
+  const purchasedOffers = user?.purchasedOffers || []
 
   const addTransaction = (type, amount, description) => {
     return {
@@ -411,6 +501,21 @@ export default function Shop() {
 
     if (usedCode && VALID_CODES[usedCode]?.type === 'once') {
       updates.usedCodes = [...(user?.usedCodes || []), usedCode]
+    }
+
+    if (selectedPkg.oneTimePurchase) {
+      updates.purchasedOffers = [...purchasedOffers, selectedPkg.id]
+    }
+
+    if (selectedPkg.rewardTitle) {
+      const currentShopTitles = user?.shopTitles || []
+      if (!currentShopTitles.some(t => t.title === selectedPkg.rewardTitle)) {
+        updates.shopTitles = [...currentShopTitles, {
+          title: selectedPkg.rewardTitle,
+          icon: selectedPkg.rewardTitleIcon,
+          source: selectedPkg.name,
+        }]
+      }
     }
 
     await updateUser(updates)
@@ -439,40 +544,90 @@ export default function Shop() {
             <span className="text-2xl">{'\u{1F381}'}</span> Aktuelle Angebote
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {activeSeasonalOffers.map(offer => (
-              <div key={offer.id} className="bg-gradient-to-br from-accent/10 to-purple-500/10 rounded-xl p-5 border border-accent/30 relative overflow-hidden">
-                <span className="absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full bg-warning text-black">
-                  {offer.badge}
-                </span>
-                <div className="flex items-center gap-4">
-                  <span className="text-4xl">{offer.emoji}</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-text-primary">{offer.name}</h3>
-                    <p className="text-sm text-text-secondary">{offer.description}</p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <span className="text-accent font-bold">{offer.price}&euro;</span>
-                      <CountdownTimer targetDate={offer.availableUntil} />
+            {activeSeasonalOffers.map(offer => {
+              const alreadyPurchased = purchasedOffers.includes(offer.id)
+              return (
+                <div key={offer.id} className={`bg-gradient-to-br from-accent/10 to-purple-500/10 rounded-xl p-5 border border-accent/30 relative overflow-hidden ${alreadyPurchased ? 'opacity-75' : ''}`}>
+                  <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full ${alreadyPurchased ? 'bg-success text-white' : 'bg-warning text-black'}`}>
+                    {alreadyPurchased ? 'GEKAUFT' : offer.badge}
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-4xl">{offer.emoji}</span>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-text-primary">{offer.name}</h3>
+                      <p className="text-sm text-text-secondary">{offer.description}</p>
+                      {offer.rewardTitle && (
+                        <p className="text-xs text-warning mt-1">
+                          {offer.rewardTitleIcon} Schaltet Titel frei: "{offer.rewardTitle}"
+                        </p>
+                      )}
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="text-accent font-bold">{offer.price}&euro;</span>
+                        <CountdownTimer targetDate={offer.availableUntil} />
+                      </div>
                     </div>
                   </div>
+                  {alreadyPurchased ? (
+                    <div className="w-full mt-4 bg-success/20 text-success py-2 rounded-lg font-semibold text-sm text-center border border-success/30">
+                      Bereits gekauft
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setSelectedPkg(offer)}
+                      className="w-full mt-4 bg-accent hover:bg-accent-dark text-white py-2 rounded-lg font-semibold transition-colors cursor-pointer text-sm"
+                    >
+                      Kaufen
+                    </button>
+                  )}
                 </div>
-                <button
-                  onClick={() => setSelectedPkg(offer)}
-                  className="w-full mt-4 bg-accent hover:bg-accent-dark text-white py-2 rounded-lg font-semibold transition-colors cursor-pointer text-sm"
-                >
-                  Kaufen
-                </button>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       )}
 
       {/* Packages grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {MINDCOIN_PACKAGES.map(pkg => (
           <CoinPackageCard key={pkg.id} pkg={pkg} onPurchase={setSelectedPkg} />
         ))}
       </div>
+
+      {/* More packages toggle */}
+      {!showMore ? (
+        <button
+          onClick={() => setShowMore(true)}
+          className="w-full mb-12 py-3 rounded-xl border-2 border-dashed border-gray-600 hover:border-accent
+                     text-text-secondary hover:text-accent font-semibold transition-colors cursor-pointer
+                     flex items-center justify-center gap-2"
+        >
+          Mehr Pakete anzeigen
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      ) : (
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <span className="text-2xl">{'\u{1F48E}'}</span> Grosse Pakete
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {EXTRA_PACKAGES.map(pkg => (
+              <CoinPackageCard key={pkg.id} pkg={pkg} onPurchase={setSelectedPkg} />
+            ))}
+          </div>
+          <button
+            onClick={() => setShowMore(false)}
+            className="w-full mt-4 py-2 text-text-muted hover:text-text-secondary text-sm
+                       transition-colors cursor-pointer flex items-center justify-center gap-1"
+          >
+            Weniger anzeigen
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Transaction History */}
       <div className="mb-12">

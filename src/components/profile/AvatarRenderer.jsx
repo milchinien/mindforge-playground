@@ -13,6 +13,15 @@ function getInitials(username) {
   return username.charAt(0).toUpperCase()
 }
 
+// Body type width multipliers
+const BODY_CONFIGS = {
+  slim: { shoulderW: 0.78, neckW: 0.88 },
+  normal: { shoulderW: 1.0, neckW: 1.0 },
+  athletic: { shoulderW: 1.1, neckW: 1.05 },
+  wide: { shoulderW: 1.22, neckW: 1.12 },
+  stocky: { shoulderW: 1.3, neckW: 1.15 },
+}
+
 // ============= BACKGROUND =============
 function renderBackground(bgStyle, uid) {
   const gradientBgs = {
@@ -84,53 +93,63 @@ function renderBackground(bgStyle, uid) {
 }
 
 // ============= BODY & CLOTHING =============
-function renderBody(skinColor, clothing, clothingColor, uid) {
-  const darkSkin = adjustColor(skinColor || '#F5D6B8', -25)
+function renderBody(skinColor, clothing, clothingColor, uid, bodyType) {
+  const darkSkin = adjustColor(skinColor || '#F5D6B8', -20)
   const cColor = clothingColor || '#374151'
-  const darkCloth = adjustColor(cColor, -35)
+  const darkCloth = adjustColor(cColor, -30)
+  const cfg = BODY_CONFIGS[bodyType] || BODY_CONFIGS.normal
+  const sw = cfg.shoulderW
+  const nw = cfg.neckW
 
-  const neckPath = 'M 88 124 Q 90 132 88 140 L 112 140 Q 110 132 112 124'
-  const bodyPath = 'M 88 140 Q 62 148 38 168 Q 22 182 10 210 L 190 210 Q 178 182 162 168 Q 138 148 112 140 Z'
+  // Neck - adjusted for body type
+  const neckL = 100 - 10 * nw
+  const neckR = 100 + 10 * nw
+  const neckPath = `M ${neckL} 128 Q ${100} 136 ${neckR} 128 L ${neckR} 142 L ${neckL} 142 Z`
+
+  // Body/shoulders - adjusted for body type
+  const shoulderL = 100 - 62 * sw
+  const shoulderR = 100 + 62 * sw
+  const armL = 100 - 90 * sw
+  const armR = 100 + 90 * sw
+  const bodyPath = `M ${neckL} 142 Q ${shoulderL} 150 ${armL} 172 Q ${armL - 8} 186 ${armL - 12} 210 L ${armR + 12} 210 Q ${armR + 8} 186 ${armR} 172 Q ${shoulderR} 150 ${neckR} 142 Z`
 
   let clothingDetail = null
   switch (clothing) {
     case 'hoodie':
       clothingDetail = (
         <>
-          <path d="M 88 140 Q 100 150 112 140" stroke={darkCloth} strokeWidth="1.5" fill="none" />
-          <line x1="100" y1="148" x2="100" y2="210" stroke={darkCloth} strokeWidth="1" opacity="0.3" />
-          <line x1="93" y1="143" x2="90" y2="160" stroke={darkCloth} strokeWidth="1.5" opacity="0.6" />
-          <line x1="107" y1="143" x2="110" y2="160" stroke={darkCloth} strokeWidth="1.5" opacity="0.6" />
-          <path d="M 72 142 Q 68 130 70 122 Q 82 118 100 120 Q 118 118 130 122 Q 132 130 128 142"
-                fill={adjustColor(cColor, -15)} opacity="0.4" />
+          <path d={`M ${neckL} 142 Q 100 152 ${neckR} 142`} stroke={darkCloth} strokeWidth="1.5" fill="none" />
+          <line x1="100" y1="150" x2="100" y2="210" stroke={darkCloth} strokeWidth="1" opacity="0.3" />
+          <path d={`M ${neckL + 6} 144 L ${neckL + 3} 158`} stroke={darkCloth} strokeWidth="1.5" opacity="0.5" />
+          <path d={`M ${neckR - 6} 144 L ${neckR - 3} 158`} stroke={darkCloth} strokeWidth="1.5" opacity="0.5" />
         </>
       )
       break
     case 'jacket':
       clothingDetail = (
         <>
-          <line x1="100" y1="142" x2="100" y2="210" stroke={darkCloth} strokeWidth="2" />
-          <path d="M 88 140 L 94 152 L 100 144 L 106 152 L 112 140" fill="none" stroke={darkCloth} strokeWidth="1.5" />
+          <line x1="100" y1="144" x2="100" y2="210" stroke={darkCloth} strokeWidth="2" />
+          <path d={`M ${neckL} 142 L ${neckL + 6} 154 L 100 146 L ${neckR - 6} 154 L ${neckR} 142`} fill="none" stroke={darkCloth} strokeWidth="1.5" />
         </>
       )
       break
     case 'tank':
       clothingDetail = (
-        <path d="M 85 140 Q 100 148 115 140" stroke={darkCloth} strokeWidth="1" fill="none" />
+        <path d={`M ${neckL + 3} 142 Q 100 150 ${neckR - 3} 142`} stroke={darkCloth} strokeWidth="1" fill="none" />
       )
       break
     case 'suit':
       clothingDetail = (
         <>
-          <line x1="100" y1="144" x2="100" y2="210" stroke={darkCloth} strokeWidth="1.5" />
-          <path d="M 88 140 L 96 155 L 100 144 L 104 155 L 112 140" fill="none" stroke={darkCloth} strokeWidth="1.5" />
-          <rect x="97" y="152" width="6" height="8" rx="1" fill={darkCloth} opacity="0.6" />
+          <line x1="100" y1="146" x2="100" y2="210" stroke={darkCloth} strokeWidth="1.5" />
+          <path d={`M ${neckL} 142 L ${neckL + 8} 156 L 100 146 L ${neckR - 8} 156 L ${neckR} 142`} fill="none" stroke={darkCloth} strokeWidth="1.5" />
+          <rect x="97" y="154" width="6" height="8" rx="1" fill={darkCloth} opacity="0.5" />
         </>
       )
       break
     default: // tshirt
       clothingDetail = (
-        <path d="M 88 140 Q 100 148 112 140" stroke={darkCloth} strokeWidth="1.5" fill="none" />
+        <path d={`M ${neckL} 142 Q 100 150 ${neckR} 142`} stroke={darkCloth} strokeWidth="1.5" fill="none" />
       )
   }
 
@@ -155,21 +174,22 @@ function renderHead(skinColor, uid) {
   return (
     <>
       <defs>
-        <radialGradient id={`skin-${uid}`} cx="45%" cy="38%" r="55%">
-          <stop offset="0%" stopColor={adjustColor(skin, 12)} />
-          <stop offset="75%" stopColor={skin} />
-          <stop offset="100%" stopColor={adjustColor(skin, -18)} />
+        <radialGradient id={`skin-${uid}`} cx="48%" cy="40%" r="52%">
+          <stop offset="0%" stopColor={adjustColor(skin, 15)} />
+          <stop offset="80%" stopColor={skin} />
+          <stop offset="100%" stopColor={adjustColor(skin, -12)} />
         </radialGradient>
       </defs>
-      {/* Ears */}
-      <ellipse cx="54" cy="82" rx="7" ry="10" fill={skin} />
-      <ellipse cx="146" cy="82" rx="7" ry="10" fill={skin} />
-      <ellipse cx="54" cy="82" rx="4" ry="6" fill={adjustColor(skin, -25)} opacity="0.25" />
-      <ellipse cx="146" cy="82" rx="4" ry="6" fill={adjustColor(skin, -25)} opacity="0.25" />
-      {/* Head */}
-      <ellipse cx="100" cy="78" rx="44" ry="48" fill={`url(#skin-${uid})`} />
-      {/* Subtle chin shadow */}
-      <ellipse cx="100" cy="118" rx="28" ry="8" fill={adjustColor(skin, -20)} opacity="0.12" />
+      {/* Ears - smaller, softer */}
+      <ellipse cx="57" cy="84" rx="6" ry="8" fill={skin} />
+      <ellipse cx="143" cy="84" rx="6" ry="8" fill={skin} />
+      <ellipse cx="57" cy="84" rx="3" ry="5" fill={adjustColor(skin, -18)} opacity="0.2" />
+      <ellipse cx="143" cy="84" rx="3" ry="5" fill={adjustColor(skin, -18)} opacity="0.2" />
+      {/* Head - rounder, friendlier */}
+      <ellipse cx="100" cy="80" rx="42" ry="46" fill={`url(#skin-${uid})`} />
+      {/* Soft cheek blush */}
+      <ellipse cx="74" cy="94" rx="10" ry="6" fill="#f4a0a0" opacity="0.08" />
+      <ellipse cx="126" cy="94" rx="10" ry="6" fill="#f4a0a0" opacity="0.08" />
     </>
   )
 }
@@ -181,71 +201,70 @@ function renderEyes(type, eyeColor, animated) {
   const irisDark = adjustColor(iris, -40)
 
   function eye(cx, cy, mirrorHighlight) {
-    const hlX = mirrorHighlight ? cx + 2 : cx - 2
+    const hlX = mirrorHighlight ? cx + 1.5 : cx - 1.5
     switch (type) {
       case 'round':
         return (
           <g>
-            <ellipse cx={cx} cy={cy} rx="11" ry="11" fill="white" />
-            <ellipse cx={cx} cy={cy} rx="11" ry="11" fill="none" stroke="#e0ddd8" strokeWidth="0.5" />
-            <circle cx={cx} cy={cy + 1} r="7.5" fill={iris} />
-            <circle cx={cx} cy={cy + 1} r="7.5" fill="none" stroke={irisDark} strokeWidth="0.5" />
-            <circle cx={cx} cy={cy + 1} r="4" fill="#111" />
-            <circle cx={hlX} cy={cy - 2} r="2.5" fill="white" opacity="0.9" />
-            <circle cx={cx + (mirrorHighlight ? -2 : 2)} cy={cy + 3} r="1.2" fill="white" opacity="0.4" />
+            <ellipse cx={cx} cy={cy} rx="8" ry="8.5" fill="white" />
+            <ellipse cx={cx} cy={cy} rx="8" ry="8.5" fill="none" stroke="#ddd" strokeWidth="0.4" />
+            <circle cx={cx} cy={cy + 0.5} r="5.5" fill={iris} />
+            <circle cx={cx} cy={cy + 0.5} r="5.5" fill="none" stroke={irisDark} strokeWidth="0.3" />
+            <circle cx={cx} cy={cy + 0.5} r="3" fill="#1a1a1a" />
+            <circle cx={hlX} cy={cy - 2} r="2" fill="white" opacity="0.85" />
+            <circle cx={cx + (mirrorHighlight ? -1.5 : 1.5)} cy={cy + 2} r="1" fill="white" opacity="0.35" />
           </g>
         )
       case 'almond':
         return (
           <g>
-            <ellipse cx={cx} cy={cy} rx="13" ry="8" fill="white" />
-            <ellipse cx={cx} cy={cy} rx="13" ry="8" fill="none" stroke="#e0ddd8" strokeWidth="0.5" />
-            <circle cx={cx} cy={cy} r="6.5" fill={iris} />
-            <circle cx={cx} cy={cy} r="6.5" fill="none" stroke={irisDark} strokeWidth="0.5" />
-            <circle cx={cx} cy={cy} r="3.5" fill="#111" />
-            <circle cx={hlX} cy={cy - 2} r="2" fill="white" opacity="0.9" />
-            <circle cx={cx + (mirrorHighlight ? -1 : 1)} cy={cy + 2} r="1" fill="white" opacity="0.4" />
+            <ellipse cx={cx} cy={cy} rx="10" ry="6.5" fill="white" />
+            <ellipse cx={cx} cy={cy} rx="10" ry="6.5" fill="none" stroke="#ddd" strokeWidth="0.4" />
+            <circle cx={cx} cy={cy} r="5" fill={iris} />
+            <circle cx={cx} cy={cy} r="5" fill="none" stroke={irisDark} strokeWidth="0.3" />
+            <circle cx={cx} cy={cy} r="2.8" fill="#1a1a1a" />
+            <circle cx={hlX} cy={cy - 1.5} r="1.8" fill="white" opacity="0.85" />
           </g>
         )
       case 'sleepy':
         return (
           <g>
-            <ellipse cx={cx} cy={cy} rx="12" ry="6" fill="white" />
-            <ellipse cx={cx} cy={cy - 1} rx="12" ry="4" fill={adjustColor('#F5D6B8', -5)} opacity="0.6" />
-            <circle cx={cx} cy={cy + 1} r="5" fill={iris} />
-            <circle cx={cx} cy={cy + 1} r="2.5" fill="#111" />
-            <circle cx={hlX} cy={cy - 1} r="1.5" fill="white" opacity="0.7" />
+            <ellipse cx={cx} cy={cy} rx="9" ry="5" fill="white" />
+            <ellipse cx={cx} cy={cy - 1} rx="9" ry="3.5" fill={adjustColor('#F5D6B8', -5)} opacity="0.5" />
+            <circle cx={cx} cy={cy + 0.5} r="4" fill={iris} />
+            <circle cx={cx} cy={cy + 0.5} r="2" fill="#1a1a1a" />
+            <circle cx={hlX} cy={cy - 0.5} r="1.3" fill="white" opacity="0.6" />
           </g>
         )
       case 'cat':
         return (
           <g>
-            <ellipse cx={cx} cy={cy} rx="13" ry="7" fill="white" />
-            <ellipse cx={cx} cy={cy} rx="13" ry="7" fill="none" stroke="#e0ddd8" strokeWidth="0.5" />
-            <ellipse cx={cx} cy={cy} rx="4" ry="6.5" fill={iris} />
-            <ellipse cx={cx} cy={cy} rx="1.5" ry="5" fill="#111" />
-            <circle cx={hlX} cy={cy - 2} r="1.8" fill="white" opacity="0.8" />
+            <ellipse cx={cx} cy={cy} rx="9" ry="6" fill="white" />
+            <ellipse cx={cx} cy={cy} rx="9" ry="6" fill="none" stroke="#ddd" strokeWidth="0.4" />
+            <ellipse cx={cx} cy={cy} rx="3" ry="5" fill={iris} />
+            <ellipse cx={cx} cy={cy} rx="1.2" ry="4" fill="#1a1a1a" />
+            <circle cx={hlX} cy={cy - 1.5} r="1.5" fill="white" opacity="0.7" />
           </g>
         )
       case 'wide':
         return (
           <g>
-            <ellipse cx={cx} cy={cy} rx="11" ry="13" fill="white" />
-            <ellipse cx={cx} cy={cy} rx="11" ry="13" fill="none" stroke="#e0ddd8" strokeWidth="0.5" />
-            <circle cx={cx} cy={cy} r="8" fill={iris} />
-            <circle cx={cx} cy={cy} r="8" fill="none" stroke={irisDark} strokeWidth="0.5" />
-            <circle cx={cx} cy={cy} r="4.5" fill="#111" />
-            <circle cx={hlX} cy={cy - 3} r="3" fill="white" opacity="0.9" />
-            <circle cx={cx + (mirrorHighlight ? -2 : 2)} cy={cy + 3} r="1.5" fill="white" opacity="0.4" />
+            <ellipse cx={cx} cy={cy} rx="8.5" ry="10" fill="white" />
+            <ellipse cx={cx} cy={cy} rx="8.5" ry="10" fill="none" stroke="#ddd" strokeWidth="0.4" />
+            <circle cx={cx} cy={cy} r="6" fill={iris} />
+            <circle cx={cx} cy={cy} r="6" fill="none" stroke={irisDark} strokeWidth="0.3" />
+            <circle cx={cx} cy={cy} r="3.5" fill="#1a1a1a" />
+            <circle cx={hlX} cy={cy - 2.5} r="2.2" fill="white" opacity="0.85" />
+            <circle cx={cx + (mirrorHighlight ? -1.5 : 1.5)} cy={cy + 2.5} r="1.2" fill="white" opacity="0.35" />
           </g>
         )
       default:
         return (
           <g>
-            <ellipse cx={cx} cy={cy} rx="11" ry="11" fill="white" />
-            <circle cx={cx} cy={cy + 1} r="7.5" fill={iris} />
-            <circle cx={cx} cy={cy + 1} r="4" fill="#111" />
-            <circle cx={hlX} cy={cy - 2} r="2.5" fill="white" opacity="0.9" />
+            <ellipse cx={cx} cy={cy} rx="8" ry="8.5" fill="white" />
+            <circle cx={cx} cy={cy + 0.5} r="5.5" fill={iris} />
+            <circle cx={cx} cy={cy + 0.5} r="3" fill="#1a1a1a" />
+            <circle cx={hlX} cy={cy - 2} r="2" fill="white" opacity="0.85" />
           </g>
         )
     }
@@ -253,8 +272,8 @@ function renderEyes(type, eyeColor, animated) {
 
   return (
     <g className={blinkClass}>
-      {eye(80, 80, false)}
-      {eye(120, 80, true)}
+      {eye(82, 82, false)}
+      {eye(118, 82, true)}
     </g>
   )
 }
@@ -265,36 +284,36 @@ function renderEyebrows(type) {
     case 'normal':
       return (
         <>
-          <path d="M 68 67 Q 80 62 92 67" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          <path d="M 108 67 Q 120 62 132 67" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M 72 70 Q 82 66 92 70" stroke="#666" strokeWidth="2" fill="none" strokeLinecap="round" />
+          <path d="M 108 70 Q 118 66 128 70" stroke="#666" strokeWidth="2" fill="none" strokeLinecap="round" />
         </>
       )
     case 'thick':
       return (
         <>
-          <path d="M 66 68 Q 80 60 94 68" stroke="#333" strokeWidth="4" fill="none" strokeLinecap="round" />
-          <path d="M 106 68 Q 120 60 134 68" stroke="#333" strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d="M 70 71 Q 82 64 94 71" stroke="#444" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+          <path d="M 106 71 Q 118 64 130 71" stroke="#444" strokeWidth="3.5" fill="none" strokeLinecap="round" />
         </>
       )
     case 'arched':
       return (
         <>
-          <path d="M 68 70 Q 76 60 92 66" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          <path d="M 132 70 Q 124 60 108 66" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M 72 73 Q 78 64 92 69" stroke="#666" strokeWidth="2" fill="none" strokeLinecap="round" />
+          <path d="M 128 73 Q 122 64 108 69" stroke="#666" strokeWidth="2" fill="none" strokeLinecap="round" />
         </>
       )
     case 'angry':
       return (
         <>
-          <path d="M 68 64 Q 80 68 92 64" stroke="#444" strokeWidth="3" fill="none" strokeLinecap="round" />
-          <path d="M 108 64 Q 120 68 132 64" stroke="#444" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M 72 68 Q 82 71 92 68" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M 108 68 Q 118 71 128 68" stroke="#555" strokeWidth="2.5" fill="none" strokeLinecap="round" />
         </>
       )
     case 'thin':
       return (
         <>
-          <path d="M 70 67 Q 80 64 90 67" stroke="#666" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-          <path d="M 110 67 Q 120 64 130 67" stroke="#666" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          <path d="M 74 70 Q 82 68 90 70" stroke="#777" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+          <path d="M 110 70 Q 118 68 126 70" stroke="#777" strokeWidth="1.2" fill="none" strokeLinecap="round" />
         </>
       )
     default:
@@ -306,50 +325,53 @@ function renderEyebrows(type) {
 function renderNose() {
   return (
     <>
-      <ellipse cx="100" cy="98" rx="4" ry="3" fill="rgba(0,0,0,0.06)" />
-      <path d="M 96 96 Q 100 101 104 96" stroke="rgba(0,0,0,0.15)" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-      <circle cx="97" cy="98" r="1.2" fill="rgba(0,0,0,0.04)" />
-      <circle cx="103" cy="98" r="1.2" fill="rgba(0,0,0,0.04)" />
+      <ellipse cx="100" cy="96" rx="3" ry="2.5" fill="rgba(0,0,0,0.04)" />
+      <path d="M 97 95 Q 100 99 103 95" stroke="rgba(0,0,0,0.12)" strokeWidth="1" fill="none" strokeLinecap="round" />
     </>
   )
 }
 
 // ============= MOUTH =============
 function renderMouth(type) {
+  // Using softer, warmer lip colors instead of blood-red
+  const lipColor = '#d4807a'
+  const lipDark = '#b86b66'
+  const lipLight = '#e8a09a'
+
   switch (type) {
     case 'smile':
       return (
         <g>
-          <path d="M 85 110 Q 100 122 115 110" stroke="#c0392b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          <path d="M 88 111 Q 100 118 112 111" fill="#e74c3c" opacity="0.3" />
+          <path d="M 88 106 Q 100 115 112 106" stroke={lipColor} strokeWidth="2" fill="none" strokeLinecap="round" />
+          <path d="M 91 107 Q 100 113 109 107" fill={lipLight} opacity="0.25" />
         </g>
       )
     case 'neutral':
       return (
-        <path d="M 88 112 Q 100 114 112 112" stroke="#c0392b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M 90 108 Q 100 110 110 108" stroke={lipColor} strokeWidth="2" fill="none" strokeLinecap="round" />
       )
     case 'open':
       return (
         <g>
-          <ellipse cx="100" cy="113" rx="10" ry="7" fill="#8b1a1a" />
-          <ellipse cx="100" cy="116" rx="7" ry="3" fill="#e74c3c" opacity="0.5" />
-          <path d="M 90 112 Q 100 108 110 112" stroke="#c0392b" strokeWidth="1.5" fill="none" />
+          <ellipse cx="100" cy="108" rx="8" ry="5.5" fill={lipDark} />
+          <ellipse cx="100" cy="110" rx="5.5" ry="2.5" fill={lipLight} opacity="0.4" />
+          <path d="M 92 107 Q 100 104 108 107" stroke={lipColor} strokeWidth="1.2" fill="none" />
         </g>
       )
     case 'smirk':
       return (
-        <path d="M 88 112 Q 100 112 115 107" stroke="#c0392b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M 90 108 Q 100 108 112 104" stroke={lipColor} strokeWidth="2" fill="none" strokeLinecap="round" />
       )
     case 'grin':
       return (
         <g>
-          <path d="M 82 108 Q 100 125 118 108" stroke="#c0392b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          <path d="M 86 110 Q 100 120 114 110" fill="white" opacity="0.8" />
+          <path d="M 85 105 Q 100 116 115 105" stroke={lipColor} strokeWidth="2" fill="none" strokeLinecap="round" />
+          <path d="M 89 107 Q 100 114 111 107" fill="white" opacity="0.7" />
         </g>
       )
     default:
       return (
-        <path d="M 85 110 Q 100 122 115 110" stroke="#c0392b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M 88 106 Q 100 115 112 106" stroke={lipColor} strokeWidth="2" fill="none" strokeLinecap="round" />
       )
   }
 }
@@ -361,26 +383,26 @@ function renderHairBack(style, color) {
     case 'long':
       return (
         <g opacity="0.9">
-          <path d="M 50 75 Q 44 110 38 150 Q 36 162 46 155 Q 48 125 52 90 Z" fill={c} />
-          <path d="M 150 75 Q 156 110 162 150 Q 164 162 154 155 Q 152 125 148 90 Z" fill={c} />
+          <path d="M 54 78 Q 48 108 42 148 Q 40 158 48 152 Q 50 122 54 90 Z" fill={c} />
+          <path d="M 146 78 Q 152 108 158 148 Q 160 158 152 152 Q 150 122 146 90 Z" fill={c} />
         </g>
       )
     case 'braids':
       return (
         <g>
-          <path d="M 55 70 Q 48 95 42 120 Q 38 135 42 140 Q 46 135 44 120 Q 48 100 52 80 Z" fill={c} />
-          <path d="M 145 70 Q 152 95 158 120 Q 162 135 158 140 Q 154 135 156 120 Q 152 100 148 80 Z" fill={c} />
-          <circle cx="42" cy="142" r="4" fill={c} />
-          <circle cx="158" cy="142" r="4" fill={c} />
+          <path d="M 58 72 Q 52 96 46 118 Q 42 132 46 136 Q 50 132 48 118 Q 52 100 56 82 Z" fill={c} />
+          <path d="M 142 72 Q 148 96 154 118 Q 158 132 154 136 Q 150 132 152 118 Q 148 100 144 82 Z" fill={c} />
+          <circle cx="46" cy="138" r="3.5" fill={c} />
+          <circle cx="154" cy="138" r="3.5" fill={c} />
         </g>
       )
     case 'afro':
       return (
         <g opacity="0.9">
-          <circle cx="50" cy="70" r="12" fill={c} />
-          <circle cx="150" cy="70" r="12" fill={c} />
-          <circle cx="42" cy="90" r="10" fill={c} />
-          <circle cx="158" cy="90" r="10" fill={c} />
+          <circle cx="54" cy="72" r="11" fill={c} />
+          <circle cx="146" cy="72" r="11" fill={c} />
+          <circle cx="46" cy="90" r="9" fill={c} />
+          <circle cx="154" cy="90" r="9" fill={c} />
         </g>
       )
     default:
@@ -398,134 +420,134 @@ function renderHairFront(style, color, uid) {
     case 'short':
       return (
         <g className={hoverClass}>
-          <path d="M 56 78 Q 56 34 100 28 Q 144 34 144 78 Q 140 52 100 44 Q 60 52 56 78 Z" fill={c} />
-          <path d="M 72 48 Q 90 36 108 38" stroke={highlight} strokeWidth="2" fill="none" opacity="0.25" strokeLinecap="round" />
+          <path d="M 58 78 Q 60 38 100 32 Q 140 38 142 78 Q 138 54 100 46 Q 62 54 58 78 Z" fill={c} />
+          <path d="M 74 48 Q 90 38 108 40" stroke={highlight} strokeWidth="2" fill="none" opacity="0.2" strokeLinecap="round" />
         </g>
       )
     case 'long':
       return (
         <g className={hoverClass}>
-          <path d="M 56 78 Q 56 32 100 25 Q 144 32 144 78 Q 140 50 100 42 Q 60 50 56 78 Z" fill={c} />
-          <path d="M 53 78 Q 50 90 48 100" stroke={c} strokeWidth="6" fill="none" strokeLinecap="round" />
-          <path d="M 147 78 Q 150 90 152 100" stroke={c} strokeWidth="6" fill="none" strokeLinecap="round" />
-          <path d="M 70 45 Q 90 33 110 36" stroke={highlight} strokeWidth="2" fill="none" opacity="0.2" strokeLinecap="round" />
+          <path d="M 58 78 Q 58 36 100 28 Q 142 36 142 78 Q 138 52 100 44 Q 62 52 58 78 Z" fill={c} />
+          <path d="M 56 78 Q 53 90 51 100" stroke={c} strokeWidth="5" fill="none" strokeLinecap="round" />
+          <path d="M 144 78 Q 147 90 149 100" stroke={c} strokeWidth="5" fill="none" strokeLinecap="round" />
+          <path d="M 72 46 Q 90 36 108 38" stroke={highlight} strokeWidth="2" fill="none" opacity="0.18" strokeLinecap="round" />
         </g>
       )
     case 'curly':
       return (
         <g className={hoverClass}>
-          <circle cx="60" cy="46" r="17" fill={c} />
-          <circle cx="88" cy="36" r="17" fill={c} />
-          <circle cx="112" cy="36" r="17" fill={c} />
-          <circle cx="140" cy="46" r="17" fill={c} />
-          <circle cx="48" cy="66" r="13" fill={c} />
-          <circle cx="152" cy="66" r="13" fill={c} />
-          <circle cx="58" cy="42" r="4" fill={highlight} opacity="0.15" />
-          <circle cx="86" cy="32" r="4" fill={highlight} opacity="0.15" />
-          <circle cx="114" cy="32" r="4" fill={highlight} opacity="0.15" />
+          <circle cx="62" cy="48" r="16" fill={c} />
+          <circle cx="88" cy="38" r="16" fill={c} />
+          <circle cx="112" cy="38" r="16" fill={c} />
+          <circle cx="138" cy="48" r="16" fill={c} />
+          <circle cx="50" cy="66" r="12" fill={c} />
+          <circle cx="150" cy="66" r="12" fill={c} />
+          <circle cx="60" cy="44" r="3.5" fill={highlight} opacity="0.12" />
+          <circle cx="88" cy="34" r="3.5" fill={highlight} opacity="0.12" />
+          <circle cx="114" cy="34" r="3.5" fill={highlight} opacity="0.12" />
         </g>
       )
     case 'buzz':
       return (
         <g className={hoverClass}>
-          <path d="M 58 78 Q 58 38 100 32 Q 142 38 142 78 Q 138 52 100 44 Q 62 52 58 78 Z"
-                fill={c} opacity="0.55" />
+          <path d="M 60 78 Q 60 40 100 34 Q 140 40 140 78 Q 136 54 100 46 Q 64 54 60 78 Z"
+                fill={c} opacity="0.5" />
         </g>
       )
     case 'ponytail':
       return (
         <g className={hoverClass}>
-          <path d="M 56 78 Q 56 34 100 28 Q 144 34 144 78 Q 140 52 100 44 Q 60 52 56 78 Z" fill={c} />
-          <ellipse cx="100" cy="22" rx="16" ry="10" fill={c} />
-          <path d="M 100 22 Q 106 10 118 4 Q 120 12 110 20" fill={c} />
-          <circle cx="112" cy="6" r="3" fill={c} />
+          <path d="M 58 78 Q 60 38 100 32 Q 140 38 142 78 Q 138 54 100 46 Q 62 54 58 78 Z" fill={c} />
+          <ellipse cx="100" cy="26" rx="14" ry="9" fill={c} />
+          <path d="M 100 26 Q 106 14 116 8 Q 118 14 110 22" fill={c} />
+          <circle cx="112" cy="10" r="3" fill={c} />
         </g>
       )
     case 'mohawk':
       return (
         <g className={hoverClass}>
-          <path d="M 86 68 Q 86 18 100 6 Q 114 18 114 68 Q 110 40 100 28 Q 90 40 86 68 Z" fill={c} />
-          <path d="M 96 30 Q 100 16 104 30" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.2" />
+          <path d="M 88 68 Q 88 22 100 10 Q 112 22 112 68 Q 108 42 100 32 Q 92 42 88 68 Z" fill={c} />
+          <path d="M 96 32 Q 100 20 104 32" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.18" />
         </g>
       )
     case 'messy':
       return (
         <g className={hoverClass}>
-          <path d="M 54 78 Q 52 38 100 26 Q 148 38 146 78 Q 142 48 100 40 Q 58 48 54 78 Z" fill={c} />
-          <path d="M 60 50 L 52 38 Q 56 44 62 46" fill={c} />
-          <path d="M 140 50 L 148 38 Q 144 44 138 46" fill={c} />
-          <path d="M 85 38 L 80 24 Q 84 32 88 36" fill={c} />
-          <path d="M 115 38 L 120 24 Q 116 32 112 36" fill={c} />
-          <path d="M 100 34 L 98 20 Q 102 28 102 34" fill={c} />
+          <path d="M 56 78 Q 54 40 100 30 Q 146 40 144 78 Q 140 50 100 42 Q 60 50 56 78 Z" fill={c} />
+          <path d="M 62 52 L 54 40 Q 58 46 64 48" fill={c} />
+          <path d="M 138 52 L 146 40 Q 142 46 136 48" fill={c} />
+          <path d="M 86 40 L 82 28 Q 86 34 90 38" fill={c} />
+          <path d="M 114 40 L 118 28 Q 114 34 110 38" fill={c} />
+          <path d="M 100 36 L 98 24 Q 102 30 102 36" fill={c} />
         </g>
       )
     case 'bob':
       return (
         <g className={hoverClass}>
-          <path d="M 56 78 Q 56 34 100 28 Q 144 34 144 78 Q 140 50 100 42 Q 60 50 56 78 Z" fill={c} />
-          <path d="M 54 78 Q 50 100 52 112 Q 54 116 58 112 Q 56 100 56 82 Z" fill={c} />
-          <path d="M 146 78 Q 150 100 148 112 Q 146 116 142 112 Q 144 100 144 82 Z" fill={c} />
-          <path d="M 70 46 Q 88 34 106 37" stroke={highlight} strokeWidth="2" fill="none" opacity="0.2" strokeLinecap="round" />
+          <path d="M 58 78 Q 58 36 100 30 Q 142 36 142 78 Q 138 52 100 44 Q 62 52 58 78 Z" fill={c} />
+          <path d="M 56 78 Q 53 98 55 108 Q 57 112 60 108 Q 58 98 58 82 Z" fill={c} />
+          <path d="M 144 78 Q 147 98 145 108 Q 143 112 140 108 Q 142 98 142 82 Z" fill={c} />
+          <path d="M 72 48 Q 88 36 106 39" stroke={highlight} strokeWidth="2" fill="none" opacity="0.18" strokeLinecap="round" />
         </g>
       )
     case 'spiky':
       return (
         <g className={hoverClass}>
-          <path d="M 60 68 L 50 28 Q 58 42 68 48 L 65 16 Q 72 36 80 42 L 82 8 Q 88 30 94 40 L 100 4 Q 106 30 112 40 L 118 8 Q 122 30 128 42 L 135 16 Q 138 36 142 48 L 150 28 Q 148 52 140 68 Q 130 50 100 44 Q 70 50 60 68 Z"
+          <path d="M 62 68 L 54 32 Q 60 44 70 50 L 68 20 Q 74 38 82 44 L 84 12 Q 90 32 96 42 L 100 8 Q 106 32 112 42 L 116 12 Q 122 32 128 44 L 132 20 Q 136 38 140 50 L 146 32 Q 144 54 138 68 Q 128 52 100 46 Q 72 52 62 68 Z"
               fill={c} />
-          <path d="M 88 28 Q 95 14 102 28" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.2" />
+          <path d="M 90 30 Q 96 18 104 30" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.18" />
         </g>
       )
     case 'braids':
       return (
         <g className={hoverClass}>
-          <path d="M 56 78 Q 56 34 100 28 Q 144 34 144 78 Q 140 50 100 42 Q 60 50 56 78 Z" fill={c} />
-          <path d="M 72 46 Q 88 35 106 37" stroke={highlight} strokeWidth="2" fill="none" opacity="0.2" strokeLinecap="round" />
+          <path d="M 58 78 Q 58 36 100 30 Q 142 36 142 78 Q 138 52 100 44 Q 62 52 58 78 Z" fill={c} />
+          <path d="M 74 48 Q 88 38 106 39" stroke={highlight} strokeWidth="2" fill="none" opacity="0.18" strokeLinecap="round" />
         </g>
       )
     case 'afro':
       return (
         <g className={hoverClass}>
-          <circle cx="100" cy="42" r="48" fill={c} />
-          <circle cx="60" cy="60" r="22" fill={c} />
-          <circle cx="140" cy="60" r="22" fill={c} />
-          <circle cx="100" cy="14" r="18" fill={c} />
-          <circle cx="70" cy="24" r="16" fill={c} />
-          <circle cx="130" cy="24" r="16" fill={c} />
-          <circle cx="78" cy="34" r="6" fill={highlight} opacity="0.12" />
-          <circle cx="112" cy="22" r="4" fill={highlight} opacity="0.1" />
+          <circle cx="100" cy="44" r="46" fill={c} />
+          <circle cx="62" cy="62" r="20" fill={c} />
+          <circle cx="138" cy="62" r="20" fill={c} />
+          <circle cx="100" cy="18" r="16" fill={c} />
+          <circle cx="72" cy="28" r="14" fill={c} />
+          <circle cx="128" cy="28" r="14" fill={c} />
+          <circle cx="80" cy="36" r="5" fill={highlight} opacity="0.1" />
+          <circle cx="112" cy="24" r="3.5" fill={highlight} opacity="0.08" />
         </g>
       )
     case 'pixie':
       return (
         <g className={hoverClass}>
-          <path d="M 58 78 Q 60 38 100 30 Q 140 38 142 78 Q 138 54 100 46 Q 62 54 58 78 Z" fill={c} />
-          <path d="M 56 70 Q 48 58 44 68 Q 42 76 52 78" fill={c} />
-          <path d="M 74 46 Q 88 36 104 38" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.2" strokeLinecap="round" />
+          <path d="M 60 78 Q 62 40 100 32 Q 138 40 140 78 Q 136 56 100 48 Q 64 56 60 78 Z" fill={c} />
+          <path d="M 58 72 Q 50 60 46 68 Q 44 76 54 78" fill={c} />
+          <path d="M 76 48 Q 88 38 104 40" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.18" strokeLinecap="round" />
         </g>
       )
     case 'sidepart':
       return (
         <g className={hoverClass}>
-          <path d="M 56 78 Q 56 34 100 28 Q 144 34 144 78 Q 140 52 100 44 Q 60 52 56 78 Z" fill={c} />
-          <path d="M 56 66 Q 52 50 68 38 Q 84 30 100 28" stroke={c} strokeWidth="10" fill="none" />
-          <path d="M 54 72 Q 46 58 42 72 Q 40 82 50 80" fill={c} />
-          <path d="M 68 42 Q 82 32 96 34" stroke={highlight} strokeWidth="2" fill="none" opacity="0.2" strokeLinecap="round" />
+          <path d="M 58 78 Q 58 36 100 30 Q 140 36 142 78 Q 138 54 100 46 Q 62 54 58 78 Z" fill={c} />
+          <path d="M 58 68 Q 54 52 70 40 Q 86 32 100 30" stroke={c} strokeWidth="9" fill="none" />
+          <path d="M 56 74 Q 48 60 44 72 Q 42 82 52 80" fill={c} />
+          <path d="M 70 44 Q 84 34 98 36" stroke={highlight} strokeWidth="2" fill="none" opacity="0.18" strokeLinecap="round" />
         </g>
       )
     case 'undercut':
       return (
         <g className={hoverClass}>
-          <path d="M 70 78 Q 72 42 100 34 Q 128 42 130 78 Q 126 54 100 48 Q 74 54 70 78 Z" fill={c} />
-          <path d="M 58 78 Q 60 56 70 50" stroke={c} strokeWidth="2" fill="none" opacity="0.3" />
-          <path d="M 142 78 Q 140 56 130 50" stroke={c} strokeWidth="2" fill="none" opacity="0.3" />
-          <path d="M 82 46 Q 95 36 110 40" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.2" strokeLinecap="round" />
+          <path d="M 72 78 Q 74 44 100 36 Q 126 44 128 78 Q 124 56 100 50 Q 76 56 72 78 Z" fill={c} />
+          <path d="M 60 78 Q 62 58 72 52" stroke={c} strokeWidth="2" fill="none" opacity="0.3" />
+          <path d="M 140 78 Q 138 58 128 52" stroke={c} strokeWidth="2" fill="none" opacity="0.3" />
+          <path d="M 84 48 Q 96 38 110 42" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.18" strokeLinecap="round" />
         </g>
       )
     default:
       return (
         <g className={hoverClass}>
-          <path d="M 56 78 Q 56 34 100 28 Q 144 34 144 78 Q 140 52 100 44 Q 60 52 56 78 Z" fill={c} />
+          <path d="M 58 78 Q 60 38 100 32 Q 140 38 142 78 Q 138 54 100 46 Q 62 54 58 78 Z" fill={c} />
         </g>
       )
   }
@@ -537,86 +559,85 @@ function renderAccessory(type) {
     case 'glasses':
       return (
         <g>
-          <circle cx="80" cy="80" r="14" stroke="#666" strokeWidth="2" fill="none" />
-          <circle cx="120" cy="80" r="14" stroke="#666" strokeWidth="2" fill="none" />
-          <path d="M 94 80 L 106 80" stroke="#666" strokeWidth="2" />
-          <path d="M 66 80 L 54 76" stroke="#666" strokeWidth="2" />
-          <path d="M 134 80 L 146 76" stroke="#666" strokeWidth="2" />
+          <circle cx="82" cy="82" r="12" stroke="#777" strokeWidth="1.8" fill="none" />
+          <circle cx="118" cy="82" r="12" stroke="#777" strokeWidth="1.8" fill="none" />
+          <path d="M 94 82 L 106 82" stroke="#777" strokeWidth="1.8" />
+          <path d="M 70 82 L 58 79" stroke="#777" strokeWidth="1.8" />
+          <path d="M 130 82 L 142 79" stroke="#777" strokeWidth="1.8" />
         </g>
       )
     case 'sunglasses':
       return (
         <g>
-          <rect x="64" y="72" width="30" height="18" rx="4" fill="#1a1a1a" stroke="#333" strokeWidth="1.5" />
-          <rect x="106" y="72" width="30" height="18" rx="4" fill="#1a1a1a" stroke="#333" strokeWidth="1.5" />
-          <path d="M 94 80 L 106 80" stroke="#333" strokeWidth="2" />
-          <path d="M 64 78 L 54 74" stroke="#333" strokeWidth="2" />
-          <path d="M 136 78 L 146 74" stroke="#333" strokeWidth="2" />
-          <rect x="67" y="74" width="10" height="3" rx="1" fill="white" opacity="0.15" />
-          <rect x="109" y="74" width="10" height="3" rx="1" fill="white" opacity="0.15" />
+          <rect x="68" y="75" width="26" height="16" rx="3.5" fill="#1a1a1a" stroke="#444" strokeWidth="1.2" />
+          <rect x="106" y="75" width="26" height="16" rx="3.5" fill="#1a1a1a" stroke="#444" strokeWidth="1.2" />
+          <path d="M 94 82 L 106 82" stroke="#444" strokeWidth="1.8" />
+          <path d="M 68 80 L 58 77" stroke="#444" strokeWidth="1.8" />
+          <path d="M 132 80 L 142 77" stroke="#444" strokeWidth="1.8" />
+          <rect x="71" y="77" width="8" height="2.5" rx="1" fill="white" opacity="0.12" />
+          <rect x="109" y="77" width="8" height="2.5" rx="1" fill="white" opacity="0.12" />
         </g>
       )
     case 'earring':
       return (
         <g>
-          <circle cx="46" cy="92" r="3.5" fill="#FFD700" />
-          <circle cx="46" cy="92" r="2" fill="#FFA000" />
+          <circle cx="50" cy="92" r="3" fill="#FFD700" />
+          <circle cx="50" cy="92" r="1.8" fill="#FFA000" />
         </g>
       )
     case 'headphones':
       return (
         <g>
-          <path d="M 48 74 Q 48 40 100 34 Q 152 40 152 74" stroke="#333" strokeWidth="5" fill="none" strokeLinecap="round" />
-          <rect x="40" y="68" width="14" height="22" rx="5" fill="#444" stroke="#333" strokeWidth="1" />
-          <rect x="146" y="68" width="14" height="22" rx="5" fill="#444" stroke="#333" strokeWidth="1" />
-          <rect x="43" y="72" width="8" height="14" rx="3" fill="#555" />
-          <rect x="149" y="72" width="8" height="14" rx="3" fill="#555" />
+          <path d="M 52 76 Q 52 44 100 38 Q 148 44 148 76" stroke="#444" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+          <rect x="44" y="70" width="12" height="20" rx="4.5" fill="#555" stroke="#444" strokeWidth="1" />
+          <rect x="144" y="70" width="12" height="20" rx="4.5" fill="#555" stroke="#444" strokeWidth="1" />
+          <rect x="47" y="74" width="6" height="12" rx="2.5" fill="#666" />
+          <rect x="147" y="74" width="6" height="12" rx="2.5" fill="#666" />
         </g>
       )
     case 'mask':
       return (
         <g>
-          <path d="M 70 92 Q 72 105 80 112 Q 90 118 100 120 Q 110 118 120 112 Q 128 105 130 92 Q 100 88 70 92 Z"
-                fill="#2c2c2c" />
-          <path d="M 75 96 Q 100 92 125 96" stroke="#444" strokeWidth="1" fill="none" />
-          <path d="M 78 100 Q 100 96 122 100" stroke="#444" strokeWidth="1" fill="none" />
-          <path d="M 82 104 Q 100 100 118 104" stroke="#444" strokeWidth="1" fill="none" />
+          <path d="M 74 94 Q 76 104 82 108 Q 92 114 100 116 Q 108 114 118 108 Q 124 104 126 94 Q 100 90 74 94 Z"
+                fill="#333" />
+          <path d="M 78 98 Q 100 94 122 98" stroke="#555" strokeWidth="0.8" fill="none" />
+          <path d="M 80 102 Q 100 98 120 102" stroke="#555" strokeWidth="0.8" fill="none" />
         </g>
       )
     case 'scarf':
       return (
         <g>
-          <path d="M 78 118 Q 75 128 72 140 Q 68 150 82 148 Q 88 140 90 128 Q 92 120 100 118 Q 108 120 110 128 Q 112 140 118 148 Q 132 150 128 140 Q 125 128 122 118"
-                fill="#e74c3c" stroke="#c0392b" strokeWidth="1" />
-          <path d="M 78 126 Q 100 122 122 126" stroke="#c0392b" strokeWidth="1.5" fill="none" opacity="0.5" />
+          <path d="M 80 116 Q 78 126 76 138 Q 73 146 84 144 Q 88 138 90 128 Q 92 120 100 116 Q 108 120 110 128 Q 112 138 116 144 Q 127 146 124 138 Q 122 126 120 116"
+                fill="#e07060" stroke="#c05545" strokeWidth="0.8" />
+          <path d="M 80 124 Q 100 120 120 124" stroke="#c05545" strokeWidth="1.2" fill="none" opacity="0.4" />
         </g>
       )
     case 'monocle':
       return (
         <g>
-          <circle cx="120" cy="80" r="15" stroke="#FFD700" strokeWidth="2" fill="none" />
-          <circle cx="120" cy="80" r="13" stroke="#DAA520" strokeWidth="0.5" fill="rgba(255,255,255,0.05)" />
-          <path d="M 135 80 Q 142 86 146 100 Q 148 110 144 118" stroke="#FFD700" strokeWidth="1.2" fill="none" />
-          <circle cx="120" cy="74" r="2" fill="white" opacity="0.3" />
+          <circle cx="118" cy="82" r="13" stroke="#FFD700" strokeWidth="1.8" fill="none" />
+          <circle cx="118" cy="82" r="11" stroke="#DAA520" strokeWidth="0.4" fill="rgba(255,255,255,0.04)" />
+          <path d="M 131 82 Q 136 88 140 100 Q 142 108 139 114" stroke="#FFD700" strokeWidth="1" fill="none" />
+          <circle cx="118" cy="77" r="1.8" fill="white" opacity="0.25" />
         </g>
       )
     case 'bowtie':
       return (
         <g>
-          <path d="M 84 134 L 96 128 L 96 140 Z" fill="#c0392b" />
-          <path d="M 116 134 L 104 128 L 104 140 Z" fill="#c0392b" />
-          <circle cx="100" cy="134" r="3.5" fill="#e74c3c" />
-          <circle cx="100" cy="134" r="2" fill="#a93226" />
+          <path d="M 86 132 L 96 126 L 96 138 Z" fill="#d07068" />
+          <path d="M 114 132 L 104 126 L 104 138 Z" fill="#d07068" />
+          <circle cx="100" cy="132" r="3" fill="#e08078" />
+          <circle cx="100" cy="132" r="1.8" fill="#b05548" />
         </g>
       )
     case 'bandana':
       return (
         <g>
-          <path d="M 56 60 Q 56 48 100 42 Q 144 48 144 60 Q 140 52 100 48 Q 60 52 56 60 Z" fill="#e74c3c" />
-          <path d="M 56 60 Q 100 56 144 60" stroke="#c0392b" strokeWidth="2" fill="none" />
-          <circle cx="100" cy="44" r="2" fill="#c0392b" />
-          <path d="M 54 60 L 46 70 Q 44 74 48 72 L 56 64" fill="#e74c3c" />
-          <path d="M 146 60 L 154 70 Q 156 74 152 72 L 144 64" fill="#e74c3c" />
+          <path d="M 58 62 Q 60 50 100 44 Q 140 50 142 62 Q 138 54 100 50 Q 62 54 58 62 Z" fill="#e07060" />
+          <path d="M 58 62 Q 100 58 142 62" stroke="#c05545" strokeWidth="1.8" fill="none" />
+          <circle cx="100" cy="46" r="1.8" fill="#c05545" />
+          <path d="M 56 62 L 48 70 Q 46 74 50 72 L 58 66" fill="#e07060" />
+          <path d="M 144 62 L 152 70 Q 154 74 150 72 L 142 66" fill="#e07060" />
         </g>
       )
     default:
@@ -630,186 +651,184 @@ function renderHat(type) {
     case 'baseball':
       return (
         <g>
-          <path d="M 58 48 Q 58 24 100 18 Q 142 24 142 48 Q 132 36 100 30 Q 68 36 58 48 Z" fill="#2c3e50" />
-          <path d="M 56 48 Q 80 46 120 56 Q 140 60 138 52 Q 120 44 56 48 Z" fill="#1a252f" />
-          <circle cx="100" cy="20" r="3" fill="#1a252f" />
-          <path d="M 72 36 Q 90 26 108 28" stroke="white" strokeWidth="1" fill="none" opacity="0.12" strokeLinecap="round" />
+          <path d="M 60 50 Q 62 28 100 22 Q 138 28 140 50 Q 130 38 100 32 Q 70 38 60 50 Z" fill="#2c3e50" />
+          <path d="M 58 50 Q 80 48 118 56 Q 136 60 134 54 Q 118 46 58 50 Z" fill="#1a252f" />
+          <circle cx="100" cy="24" r="2.5" fill="#1a252f" />
+          <path d="M 74 38 Q 90 28 106 30" stroke="white" strokeWidth="0.8" fill="none" opacity="0.1" strokeLinecap="round" />
         </g>
       )
     case 'beanie':
       return (
         <g>
-          <path d="M 56 50 Q 56 18 100 10 Q 144 18 144 50 Q 136 42 100 38 Q 64 42 56 50 Z" fill="#7f8c8d" />
-          <path d="M 54 50 Q 100 44 146 50" stroke="#6c7a7d" strokeWidth="4" fill="none" />
-          <path d="M 76 48 L 76 22" stroke="#6c7a7d" strokeWidth="0.8" opacity="0.3" />
-          <path d="M 100 46 L 100 12" stroke="#6c7a7d" strokeWidth="0.8" opacity="0.3" />
-          <path d="M 124 48 L 124 22" stroke="#6c7a7d" strokeWidth="0.8" opacity="0.3" />
-          <circle cx="100" cy="10" r="5" fill="#8e9fa1" />
+          <path d="M 58 52 Q 60 22 100 14 Q 140 22 142 52 Q 134 44 100 40 Q 66 44 58 52 Z" fill="#7f8c8d" />
+          <path d="M 56 52 Q 100 46 144 52" stroke="#6c7a7d" strokeWidth="3.5" fill="none" />
+          <path d="M 78 50 L 78 26" stroke="#6c7a7d" strokeWidth="0.7" opacity="0.25" />
+          <path d="M 100 48 L 100 16" stroke="#6c7a7d" strokeWidth="0.7" opacity="0.25" />
+          <path d="M 122 50 L 122 26" stroke="#6c7a7d" strokeWidth="0.7" opacity="0.25" />
+          <circle cx="100" cy="14" r="4.5" fill="#8e9fa1" />
         </g>
       )
     case 'tophat':
       return (
         <g>
-          <ellipse cx="100" cy="40" rx="48" ry="8" fill="#111" />
-          <rect x="70" y="2" width="60" height="38" rx="3" fill="#1a1a1a" />
-          <rect x="70" y="30" width="60" height="6" fill="#8b0000" />
-          <rect x="78" y="5" width="16" height="3" rx="1.5" fill="white" opacity="0.08" />
-          <ellipse cx="100" cy="4" rx="28" ry="4" fill="#222" />
+          <ellipse cx="100" cy="42" rx="46" ry="7" fill="#111" />
+          <rect x="72" y="6" width="56" height="36" rx="3" fill="#1a1a1a" />
+          <rect x="72" y="32" width="56" height="5" fill="#7a0000" />
+          <rect x="80" y="9" width="14" height="3" rx="1.5" fill="white" opacity="0.06" />
+          <ellipse cx="100" cy="8" rx="26" ry="4" fill="#222" />
         </g>
       )
     case 'wizard':
       return (
         <g>
-          <ellipse cx="100" cy="44" rx="52" ry="10" fill="#3d1a6b" />
-          <path d="M 62 44 L 100 -20 L 138 44 Z" fill="#5b2d8e" />
-          <path d="M 100 -20 Q 118 -14 125 -2" stroke="#5b2d8e" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <circle cx="125" cy="-2" r="4" fill="#FFD700" className="avatar-sparkle" />
-          <circle cx="95" cy="10" r="2" fill="#FFD700" opacity="0.8" />
-          <circle cx="110" cy="22" r="1.5" fill="#4FC3F7" opacity="0.7" />
-          <circle cx="85" cy="28" r="1.8" fill="#FFD700" opacity="0.6" />
-          <circle cx="115" cy="35" r="1.2" fill="#81C784" opacity="0.7" />
+          <ellipse cx="100" cy="46" rx="50" ry="9" fill="#3d1a6b" />
+          <path d="M 64 46 L 100 -16 L 136 46 Z" fill="#5b2d8e" />
+          <path d="M 100 -16 Q 116 -10 122 0" stroke="#5b2d8e" strokeWidth="7" fill="none" strokeLinecap="round" />
+          <circle cx="122" cy="0" r="3.5" fill="#FFD700" className="avatar-sparkle" />
+          <circle cx="96" cy="14" r="1.8" fill="#FFD700" opacity="0.7" />
+          <circle cx="110" cy="24" r="1.3" fill="#4FC3F7" opacity="0.6" />
+          <circle cx="86" cy="30" r="1.5" fill="#FFD700" opacity="0.5" />
+          <circle cx="114" cy="36" r="1" fill="#81C784" opacity="0.6" />
         </g>
       )
     case 'viking':
       return (
         <g>
-          <path d="M 52 52 Q 52 22 100 14 Q 148 22 148 52 Q 140 40 100 34 Q 60 40 52 52 Z" fill="#8B8B8B" />
-          <path d="M 50 52 Q 100 58 150 52" stroke="#6B6B6B" strokeWidth="4" fill="none" />
-          <path d="M 98 52 L 100 75 L 102 52" fill="#6B6B6B" />
-          <path d="M 48 46 Q 32 28 22 6" stroke="#F5DEB3" strokeWidth="5" fill="none" strokeLinecap="round" />
-          <path d="M 152 46 Q 168 28 178 6" stroke="#F5DEB3" strokeWidth="5" fill="none" strokeLinecap="round" />
-          <path d="M 48 46 Q 30 26 20 2" stroke="#DAA520" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-          <path d="M 152 46 Q 170 26 180 2" stroke="#DAA520" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          <path d="M 54 54 Q 56 26 100 18 Q 144 26 146 54 Q 138 42 100 36 Q 62 42 54 54 Z" fill="#8B8B8B" />
+          <path d="M 52 54 Q 100 58 148 54" stroke="#6B6B6B" strokeWidth="3.5" fill="none" />
+          <path d="M 98 54 L 100 74 L 102 54" fill="#6B6B6B" />
+          <path d="M 50 48 Q 34 30 24 10" stroke="#F5DEB3" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+          <path d="M 150 48 Q 166 30 176 10" stroke="#F5DEB3" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+          <path d="M 50 48 Q 32 28 22 6" stroke="#DAA520" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+          <path d="M 150 48 Q 168 28 178 6" stroke="#DAA520" strokeWidth="1.2" fill="none" strokeLinecap="round" />
         </g>
       )
     case 'pirate':
       return (
         <g>
-          <path d="M 48 48 Q 52 20 100 12 Q 148 20 152 48 Q 130 36 100 34 Q 70 36 48 48 Z" fill="#111" />
-          <path d="M 46 48 Q 100 38 154 48 Q 155 52 152 52 Q 100 42 48 52 Q 45 52 46 48 Z" fill="#222" />
-          <path d="M 54 48 L 40 42 Q 38 40 42 40 L 56 44" fill="#222" />
-          <path d="M 146 48 L 160 42 Q 162 40 158 40 L 144 44" fill="#222" />
-          <circle cx="100" cy="30" r="6" fill="white" opacity="0.9" />
-          <circle cx="97" cy="29" r="1.5" fill="#111" />
-          <circle cx="103" cy="29" r="1.5" fill="#111" />
-          <path d="M 95 33 Q 100 35 105 33" stroke="#111" strokeWidth="0.8" fill="none" />
-          <path d="M 90 34 L 92 38 L 88 38 Z" fill="white" opacity="0.8" />
-          <path d="M 110 34 L 108 38 L 112 38 Z" fill="white" opacity="0.8" />
+          <path d="M 50 50 Q 54 24 100 16 Q 146 24 150 50 Q 128 38 100 36 Q 72 38 50 50 Z" fill="#111" />
+          <path d="M 48 50 Q 100 40 152 50 Q 153 54 150 54 Q 100 44 50 54 Q 47 54 48 50 Z" fill="#222" />
+          <path d="M 56 50 L 42 44 Q 40 42 44 42 L 58 46" fill="#222" />
+          <path d="M 144 50 L 158 44 Q 160 42 156 42 L 142 46" fill="#222" />
+          <circle cx="100" cy="32" r="5.5" fill="white" opacity="0.85" />
+          <circle cx="97" cy="31" r="1.3" fill="#111" />
+          <circle cx="103" cy="31" r="1.3" fill="#111" />
+          <path d="M 96 35 Q 100 37 104 35" stroke="#111" strokeWidth="0.7" fill="none" />
         </g>
       )
     case 'crown':
       return (
         <g className="avatar-sparkle">
-          <rect x="66" y="32" width="68" height="16" rx="2" fill="#FFD700" />
-          <polygon points="66,32 72,14 82,30 92,8 100,28 108,8 118,30 128,14 134,32" fill="#FFD700" />
-          <circle cx="82" cy="22" r="3" fill="#FF6B6B" />
-          <circle cx="100" cy="14" r="3.5" fill="#4FC3F7" />
-          <circle cx="118" cy="22" r="3" fill="#81C784" />
-          <rect x="68" y="34" width="64" height="4" rx="1" fill="#FFA000" opacity="0.5" />
-          <rect x="72" y="36" width="12" height="2" rx="1" fill="white" opacity="0.15" />
+          <rect x="68" y="34" width="64" height="15" rx="2" fill="#FFD700" />
+          <polygon points="68,34 74,18 84,32 94,12 100,30 106,12 116,32 126,18 132,34" fill="#FFD700" />
+          <circle cx="84" cy="24" r="2.5" fill="#FF6B6B" />
+          <circle cx="100" cy="18" r="3" fill="#4FC3F7" />
+          <circle cx="116" cy="24" r="2.5" fill="#81C784" />
+          <rect x="70" y="36" width="60" height="3.5" rx="1" fill="#FFA000" opacity="0.4" />
+          <rect x="74" y="38" width="10" height="1.5" rx="1" fill="white" opacity="0.12" />
         </g>
       )
     case 'santa':
       return (
         <g>
-          <path d="M 56 50 Q 60 28 100 18 Q 130 14 148 2 Q 155 6 145 18 Q 125 24 142 46 Q 100 40 56 50 Z" fill="#c0392b" />
-          <path d="M 54 50 Q 100 42 148 50" stroke="white" strokeWidth="8" fill="none" strokeLinecap="round" />
-          <circle cx="150" cy="4" r="8" fill="white" />
-          <circle cx="150" cy="4" r="5" fill="#f0f0f0" />
+          <path d="M 58 52 Q 62 30 100 22 Q 128 18 146 6 Q 152 10 142 22 Q 124 28 140 48 Q 100 42 58 52 Z" fill="#c0392b" />
+          <path d="M 56 52 Q 100 44 146 52" stroke="white" strokeWidth="7" fill="none" strokeLinecap="round" />
+          <circle cx="148" cy="8" r="7" fill="white" />
+          <circle cx="148" cy="8" r="4.5" fill="#f0f0f0" />
         </g>
       )
     case 'cowboy':
       return (
         <g>
-          <ellipse cx="100" cy="44" rx="56" ry="10" fill="#8B6914" />
-          <path d="M 68 44 Q 70 16 86 12 Q 100 22 114 12 Q 130 16 132 44" fill="#A0782C" />
-          <path d="M 68 40 Q 100 34 132 40" stroke="#6B4E0A" strokeWidth="3" fill="none" />
-          <ellipse cx="100" cy="14" rx="22" ry="5" fill="#A0782C" />
-          <path d="M 80 28 Q 92 22 104 24" stroke="#C09840" strokeWidth="1" fill="none" opacity="0.3" />
+          <ellipse cx="100" cy="46" rx="54" ry="9" fill="#8B6914" />
+          <path d="M 70 46 Q 72 20 88 16 Q 100 24 112 16 Q 128 20 130 46" fill="#A0782C" />
+          <path d="M 70 42 Q 100 36 130 42" stroke="#6B4E0A" strokeWidth="2.5" fill="none" />
+          <ellipse cx="100" cy="18" rx="20" ry="4.5" fill="#A0782C" />
+          <path d="M 82 30 Q 94 24 106 26" stroke="#C09840" strokeWidth="0.8" fill="none" opacity="0.25" />
         </g>
       )
     case 'catears':
       return (
         <g>
-          <path d="M 55 52 Q 100 44 145 52" stroke="#222" strokeWidth="3" fill="none" />
-          <path d="M 62 50 L 50 16 L 82 42 Z" fill="#222" />
-          <path d="M 66 46 L 56 22 L 78 42 Z" fill="#FF9999" />
-          <path d="M 138 50 L 150 16 L 118 42 Z" fill="#222" />
-          <path d="M 134 46 L 144 22 L 122 42 Z" fill="#FF9999" />
+          <path d="M 58 54 Q 100 46 142 54" stroke="#333" strokeWidth="2.5" fill="none" />
+          <path d="M 64 52 L 52 20 L 84 44 Z" fill="#333" />
+          <path d="M 68 48 L 58 26 L 80 44 Z" fill="#FF9999" />
+          <path d="M 136 52 L 148 20 L 116 44 Z" fill="#333" />
+          <path d="M 132 48 L 142 26 L 120 44 Z" fill="#FF9999" />
         </g>
       )
     case 'helmet':
       return (
         <g>
-          <path d="M 48 55 Q 48 18 100 10 Q 152 18 152 55" fill="#6B7280" stroke="#4B5563" strokeWidth="2" />
-          <path d="M 60 55 L 60 72 Q 60 78 66 78 L 134 78 Q 140 78 140 72 L 140 55" fill="none" stroke="#4B5563" strokeWidth="2" />
-          <rect x="66" y="70" width="68" height="5" rx="2" fill="#4B5563" opacity="0.5" />
-          <path d="M 70 30 Q 90 18 110 22" stroke="white" strokeWidth="1" fill="none" opacity="0.1" />
+          <path d="M 50 56 Q 52 22 100 14 Q 148 22 150 56" fill="#6B7280" stroke="#4B5563" strokeWidth="1.8" />
+          <path d="M 62 56 L 62 72 Q 62 78 68 78 L 132 78 Q 138 78 138 72 L 138 56" fill="none" stroke="#4B5563" strokeWidth="1.8" />
+          <rect x="68" y="72" width="64" height="4.5" rx="2" fill="#4B5563" opacity="0.4" />
+          <path d="M 72 32 Q 90 22 108 24" stroke="white" strokeWidth="0.8" fill="none" opacity="0.08" />
         </g>
       )
     case 'fedora':
       return (
         <g>
-          <ellipse cx="100" cy="44" rx="52" ry="9" fill="#3E2723" />
-          <path d="M 62 44 Q 64 22 82 14 Q 100 20 118 14 Q 136 22 138 44" fill="#5D4037" />
-          <ellipse cx="100" cy="16" rx="20" ry="6" fill="#5D4037" />
-          <path d="M 72 38 Q 100 32 128 38" stroke="#2C1810" strokeWidth="3" fill="none" />
-          <rect x="72" y="35" width="56" height="5" rx="2" fill="#1a1a1a" opacity="0.5" />
-          <path d="M 82 24 Q 95 18 108 20" stroke="#795548" strokeWidth="1" fill="none" opacity="0.3" />
+          <ellipse cx="100" cy="46" rx="50" ry="8" fill="#3E2723" />
+          <path d="M 64 46 Q 66 24 84 18 Q 100 24 116 18 Q 134 24 136 46" fill="#5D4037" />
+          <ellipse cx="100" cy="20" rx="18" ry="5.5" fill="#5D4037" />
+          <path d="M 74 40 Q 100 34 126 40" stroke="#2C1810" strokeWidth="2.5" fill="none" />
+          <rect x="74" y="37" width="52" height="4.5" rx="2" fill="#1a1a1a" opacity="0.4" />
+          <path d="M 84 26 Q 96 20 108 22" stroke="#795548" strokeWidth="0.8" fill="none" opacity="0.25" />
         </g>
       )
     case 'beret':
       return (
         <g>
-          <path d="M 58 48 Q 56 30 80 18 Q 100 12 130 20 Q 148 28 144 48" fill="#c0392b" />
-          <ellipse cx="100" cy="48" rx="44" ry="6" fill="#a93226" />
-          <circle cx="100" cy="14" r="4" fill="#a93226" />
-          <path d="M 76 28 Q 90 18 110 22" stroke="#e74c3c" strokeWidth="1.5" fill="none" opacity="0.25" />
+          <path d="M 60 50 Q 58 32 82 22 Q 100 16 128 24 Q 146 30 142 50" fill="#c0392b" />
+          <ellipse cx="100" cy="50" rx="42" ry="5.5" fill="#a93226" />
+          <circle cx="100" cy="18" r="3.5" fill="#a93226" />
+          <path d="M 78 30 Q 92 22 112 24" stroke="#e74c3c" strokeWidth="1.2" fill="none" opacity="0.2" />
         </g>
       )
     case 'partyhat':
       return (
         <g>
-          <path d="M 70 48 L 100 -10 L 130 48 Z" fill="#9b59b6" />
-          <path d="M 74 48 L 100 -6 L 126 48 Z" fill="none" stroke="#8e44ad" strokeWidth="1" />
-          <line x1="78" y1="38" x2="100" y2="0" stroke="#FFD700" strokeWidth="1.5" opacity="0.5" />
-          <line x1="122" y1="38" x2="100" y2="0" stroke="#e74c3c" strokeWidth="1.5" opacity="0.5" />
-          <line x1="100" y1="48" x2="100" y2="-6" stroke="#4FC3F7" strokeWidth="1.5" opacity="0.5" />
-          <circle cx="100" cy="-10" r="5" fill="#FFD700" className="avatar-sparkle" />
-          <circle cx="85" cy="20" r="2" fill="#e74c3c" opacity="0.7" />
-          <circle cx="110" cy="28" r="2" fill="#4FC3F7" opacity="0.7" />
-          <circle cx="95" cy="34" r="1.5" fill="#81C784" opacity="0.7" />
+          <path d="M 72 50 L 100 -6 L 128 50 Z" fill="#9b59b6" />
+          <path d="M 76 50 L 100 -2 L 124 50 Z" fill="none" stroke="#8e44ad" strokeWidth="0.8" />
+          <line x1="80" y1="40" x2="100" y2="4" stroke="#FFD700" strokeWidth="1.2" opacity="0.4" />
+          <line x1="120" y1="40" x2="100" y2="4" stroke="#e74c3c" strokeWidth="1.2" opacity="0.4" />
+          <line x1="100" y1="50" x2="100" y2="-2" stroke="#4FC3F7" strokeWidth="1.2" opacity="0.4" />
+          <circle cx="100" cy="-6" r="4.5" fill="#FFD700" className="avatar-sparkle" />
+          <circle cx="87" cy="22" r="1.8" fill="#e74c3c" opacity="0.6" />
+          <circle cx="110" cy="30" r="1.8" fill="#4FC3F7" opacity="0.6" />
+          <circle cx="96" cy="36" r="1.3" fill="#81C784" opacity="0.6" />
         </g>
       )
     case 'bunnyears':
       return (
         <g>
-          <path d="M 72 48 Q 68 10 62 -20 Q 60 -30 66 -30 Q 74 -28 76 -10 Q 80 10 78 48" fill="#FFB6C1" />
-          <path d="M 74 42 Q 70 12 66 -16 Q 65 -22 68 -22 Q 72 -20 74 -8 Q 76 12 76 42" fill="#FF69B4" opacity="0.4" />
-          <path d="M 128 48 Q 132 10 138 -20 Q 140 -30 134 -30 Q 126 -28 124 -10 Q 120 10 122 48" fill="#FFB6C1" />
-          <path d="M 126 42 Q 130 12 134 -16 Q 135 -22 132 -22 Q 128 -20 126 -8 Q 124 12 124 42" fill="#FF69B4" opacity="0.4" />
+          <path d="M 74 50 Q 70 14 64 -16 Q 62 -26 68 -26 Q 76 -24 78 -6 Q 82 14 80 50" fill="#FFB6C1" />
+          <path d="M 76 44 Q 72 16 68 -12 Q 67 -18 70 -18 Q 74 -16 76 -4 Q 78 16 78 44" fill="#FF69B4" opacity="0.35" />
+          <path d="M 126 50 Q 130 14 136 -16 Q 138 -26 132 -26 Q 124 -24 122 -6 Q 118 14 120 50" fill="#FFB6C1" />
+          <path d="M 124 44 Q 128 16 132 -12 Q 133 -18 130 -18 Q 126 -16 124 -4 Q 122 16 122 44" fill="#FF69B4" opacity="0.35" />
         </g>
       )
     case 'chef':
       return (
         <g>
-          <circle cx="80" cy="18" r="18" fill="white" />
-          <circle cx="120" cy="18" r="18" fill="white" />
-          <circle cx="100" cy="10" r="20" fill="white" />
-          <circle cx="65" cy="28" r="14" fill="white" />
-          <circle cx="135" cy="28" r="14" fill="white" />
-          <rect x="58" y="36" width="84" height="14" rx="2" fill="white" />
-          <rect x="60" y="44" width="80" height="4" fill="#e0e0e0" opacity="0.4" />
-          <circle cx="92" cy="14" r="3" fill="#f5f5f5" opacity="0.4" />
+          <circle cx="82" cy="22" r="16" fill="white" />
+          <circle cx="118" cy="22" r="16" fill="white" />
+          <circle cx="100" cy="14" r="18" fill="white" />
+          <circle cx="67" cy="30" r="12" fill="white" />
+          <circle cx="133" cy="30" r="12" fill="white" />
+          <rect x="60" y="38" width="80" height="12" rx="2" fill="white" />
+          <rect x="62" y="46" width="76" height="3" fill="#e0e0e0" opacity="0.35" />
+          <circle cx="94" cy="18" r="2.5" fill="#f5f5f5" opacity="0.35" />
         </g>
       )
     case 'astronaut':
       return (
         <g>
-          <path d="M 48 58 Q 48 14 100 6 Q 152 14 152 58 Q 152 70 148 74 L 52 74 Q 48 70 48 58 Z" fill="#e0e0e0" stroke="#bdbdbd" strokeWidth="1.5" />
-          <path d="M 56 58 Q 56 22 100 14 Q 144 22 144 58 Q 144 66 140 68 L 60 68 Q 56 66 56 58 Z" fill="#4FC3F7" opacity="0.25" />
-          <path d="M 68 30 Q 85 20 105 24" stroke="white" strokeWidth="2" fill="none" opacity="0.2" strokeLinecap="round" />
-          <rect x="90" y="68" width="20" height="8" rx="2" fill="#bdbdbd" />
+          <path d="M 50 60 Q 52 18 100 10 Q 148 18 150 60 Q 150 70 146 74 L 54 74 Q 50 70 50 60 Z" fill="#e0e0e0" stroke="#bdbdbd" strokeWidth="1.2" />
+          <path d="M 58 60 Q 58 26 100 18 Q 142 26 142 60 Q 142 66 138 68 L 62 68 Q 58 66 58 60 Z" fill="#4FC3F7" opacity="0.2" />
+          <path d="M 70 32 Q 86 22 106 26" stroke="white" strokeWidth="1.5" fill="none" opacity="0.15" strokeLinecap="round" />
+          <rect x="92" y="68" width="16" height="7" rx="2" fill="#bdbdbd" />
         </g>
       )
     default:
@@ -902,7 +921,7 @@ const animationStyles = `
   }
   .avatar-blink {
     animation: avatar-blink 4s ease-in-out infinite;
-    transform-origin: center 80px;
+    transform-origin: center 82px;
   }
   .avatar-hair-hover {
     transition: transform 0.3s ease;
@@ -935,6 +954,7 @@ export default function AvatarRenderer({
   skinColor, hairColor, hairStyle, eyeType,
   eyebrows = 'none', mouth = 'smile', accessory = 'none', bgStyle = 'gray',
   hat = 'none', clothing = 'tshirt', clothingColor = '#374151', eyeColor = '#6B3A2A',
+  bodyType = 'normal',
   size = 200, username, animated = false,
   equippedFrame, equippedEffect, equippedBackground, equippedHairColor, equippedAccessory,
 }) {
@@ -969,7 +989,7 @@ export default function AvatarRenderer({
       <g clipPath={`url(#clip-${uid})`}>
         {renderEffect(equippedEffect)}
         {renderHairBack(hairStyle, finalHairColor)}
-        {renderBody(skinColor || '#F5D6B8', clothing, clothingColor, uid)}
+        {renderBody(skinColor || '#F5D6B8', clothing, clothingColor, uid, bodyType)}
         {renderHead(skinColor, uid)}
         {renderEyebrows(eyebrows)}
         {renderEyes(eyeType || 'round', eyeColor, animated)}

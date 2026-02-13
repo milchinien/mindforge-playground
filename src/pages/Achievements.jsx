@@ -6,6 +6,7 @@ import {
   MOCK_USER_PROGRESS,
 } from '../data/achievementDefinitions'
 import TitleSelectModal from '../components/achievements/TitleSelectModal'
+import { useAuth } from '../contexts/AuthContext'
 
 function getAchievementStatus(achievement, userProgress, unlockedAchievements) {
   if (unlockedAchievements.includes(achievement.id)) {
@@ -98,9 +99,10 @@ function AchievementCard({ achievement, status, current, percent }) {
 }
 
 export default function Achievements() {
+  const { user } = useAuth()
   const [activeCategory, setActiveCategory] = useState('player')
   const [userProgress] = useState(MOCK_USER_PROGRESS)
-  const [unlockedAchievements] = useState(['first-steps', 'first-like', 'avatar-creator'])
+  const [unlockedAchievements] = useState(user?.unlockedAchievements || ['first-steps', 'first-like', 'avatar-creator'])
   const [activeTitle, setActiveTitle] = useState('Anfaenger')
   const [showTitleModal, setShowTitleModal] = useState(false)
 
@@ -188,6 +190,7 @@ export default function Achievements() {
         onClose={() => setShowTitleModal(false)}
         unlockedAchievements={unlockedAchievements}
         activeTitle={activeTitle}
+        shopTitles={user?.shopTitles || []}
         onSelect={(title) => {
           setActiveTitle(title)
           setShowTitleModal(false)
