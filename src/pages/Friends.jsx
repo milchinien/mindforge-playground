@@ -45,7 +45,6 @@ export default function Friends() {
 
   const handleSendRequest = (userId) => {
     // MVP: Nur visuelles Feedback (kein echter API-Call)
-    console.log('Freundschaftsanfrage gesendet an:', userId)
   }
 
   const renderFriendList = (friendList) => {

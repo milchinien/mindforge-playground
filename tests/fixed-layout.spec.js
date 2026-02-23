@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = 'http://localhost:5174'
+const BASE_URL = 'http://localhost:5173'
 
 test('Navbar is fixed and stays in place when scrolling', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })

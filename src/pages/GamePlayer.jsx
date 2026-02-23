@@ -46,7 +46,7 @@ export default function GamePlayer() {
   // Play counter + recently played
   useEffect(() => {
     if (game) {
-      console.log(`Play fuer Spiel ${game.id} gezaehlt`)
+      // TODO: Increment play counter via API
       addToRecentlyPlayed(game.id)
     }
   }, [game])
@@ -136,7 +136,8 @@ export default function GamePlayer() {
         src={game.gameUrl}
         className="w-full h-full border-0"
         title={game.title}
-        sandbox="allow-scripts"
+        sandbox="allow-scripts allow-same-origin"
+        referrerPolicy="no-referrer"
         onLoad={() => setIsLoading(false)}
       />
 

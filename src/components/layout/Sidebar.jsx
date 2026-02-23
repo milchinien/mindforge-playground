@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn, Gamepad2 } from 'lucide-react'
+import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn, Gamepad2, Swords, Rss, BarChart3 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import MindCoinIcon from '../common/MindCoinIcon'
 import AvatarRenderer from '../profile/AvatarRenderer'
@@ -9,6 +9,9 @@ const navItems = [
   { to: '/', icon: Home, label: 'Home', public: true },
   { to: '/profile/', icon: User, label: 'Profil', needsUsername: true },
   { to: '/events', icon: Calendar, label: 'Events', public: true },
+  { to: '/leaderboards', icon: BarChart3, label: 'Leaderboards', public: true },
+  { to: '/quiz', icon: Swords, label: 'Quiz Arena', public: true },
+  { to: '/feed', icon: Rss, label: 'Activity Feed', public: true },
   { to: '/my-games', icon: Gamepad2, label: 'Meine Spiele', premiumOnly: true },
   { to: '/achievements', icon: Trophy, label: 'Achievements' },
   { to: '/friends', icon: Users, label: 'Friends' },

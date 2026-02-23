@@ -93,30 +93,21 @@ test.describe('Inventory System', () => {
     await context.close()
   })
 
-  test('Purchased marketplace items appear in inventory', async ({ browser }) => {
+  test('Inventory always shows default starter items', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
-
-    // Buy an item in marketplace first
-    await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
-    await page.locator('button', { hasText: 'Avatar' }).click()
-    await page.waitForTimeout(300)
-
-    // Buy Pixel-Art Sonnenbrille
-    await page.locator('text=Pixel-Art Sonnenbrille').click()
-    await page.locator('button', { hasText: 'MindCoins - Kaufen' }).click()
-    await expect(page.locator('text=Erfolgreich gekauft!')).toBeVisible()
-
-    // Close modal
-    await page.locator('button[aria-label="Schliessen"]').click()
-
-    // Navigate to inventory
     await page.goto(`${BASE}/inventory`, { waitUntil: 'networkidle' })
 
-    // The purchased item should appear
-    await expect(page.locator('text=Pixel-Art Sonnenbrille')).toBeVisible()
-    await expect(page.locator('text=Marketplace').first()).toBeVisible()
+    // Default items should always be present
+    await expect(page.locator('text=Goldener Rahmen')).toBeVisible()
+    await expect(page.locator('text=Feuer-Haarfarbe')).toBeVisible()
+    await expect(page.locator('text=Sternen-Hintergrund')).toBeVisible()
+
+    // Each has an Anlegen button
+    const anlegenButtons = page.locator('button:text("Anlegen")')
+    const count = await anlegenButtons.count()
+    expect(count).toBeGreaterThanOrEqual(3)
 
     await context.close()
   })

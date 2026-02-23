@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
         setLoading(false)
       })
     }).catch((err) => {
-      console.error('Firebase init failed:', err)
+      if (import.meta.env.DEV) console.error('Firebase init failed:', err)
       setLoading(false)
     })
     return () => { if (unsubscribe) unsubscribe() }

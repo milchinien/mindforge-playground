@@ -11,163 +11,172 @@ async function login(page) {
 }
 
 test.describe('Marketplace Purchase System', () => {
-  test('Marketplace shows avatar filter tab', async ({ browser }) => {
+  test('Marketplace shows category filters in sidebar', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // Avatar filter button exists
-    const avatarFilter = page.locator('button', { hasText: 'Avatar' })
-    await expect(avatarFilter).toBeVisible()
+    // Sidebar category buttons
+    await expect(page.locator('aside button:has-text("Alle")').first()).toBeVisible()
+    await expect(page.locator('aside button:has-text("Huete")').first()).toBeVisible()
+    await expect(page.locator('aside button:has-text("Accessoires")').first()).toBeVisible()
 
     await context.close()
   })
 
-  test('Filtering by Avatar shows avatar items', async ({ browser }) => {
+  test('Filtering by Huete shows hat items', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // Click Avatar filter
-    await page.locator('button', { hasText: 'Avatar' }).click()
+    // Click Huete filter
+    await page.locator('aside button:has-text("Huete")').first().click()
     await page.waitForTimeout(300)
 
-    // Avatar items should be visible
-    await expect(page.locator('text=Goldener Avatar-Rahmen')).toBeVisible()
-    await expect(page.locator('text=Neon-Glow Haarfarbe')).toBeVisible()
-    await expect(page.locator('text=Diamant-Krone')).toBeVisible()
+    // Hat items should be visible
+    await expect(page.locator('text=Baseball Cap').first()).toBeVisible()
+    await expect(page.locator('text=Krone').first()).toBeVisible()
+    await expect(page.locator('text=Beanie').first()).toBeVisible()
 
     await context.close()
   })
 
-  test('Clicking an asset opens detail modal', async ({ browser }) => {
+  test('Clicking an item opens detail modal with preview', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // Click Avatar filter then click first item
-    await page.locator('button', { hasText: 'Avatar' }).click()
+    // Click Huete filter then click Krone
+    await page.locator('aside button:has-text("Huete")').first().click()
     await page.waitForTimeout(300)
+    await page.locator('button:has-text("Krone")').first().click()
+    await page.waitForTimeout(500)
 
-    // Click on Goldener Avatar-Rahmen card
-    await page.locator('text=Goldener Avatar-Rahmen').click()
-
-    // Modal should open with details
-    await expect(page.locator('h2:text("Goldener Avatar-Rahmen")')).toBeVisible()
-    await expect(page.locator('text=von MindForge')).toBeVisible()
-    await expect(page.locator('text=100 MindCoins - Kaufen')).toBeVisible()
+    // Modal should open with item name and avatar previews
+    await expect(page.locator('h2:has-text("Krone")')).toBeVisible()
+    await expect(page.locator('text=Aktuell')).toBeVisible()
+    await expect(page.locator('text=Vorschau')).toBeVisible()
 
     await context.close()
   })
 
-  test('Purchasing an asset deducts MindCoins and shows success', async ({ browser }) => {
+  test('Premium item shows price and buy button', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // Click Avatar filter
-    await page.locator('button', { hasText: 'Avatar' }).click()
+    // Click Huete then Krone (500 MC)
+    await page.locator('aside button:has-text("Huete")').first().click()
     await page.waitForTimeout(300)
+    await page.locator('button:has-text("Krone")').first().click()
+    await page.waitForTimeout(500)
 
-    // Click Galaxy Hintergrund (cheapest at 25 MC)
-    await page.locator('text=Galaxy Hintergrund').click()
+    // Price and balance shown
+    await expect(page.locator('text=500 MC').first()).toBeVisible()
+    await expect(page.locator('text=Dein Guthaben')).toBeVisible()
 
-    // Click buy
-    await page.locator('button', { hasText: 'MindCoins - Kaufen' }).click()
-
-    // Should show success feedback
-    await expect(page.locator('text=Erfolgreich gekauft!')).toBeVisible()
+    // Buy button visible
+    await expect(page.locator('button:has-text("Kaufen & Anlegen")')).toBeVisible()
 
     await context.close()
   })
 
-  test('Purchased item shows "Bereits gekauft" on revisit', async ({ browser }) => {
+  test('Purchasing an item equips it and closes modal', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // Click Avatar filter
-    await page.locator('button', { hasText: 'Avatar' }).click()
+    // Buy Krone (500 MC)
+    await page.locator('aside button:has-text("Huete")').first().click()
     await page.waitForTimeout(300)
+    await page.locator('button:has-text("Krone")').first().click()
+    await page.waitForTimeout(500)
+    await page.locator('button:has-text("Kaufen & Anlegen")').click()
+    await page.waitForTimeout(500)
 
-    // Buy Galaxy Hintergrund
-    await page.locator('text=Galaxy Hintergrund').click()
-    await page.locator('button', { hasText: 'MindCoins - Kaufen' }).click()
-    await expect(page.locator('text=Erfolgreich gekauft!')).toBeVisible()
+    // Modal should close
+    await expect(page.locator('h2:has-text("Krone")')).toHaveCount(0)
 
-    // Close modal
-    await page.locator('button[aria-label="Schliessen"]').click()
-    await page.waitForTimeout(300)
-
-    // The card should show "Gekauft"
+    // Krone card should now show "Gekauft" badge
     await expect(page.locator('text=Gekauft').first()).toBeVisible()
 
-    // Open modal again
-    await page.locator('text=Galaxy Hintergrund').click()
-    await expect(page.locator('text=Bereits gekauft')).toBeVisible()
-
     await context.close()
   })
 
-  test('MindCoinIcon displayed in asset cards', async ({ browser }) => {
+  test('Purchased item shows Aktuell angelegt on revisit', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // MindCoin icons should be present in card prices
-    const mindCoinImgs = page.locator('img[alt="MindCoin"]')
-    const count = await mindCoinImgs.count()
-    // At least some cards with prices should have icons
-    expect(count).toBeGreaterThan(0)
+    // Buy Krone
+    await page.locator('aside button:has-text("Huete")').first().click()
+    await page.waitForTimeout(300)
+    await page.locator('button:has-text("Krone")').first().click()
+    await page.waitForTimeout(500)
+    await page.locator('button:has-text("Kaufen & Anlegen")').click()
+    await page.waitForTimeout(500)
+
+    // Re-open the Krone modal
+    await page.locator('button:has-text("Krone")').first().click()
+    await page.waitForTimeout(500)
+
+    // Should show "Aktuell angelegt"
+    await expect(page.locator('text=Aktuell angelegt')).toBeVisible()
 
     await context.close()
   })
 
-  test('Free assets show Kostenlos and can be downloaded', async ({ browser }) => {
+  test('Premium items show MindCoin prices', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // Find a free asset card
-    await expect(page.locator('text=Kostenlos').first()).toBeVisible()
+    // Filter to premium items
+    await page.locator('aside button:has-text("Premium")').first().click()
+    await page.waitForTimeout(300)
 
-    // Click on "Low-Poly Baum Set" which is free
-    await page.locator('text=Low-Poly Baum Set').click()
-
-    // Modal should show free download option
-    await expect(page.locator('button:text("Kostenlos herunterladen")')).toBeVisible()
+    // Premium items should show price numbers in the cards
+    // Krone costs 500, Cowboyhut 150, etc.
+    await expect(page.locator('text=500').first()).toBeVisible()
 
     await context.close()
   })
 
-  test('Asset detail modal shows all metadata', async ({ browser }) => {
+  test('Free items show Gratis label', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
 
-    // Click on a priced asset
-    await page.locator('text=Realistische Stein-Texturen').click()
+    // Filter to free items
+    await page.locator('aside button:has-text("Kostenlos")').first().click()
+    await page.waitForTimeout(300)
 
-    // Modal content
-    const modal = page.locator('[role="dialog"]')
-    await expect(modal).toBeVisible()
+    // Should show Gratis labels
+    await expect(page.locator('text=Gratis').first()).toBeVisible()
 
-    // Metadata sections in detail modal
-    await expect(modal.getByText('Bewertung', { exact: true })).toBeVisible()
-    await expect(modal.getByText('Downloads', { exact: true })).toBeVisible()
-    await expect(modal.getByText('Dateigroesse', { exact: true })).toBeVisible()
-    await expect(modal.getByText('Format', { exact: true })).toBeVisible()
+    await context.close()
+  })
 
-    // Tags
-    await expect(modal.locator('text=#textur')).toBeVisible()
+  test('Free item modal shows Anlegen button instead of buy', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/marketplace`, { waitUntil: 'networkidle' })
+
+    // Click on free hat (Baseball Cap)
+    await page.locator('button:has-text("Baseball Cap")').first().click()
+    await page.waitForTimeout(500)
+
+    // Should show "Anlegen" button (not "Kaufen")
+    await expect(page.locator('button:has-text("Anlegen")')).toBeVisible()
 
     await context.close()
   })

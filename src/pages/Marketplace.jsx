@@ -6,7 +6,7 @@ import useEscapeKey from '../hooks/useEscapeKey'
 import {
   Crown, Scissors, Glasses, Shirt, Palette, Smile,
   Package, ShoppingBag, Check, X, Search, Filter,
-  CircleDollarSign, Gift,
+  CircleDollarSign, Gift, Star,
 } from 'lucide-react'
 import {
   HAT_TYPES, HAIR_STYLES, ACCESSORY_TYPES, CLOTHING_TYPES,
@@ -181,7 +181,37 @@ const SORT_OPTIONS = [
   { id: 'price-desc', name: 'Preis absteigend' },
   { id: 'name', name: 'Name A-Z' },
   { id: 'rarity', name: 'Seltenheit' },
+  { id: 'rating', name: 'Beste Bewertung' },
 ]
+
+// ============= STAR RATING =============
+function StarRating({ rating, onRate, size = 16, interactive = false }) {
+  const [hovered, setHovered] = useState(0)
+  const displayRating = hovered || rating
+
+  return (
+    <div className="flex items-center gap-0.5" onMouseLeave={() => interactive && setHovered(0)}>
+      {[1, 2, 3, 4, 5].map(star => (
+        <button
+          key={star}
+          type="button"
+          disabled={!interactive}
+          onClick={() => interactive && onRate?.(star)}
+          onMouseEnter={() => interactive && setHovered(star)}
+          className={`${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} transition-transform disabled:opacity-100`}
+        >
+          <Star
+            size={size}
+            className={star <= displayRating
+              ? 'text-yellow-400 fill-yellow-400'
+              : 'text-gray-600'
+            }
+          />
+        </button>
+      ))}
+    </div>
+  )
+}
 
 const RARITY_ORDER = { common: 0, rare: 1, epic: 2, legendary: 3 }
 
@@ -218,7 +248,7 @@ function isItemEquipped(item, avatarConfig) {
 }
 
 // ============= ITEM CARD =============
-function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, onClick }) {
+function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, rating, onClick }) {
   const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
   const previewConfig = { ...avatarConfig, [item.avatarKey]: item.itemId }
 
@@ -270,6 +300,14 @@ function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, onClick 
       {/* Name */}
       <p className="text-xs font-semibold text-text-primary truncate">{item.name}</p>
 
+      {/* Rating */}
+      {rating > 0 && (
+        <div className="flex items-center gap-1 mt-1">
+          <Star size={10} className="text-yellow-400 fill-yellow-400" />
+          <span className="text-[10px] text-yellow-400 font-medium">{rating}</span>
+        </div>
+      )}
+
       {/* Rarity & Price */}
       <div className="flex items-center justify-between mt-1">
         <span className={`text-[10px] font-medium ${rarity.color}`}>{rarity.name}</span>
@@ -295,7 +333,7 @@ function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, onClick 
 }
 
 // ============= ITEM DETAIL MODAL =============
-function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, onClose, onBuyAndEquip, onEquip }) {
+function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRating, onClose, onBuyAndEquip, onEquip, onRate }) {
   useEscapeKey(onClose)
 
   const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
@@ -420,6 +458,26 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, onClos
               Anlegen
             </button>
           )}
+
+          {/* Rating Section - only for owned items */}
+          {isOwned && (
+            <div className="pt-3 border-t border-gray-700/40">
+              <p className="text-xs text-text-muted mb-2">
+                {userRating ? 'Deine Bewertung' : 'Wie gefaellt dir dieses Item?'}
+              </p>
+              <div className="flex items-center gap-3">
+                <StarRating
+                  rating={userRating || 0}
+                  onRate={(stars) => onRate(item.id, stars)}
+                  size={20}
+                  interactive
+                />
+                {userRating > 0 && (
+                  <span className="text-xs text-yellow-400 font-medium">{userRating}/5</span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -507,6 +565,14 @@ export default function Marketplace() {
   const [selectedItem, setSelectedItem] = useState(null)
 
   const avatarConfig = getAvatarConfig(user)
+  const itemRatings = user?.itemRatings || {}
+
+  const getItemRating = (itemId) => itemRatings[itemId] || 0
+
+  const handleRate = async (itemId, stars) => {
+    const newRatings = { ...itemRatings, [itemId]: stars }
+    await updateUser({ itemRatings: newRatings })
+  }
 
   const filteredItems = useMemo(() => {
     let result = [...ALL_ITEMS]
@@ -543,10 +609,13 @@ export default function Marketplace() {
       case 'rarity':
         result.sort((a, b) => (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0))
         break
+      case 'rating':
+        result.sort((a, b) => (itemRatings[b.id] || 0) - (itemRatings[a.id] || 0))
+        break
     }
 
     return result
-  }, [activeCategory, priceFilter, sortBy, searchQuery])
+  }, [activeCategory, priceFilter, sortBy, searchQuery, itemRatings])
 
   const categoryCount = useMemo(() => {
     const counts = { all: ALL_ITEMS.length }
@@ -715,6 +784,7 @@ export default function Marketplace() {
                   avatarConfig={avatarConfig}
                   isOwned={isItemOwned(item, user)}
                   isEquipped={isItemEquipped(item, avatarConfig)}
+                  rating={getItemRating(item.id)}
                   onClick={setSelectedItem}
                 />
               ))}
@@ -739,9 +809,11 @@ export default function Marketplace() {
           user={user}
           isOwned={isItemOwned(selectedItem, user)}
           isEquipped={isItemEquipped(selectedItem, avatarConfig)}
+          userRating={getItemRating(selectedItem.id)}
           onClose={() => setSelectedItem(null)}
           onBuyAndEquip={handleBuyAndEquip}
           onEquip={handleEquip}
+          onRate={handleRate}
         />
       )}
     </div>

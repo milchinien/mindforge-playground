@@ -6,6 +6,7 @@ import { formatNumber, formatDate } from '../utils/formatters'
 import { getSubjectConfig } from '../data/subjectConfig'
 import TagList from '../components/game/TagList'
 import LikeDislike from '../components/game/LikeDislike'
+import GameReviews from '../components/game/GameReviews'
 
 function ThumbnailPlaceholder({ title, subject, className = '' }) {
   const config = getSubjectConfig(subject)
@@ -28,7 +29,7 @@ export default function GameDetail() {
 
   useEffect(() => {
     if (game) {
-      console.log(`View fuer Spiel ${id} gezaehlt`)
+      // TODO: Increment view counter via API
     }
   }, [id, game])
 
@@ -195,6 +196,11 @@ export default function GameDetail() {
             initialDislikes={game.dislikes}
           />
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-8">
+        <GameReviews gameId={game.id} />
       </div>
     </div>
   )

@@ -52,7 +52,7 @@ const TEST_ACCOUNTS = [
       gamesCreated: 0,
       followers: 0,
       following: 0,
-      mindCoins: 0,
+      mindCoins: 99999,
       theme: 'dark',
       activeTitle: 'Developer',
       hasSeenWelcome: true,

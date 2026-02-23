@@ -146,7 +146,7 @@ export default function CreatorDashboard() {
                   </div>
                   <div className="flex items-center gap-2 ml-4">
                     <button
-                      onClick={() => { navigate('/create'); /* TODO: pass draft ID */ }}
+                      onClick={() => navigate(`/create?draft=${draft.id}`)}
                       className="flex items-center gap-1 bg-accent/10 text-accent px-3 py-1.5 rounded-lg text-sm hover:bg-accent/20 transition-colors cursor-pointer"
                     >
                       <Edit3 size={14} /> Bearbeiten

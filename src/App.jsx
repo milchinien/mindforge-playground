@@ -5,6 +5,7 @@ import { ToastProvider } from './contexts/ToastContext'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import LoadingSpinner from './components/common/LoadingSpinner'
+import ErrorBoundary from './components/common/ErrorBoundary'
 
 // Lazy-loaded pages for code splitting
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -26,6 +27,9 @@ const Achievements = lazy(() => import('./pages/Achievements'))
 const Marketplace = lazy(() => import('./pages/Marketplace'))
 const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'))
 const Friends = lazy(() => import('./pages/Friends'))
+const Leaderboards = lazy(() => import('./pages/Leaderboards'))
+const MultiplayerQuiz = lazy(() => import('./pages/MultiplayerQuiz'))
+const SocialFeed = lazy(() => import('./pages/SocialFeed'))
 const CreatorDashboard = lazy(() => import('./components/creatorDashboard/CreatorDashboard'))
 
 function PageLoader() {
@@ -47,6 +51,7 @@ function Placeholder({ title }) {
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <ToastProvider>
         <Router>
@@ -66,6 +71,9 @@ function App() {
                       <Route path="/browse" element={<Mindbrowser />} />
                       <Route path="/marketplace" element={<Marketplace />} />
                       <Route path="/events" element={<Events />} />
+                      <Route path="/leaderboards" element={<Leaderboards />} />
+                      <Route path="/quiz" element={<MultiplayerQuiz />} />
+                      <Route path="/feed" element={<SocialFeed />} />
                       <Route path="/search" element={<Search />} />
                       <Route path="/game/:id" element={<GameDetail />} />
                       <Route path="/premium" element={<Premium />} />
@@ -98,6 +106,7 @@ function App() {
         </Router>
       </ToastProvider>
     </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

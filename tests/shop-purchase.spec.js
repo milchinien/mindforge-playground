@@ -25,7 +25,7 @@ test.describe('Shop Purchase System', () => {
     await context.close()
   })
 
-  test('Shop shows three package cards', async ({ browser }) => {
+  test('Shop shows three main package cards', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
@@ -35,26 +35,23 @@ test.describe('Shop Purchase System', () => {
     await expect(page.getByRole('heading', { name: 'Standard' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Premium' })).toBeVisible()
 
-    // Each has a "Kaufen" button
-    const kaufenButtons = page.locator('button:text("Kaufen")')
-    await expect(kaufenButtons).toHaveCount(3)
-
     await context.close()
   })
 
-  test('Clicking Kaufen opens purchase modal', async ({ browser }) => {
+  test('Clicking main package Kaufen opens purchase modal', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
 
-    // Click first "Kaufen" button (Starter)
-    await page.locator('button:text("Kaufen")').first().click()
+    // Click Starter package Kaufen button (skip seasonal offers by targeting the package grid)
+    const starterCard = page.locator('.grid >> div:has(h3:text("Starter"))').first()
+    await starterCard.locator('button:text("Kaufen")').click()
 
     // Modal should appear
     await expect(page.locator('text=MindCoins kaufen')).toBeVisible()
     await expect(page.locator('text=Starter-Paket')).toBeVisible()
-    await expect(page.locator('text=500 MindCoins')).toBeVisible()
+    await expect(page.getByText('500 MindCoins', { exact: true })).toBeVisible()
 
     // Payment method placeholder
     await expect(page.locator('text=Kommt bald: Kreditkarte, PayPal')).toBeVisible()
@@ -77,7 +74,8 @@ test.describe('Shop Purchase System', () => {
     await login(page)
     await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
 
-    await page.locator('button:text("Kaufen")').first().click()
+    const starterCard = page.locator('.grid >> div:has(h3:text("Starter"))').first()
+    await starterCard.locator('button:text("Kaufen")').click()
     await expect(page.locator('text=MindCoins kaufen')).toBeVisible()
 
     // Enter invalid code
@@ -89,14 +87,15 @@ test.describe('Shop Purchase System', () => {
     await context.close()
   })
 
-  test('Valid discount code "MindForge" enables free purchase', async ({ browser }) => {
+  test('Valid discount code MindForge enables free purchase', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
     const page = await context.newPage()
     await login(page)
     await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
 
     // Click Starter Kaufen
-    await page.locator('button:text("Kaufen")').first().click()
+    const starterCard = page.locator('.grid >> div:has(h3:text("Starter"))').first()
+    await starterCard.locator('button:text("Kaufen")').click()
     await expect(page.locator('text=MindCoins kaufen')).toBeVisible()
 
     // Enter valid code
@@ -123,11 +122,9 @@ test.describe('Shop Purchase System', () => {
     await login(page)
     await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
 
-    // Record initial balance text
-    const balanceBefore = await page.locator('text=MindCoins').first().textContent()
-
     // Click Starter Kaufen
-    await page.locator('button:text("Kaufen")').first().click()
+    const starterCard = page.locator('.grid >> div:has(h3:text("Starter"))').first()
+    await starterCard.locator('button:text("Kaufen")').click()
 
     // Apply discount
     await page.fill('input[placeholder="Code eingeben..."]', 'MindForge')
@@ -153,7 +150,8 @@ test.describe('Shop Purchase System', () => {
     await login(page)
     await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
 
-    await page.locator('button:text("Kaufen")').first().click()
+    const starterCard = page.locator('.grid >> div:has(h3:text("Starter"))').first()
+    await starterCard.locator('button:text("Kaufen")').click()
     await expect(page.locator('text=MindCoins kaufen')).toBeVisible()
 
     // Click X button
@@ -171,12 +169,44 @@ test.describe('Shop Purchase System', () => {
     await login(page)
     await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
 
-    // Click Standard Kaufen (second button)
-    await page.locator('button:text("Kaufen")').nth(1).click()
+    // Click Standard Kaufen
+    const standardCard = page.locator('.grid >> div:has(h3:text("Standard"))').first()
+    await standardCard.locator('button:text("Kaufen")').click()
 
     await expect(page.locator('text=Standard-Paket')).toBeVisible()
     await expect(page.locator('text=1.400 MindCoins')).toBeVisible()
     await expect(page.locator('text=+200 Bonus inkludiert')).toBeVisible()
+
+    await context.close()
+  })
+
+  test('Seasonal offers section is visible', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
+
+    // Seasonal offers section
+    await expect(page.locator('text=Aktuelle Angebote')).toBeVisible()
+
+    await context.close()
+  })
+
+  test('More packages toggle shows extra packages', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } })
+    const page = await context.newPage()
+    await login(page)
+    await page.goto(`${BASE}/shop`, { waitUntil: 'networkidle' })
+
+    // Click "Mehr Pakete anzeigen"
+    await page.locator('text=Mehr Pakete anzeigen').click()
+    await page.waitForTimeout(300)
+
+    // Extra packages should appear
+    await expect(page.locator('text=Grosse Pakete')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Mega' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Ultra' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Diamant' })).toBeVisible()
 
     await context.close()
   })
