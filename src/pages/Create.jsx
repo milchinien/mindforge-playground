@@ -129,11 +129,19 @@ function ZipUploadMode({ onBack }) {
     const newScreenshots = [...formData.screenshots, ...files]
     const newPreviews = [...formData.screenshotPreviews]
 
-    files.forEach(file => {
+    let loadedCount = 0
+    const previewResults = new Array(files.length)
+    files.forEach((file, idx) => {
       const reader = new FileReader()
       reader.onload = () => {
-        newPreviews.push(reader.result)
-        setFormData(prev => ({ ...prev, screenshotPreviews: [...newPreviews] }))
+        previewResults[idx] = reader.result
+        loadedCount++
+        if (loadedCount === files.length) {
+          setFormData(prev => ({
+            ...prev,
+            screenshotPreviews: [...prev.screenshotPreviews, ...previewResults]
+          }))
+        }
       }
       reader.readAsDataURL(file)
     })

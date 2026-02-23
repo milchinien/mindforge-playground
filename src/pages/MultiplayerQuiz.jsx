@@ -293,7 +293,7 @@ function LiveQuiz({ config, user, onFinish }) {
   })
   const timerRef = useRef(null)
 
-  const pool = QUIZ_POOLS[config.category]
+  const pool = QUIZ_POOLS[config.category] || QUIZ_POOLS[Object.keys(QUIZ_POOLS)[0]]
   const questions = pool.questions.slice(0, config.questionCount)
   const question = questions[currentQ]
   const isFinished = currentQ >= questions.length

@@ -57,18 +57,20 @@ export default function Profile() {
     setIsEditModalOpen(true)
   }
 
-  const handleEditSave = () => {
-    // For MVP: update local state
-    setProfileUser(prev => ({
-      ...prev,
+  const handleEditSave = async () => {
+    const updates = {
       bio: editBio,
       socialLinks: {
         website: editWebsite,
         twitter: editTwitter,
         youtube: editYoutube,
       }
-    }))
+    }
+    setProfileUser(prev => ({ ...prev, ...updates }))
     setIsEditModalOpen(false)
+    if (isOwnProfile) {
+      await updateUser(updates)
+    }
   }
 
   // 404
@@ -106,7 +108,7 @@ export default function Profile() {
           setIsFollowing(nowFollowing)
           setProfileUser(prev => ({
             ...prev,
-            followers: (prev.followers || 0) + (nowFollowing ? 1 : -1)
+            followers: Math.max(0, (prev.followers || 0) + (nowFollowing ? 1 : -1))
           }))
         }}
         isFollowing={isFollowing}

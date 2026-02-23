@@ -112,14 +112,12 @@ function PricingCard({ tier, isCurrentTier }) {
       </ul>
 
       <button
-        className={`w-full py-3 rounded-lg font-semibold transition-colors cursor-pointer ${
-          isCurrentTier
-            ? 'bg-bg-hover text-text-muted cursor-default'
+        className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+          isCurrentTier || tier.id === 'free'
+            ? 'bg-bg-hover text-text-muted cursor-not-allowed'
             : tier.highlighted
-              ? 'bg-accent hover:bg-accent-dark text-white'
-              : tier.id === 'free'
-                ? 'bg-bg-hover text-text-muted cursor-default'
-                : 'bg-bg-hover hover:bg-bg-card text-text-primary border border-gray-600'
+              ? 'bg-accent hover:bg-accent-dark text-white cursor-pointer'
+              : 'bg-bg-hover hover:bg-bg-card text-text-primary border border-gray-600 cursor-pointer'
         }`}
         disabled={isCurrentTier || tier.id === 'free'}
       >

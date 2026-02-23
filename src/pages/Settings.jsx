@@ -25,7 +25,7 @@ function ToggleSwitch({ checked, onChange }) {
 }
 
 export default function Settings() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUser } = useAuth()
   const { theme, setTheme, isDark } = useTheme()
   const navigate = useNavigate()
 
@@ -55,6 +55,10 @@ export default function Settings() {
 
   const handlePasswordChange = async () => {
     setPasswordError('')
+    if (!passwordForm.currentPassword) {
+      setPasswordError('Aktuelles Passwort ist erforderlich')
+      return
+    }
     if (passwordForm.newPassword.length < 6) {
       setPasswordError('Passwort muss mindestens 6 Zeichen lang sein')
       return
@@ -65,21 +69,56 @@ export default function Settings() {
     }
 
     setPasswordLoading(true)
-    // Simulate for MVP
-    await new Promise(r => setTimeout(r, 1000))
+    try {
+      if (import.meta.env.DEV) {
+        // Dev mode: validate current password against stored user
+        const { devAuth } = await import('../firebase/devAuth')
+        const currentUser = devAuth.currentUser
+        if (!currentUser || currentUser.password !== passwordForm.currentPassword) {
+          setPasswordError('Aktuelles Passwort ist falsch')
+          setPasswordLoading(false)
+          return
+        }
+        currentUser.password = passwordForm.newPassword
+        localStorage.setItem('mindforge_dev_user', JSON.stringify(currentUser))
+      } else {
+        const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import('firebase/auth')
+        const { auth } = await import('../firebase/config')
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, passwordForm.currentPassword)
+        await reauthenticateWithCredential(auth.currentUser, credential)
+        await updatePassword(auth.currentUser, passwordForm.newPassword)
+      }
+      setShowPasswordModal(false)
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    } catch (err) {
+      setPasswordError(err.code === 'auth/wrong-password' ? 'Aktuelles Passwort ist falsch' : 'Fehler beim Aendern des Passworts')
+    }
     setPasswordLoading(false)
-    setShowPasswordModal(false)
-    setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
   }
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== 'LOESCHEN') return
     setDeleteLoading(true)
-    // Simulate for MVP
-    await new Promise(r => setTimeout(r, 1500))
-    setDeleteLoading(false)
-    setShowDeleteModal(false)
-    navigate('/login')
+    try {
+      if (import.meta.env.DEV) {
+        const { devAuth, devDb } = await import('../firebase/devAuth')
+        // Delete user document
+        await devDb.deleteDoc(devDb.doc('users', user.uid))
+        // Sign out
+        await devAuth.signOut()
+      } else {
+        const { deleteUser } = await import('firebase/auth')
+        const { doc, deleteDoc } = await import('firebase/firestore')
+        const { auth, db } = await import('../firebase/config')
+        await deleteDoc(doc(db, 'users', auth.currentUser.uid))
+        await deleteUser(auth.currentUser)
+      }
+      await logout()
+      navigate('/login')
+    } catch {
+      setDeleteLoading(false)
+      setShowDeleteModal(false)
+    }
   }
 
   const handleExportData = () => {

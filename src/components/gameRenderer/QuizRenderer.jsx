@@ -39,7 +39,7 @@ export default function QuizRenderer({ game, onBack, onRestart }) {
       setTotalTime(prev => prev + 1)
     }, 1000)
     return () => clearInterval(interval)
-  }, [currentIndex, isComplete, showFeedback, settings.timeLimit])
+  }, [currentIndex, isComplete, showFeedback, settings.timeLimit, handleAnswer])
 
   // Reset timer on question change
   useEffect(() => {

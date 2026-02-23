@@ -658,17 +658,22 @@ export default function Marketplace() {
     const newBalance = (user?.mindCoins || 0) - item.price
     const updates = { mindCoins: newBalance }
 
-    // Add to owned items based on category
+    // Add to owned items based on category (with duplicate check)
     if (item.category === 'hats') {
-      updates.ownedHats = [...(user?.ownedHats || []), item.itemId]
+      const current = user?.ownedHats || []
+      if (!current.includes(item.itemId)) updates.ownedHats = [...current, item.itemId]
     } else if (item.category === 'accessories') {
-      updates.ownedAccessories = [...(user?.ownedAccessories || []), item.itemId]
+      const current = user?.ownedAccessories || []
+      if (!current.includes(item.itemId)) updates.ownedAccessories = [...current, item.itemId]
     } else if (item.category === 'hair') {
-      updates.ownedHairStyles = [...(user?.ownedHairStyles || []), item.itemId]
+      const current = user?.ownedHairStyles || []
+      if (!current.includes(item.itemId)) updates.ownedHairStyles = [...current, item.itemId]
     } else if (item.category === 'clothing') {
-      updates.ownedClothing = [...(user?.ownedClothing || []), item.itemId]
+      const current = user?.ownedClothing || []
+      if (!current.includes(item.itemId)) updates.ownedClothing = [...current, item.itemId]
     } else if (item.category === 'background') {
-      updates.ownedBackgrounds = [...(user?.ownedBackgrounds || []), item.itemId]
+      const current = user?.ownedBackgrounds || []
+      if (!current.includes(item.itemId)) updates.ownedBackgrounds = [...current, item.itemId]
     }
 
     // Transaction

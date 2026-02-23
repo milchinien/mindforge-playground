@@ -36,7 +36,12 @@ export async function getImageUrl(key) {
   return URL.createObjectURL(blob)
 }
 
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
+
 export async function saveImageFromFile(file, keyPrefix = 'img') {
+  if (file.type && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error(`Nicht unterstuetzter Dateityp: ${file.type}. Erlaubt: JPEG, PNG, GIF, WebP, SVG`)
+  }
   const key = `${keyPrefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
   await saveImage(key, file)
   return key

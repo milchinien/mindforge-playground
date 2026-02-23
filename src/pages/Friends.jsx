@@ -26,7 +26,7 @@ export default function Friends() {
       // Anfrage aus Liste entfernen und als Freund hinzufuegen
       setRequests(prev => prev.filter(r => r.friendshipId !== friendshipId))
       setFriends(prev => [...prev, {
-        id: `friend-new-${Date.now()}`,
+        id: request.id || `friend-${request.uid}`,
         friendshipId,
         uid: request.uid,
         username: request.username,

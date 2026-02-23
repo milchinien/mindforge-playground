@@ -181,6 +181,13 @@ export const devDb = {
     persistFirestore()
   },
 
+  async deleteDoc(ref) {
+    if (devFirestore[ref._collection]) {
+      delete devFirestore[ref._collection][ref._id]
+      persistFirestore()
+    }
+  },
+
   async getDocs(queryRef) {
     const col = devFirestore[queryRef._collection] || {}
     const results = Object.values(col).filter((doc) => {

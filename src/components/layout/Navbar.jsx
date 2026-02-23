@@ -60,7 +60,7 @@ export default function Navbar({ onToggleSidebar }) {
         {user ? (
           <>
             <Link to="/shop" className="hidden sm:flex items-center gap-1.5 bg-bg-card hover:bg-bg-hover px-3 py-1.5 rounded-lg transition-colors text-sm">
-              <MindCoinIcon size={32} />
+              <MindCoinIcon size={20} />
               <span className="font-semibold text-accent">{user.mindCoins || 0}</span>
               <span className="text-text-muted text-xs">MC</span>
             </Link>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import MindCoinIcon from '../components/common/MindCoinIcon'
 import useEscapeKey from '../hooks/useEscapeKey'
@@ -88,7 +88,7 @@ const VALID_CODES = {
   'MindForge': { discount: 1.0, label: '100% Rabatt', type: 'multi', maxUses: Infinity },
   'WELCOME10': { discount: 0.1, label: '10% Rabatt', type: 'once', maxUses: 1 },
   'EVENT2025': { discount: 0.5, label: '50% Rabatt', type: 'once', maxUses: 1 },
-  'WINTER25': { discount: 0.25, label: '25% Rabatt', type: 'once', maxUses: 1, expiresAt: '2025-03-31' },
+  'WINTER25': { discount: 0.25, label: '25% Rabatt', type: 'once', maxUses: 1, expiresAt: '2026-03-31' },
 }
 
 const SEASONAL_OFFERS = [
@@ -130,13 +130,13 @@ function CountdownTimer({ targetDate }) {
     return Math.max(0, diff)
   })
 
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       const diff = new Date(targetDate) - new Date()
       setTimeLeft(Math.max(0, diff))
     }, 60000)
     return () => clearInterval(interval)
-  })
+  }, [targetDate])
 
   if (timeLeft <= 0) return <span className="text-error text-xs">Abgelaufen</span>
 
@@ -518,7 +518,11 @@ export default function Shop() {
       }
     }
 
-    await updateUser(updates)
+    try {
+      await updateUser(updates)
+    } catch {
+      // Revert on failure - don't lose user's money silently
+    }
   }
 
   const activeSeasonalOffers = SEASONAL_OFFERS.filter(o => new Date(o.availableUntil) > new Date())

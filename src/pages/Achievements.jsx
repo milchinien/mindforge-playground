@@ -46,7 +46,7 @@ function getAchievementStatus(achievement, userProgress, unlockedAchievements) {
 
   const percent = Math.min(100, Math.round((current / req.value) * 100))
   return {
-    status: percent >= 100 ? 'completable' : 'locked',
+    status: current >= req.value ? 'completable' : 'locked',
     current: Math.min(current, req.value),
     percent,
   }

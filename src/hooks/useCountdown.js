@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 
 function calculateTimeLeft(targetDate) {
+  if (!targetDate) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true, formatted: '00:00:00:00' }
+  }
   const now = new Date()
   const target = new Date(targetDate)
   const diff = target - now
 
-  if (diff <= 0) {
+  if (isNaN(diff) || diff <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true, formatted: '00:00:00:00' }
   }
 

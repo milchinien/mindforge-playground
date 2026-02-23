@@ -11,7 +11,7 @@ export default function ProtectedRoute({ children, requirePremium = false, requi
   // Dev tier bypasses all restrictions
   if (user.premiumTier === 'dev') return children
 
-  if (requirePremium && !user.isPremium) return <Navigate to="/premium" replace />
+  if (requirePremium && !user.isPremium && !user.premiumTier) return <Navigate to="/premium" replace />
   if (requireTeacher && !user.isTeacher) return <Navigate to="/" replace />
 
   return children
