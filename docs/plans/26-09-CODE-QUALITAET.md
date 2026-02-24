@@ -24,7 +24,7 @@
 ## Vorschlag 9.2: AvatarRenderer aufteilen
 - [ ] **A) Feature-basiert aufteilen (Empfohlen)** — AvatarBody, AvatarFace, AvatarHair, AvatarClothing, AvatarAccessories als separate Dateien
 - [ ] **B) SVG-Teile auslagern** — SVG-Definitionen in eigene Dateien, AvatarRenderer als Composer
-- [ ] **C) Canvas statt SVG** — Avatar-Rendering auf Canvas umstellen (performanter bei vielen Avataren)
+- [ ] **C) Canvas statt SVG** — Avatar-Rendering auf Canvas umstellen (performanter bei vielen Avataren). *Achtung: Dies ist kein Refactoring sondern ein kompletter Rewrite — alle SVG-Pfade müssten als Canvas-Draw-Calls neu implementiert werden.*
 - [ ] **D) Lassen wie es ist** — 80KB ist groß, aber funktioniert und wird lazy-loaded
 
 ## Vorschlag 9.3: Code-Style & Linting

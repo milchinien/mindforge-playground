@@ -16,6 +16,19 @@
 
 ---
 
+> **WARNUNG: Sicherheitskritisch — Firestore Security Rules**
+> Ohne Firestore Security Rules kann jeder authentifizierte User beliebige Daten lesen, ändern und löschen. Das ist ein **kritisches Sicherheitsproblem** das VOR allen anderen Feature-Plänen adressiert werden muss. Aktuell läuft das Projekt im Dev-Modus mit localStorage-Mock — beim Wechsel zu echtem Firebase-Backend MÜSSEN Security Rules implementiert sein.
+>
+> **Voraussetzung für:** 26-16 Monetarisierung, 26-14 Social Features (Chat), alle Features mit Echtdaten
+>
+> **Minimum Security Rules:**
+> - User können nur eigene Profildaten schreiben
+> - Games können nur vom Creator bearbeitet werden
+> - MindCoin-Transaktionen nur über Cloud Functions (nicht client-seitig!)
+> - Admin-Operationen nur für verifizierte Admins
+
+---
+
 ## Vorschlag 19.1: Backend-Architektur
 - [ ] **A) Firebase vollständig nutzen (Empfohlen)** — Cloud Functions für Business-Logik (Payments, Validierung, Anti-Cheat), Firestore Security Rules, Storage Rules
 - [ ] **B) Custom Backend (Node.js/Express)** — Eigener Server für API, Firebase nur für Auth + Storage

@@ -16,6 +16,25 @@
 
 ---
 
+> **WARNUNG: Jugendschutz & Moderation**
+> Eine Lernplattform mit potenziell minderjährigen Nutzern hat besondere Anforderungen an Chat- und Kommunikations-Features:
+>
+> **Rechtliche Voraussetzungen (DE):**
+> - Jugendmedienschutz-Staatsvertrag (JMStV) beachten
+> - Content-Moderation / Meldefunktion für unangemessene Inhalte
+> - Möglichkeit für Eltern, Chat-Funktionen zu deaktivieren
+> - Keine unmoderierten 1:1-Chats zwischen Minderjährigen und Erwachsenen
+>
+> **Technische Voraussetzungen:**
+> - Server-seitige Inhaltsfilterung (benötigt 26-19 Backend / Cloud Functions)
+> - Report/Block-System für User
+> - Chat-Logging für Moderationszwecke (DSGVO-konform!)
+> - Rate-Limiting gegen Spam
+>
+> **Empfehlung:** Option C (Quick-Messages mit vordefinierten Texten) ist die sicherste Variante und umgeht die meisten Moderationsprobleme.
+
+---
+
 ## Vorschlag 14.1: Direktnachrichten
 - [ ] **A) Einfaches Chat-System (Empfohlen)** — 1:1 Nachrichten zwischen Freunden, Text-only, Emoji-Support
 - [ ] **B) Vollständiges Chat-System** — 1:1 + Gruppen-Chat, Bilder, Reaktionen, Lesebestätigungen

@@ -74,3 +74,51 @@
 | 17.1 | Avatar | Animationen |
 | 18.1 | Mobile | PWA |
 | 20.1 | Design | Design System dokumentieren |
+
+---
+
+## Abhängigkeiten & Empfohlene Reihenfolge
+
+### Dependency-Graph
+
+Einige Pläne haben starke Abhängigkeiten untereinander. Die folgende Reihenfolge berücksichtigt diese:
+
+```
+Phase 1 (Fundament):
+  26-19 Backend (Security Rules!)  ──→  Voraussetzung für alles mit Echtdaten
+  26-03 Barrierefreiheit            ──→  Vor Design-Änderungen (Farben/Kontraste)
+  26-08 Error-Handling              ──→  Vor Testing (erst Errors richtig werfen)
+
+Phase 2 (Qualität):
+  26-09 Code-Qualität               ──→  Vor TypeScript (erst aufräumen, dann typisieren)
+  26-10 Testing                     ──→  Hängt ab von 26-08 (Error-Handling)
+  26-11 UX & Navigation             ──→  Unabhängig, parallel möglich
+
+Phase 3 (Erweiterungen):
+  26-04 TypeScript                  ──→  Hängt ab von 26-09 (Code-Qualität)
+  26-05 SEO                         ──→  Unabhängig
+  26-07 State Management            ──→  Unabhängig, aber vor komplexen Features
+  26-12 Onboarding                  ──→  Nach 26-11 UX sinnvoll
+
+Phase 4 (Features):
+  26-15 Content-Creation            ──→  Nach 26-07 State + 26-04 TypeScript
+  26-13 Gamification                ──→  Nach 26-07 State
+  26-20 Design                      ──→  Nach 26-03 Barrierefreiheit
+
+Phase 5 (Langfristig):
+  26-16 Monetarisierung             ──→  BENÖTIGT 26-19 Backend (Security Rules + Cloud Functions)
+  26-14 Social Features             ──→  Nach 26-19 Backend (Moderation benötigt Server-Logik)
+  26-17 Avatar-System               ──→  Nach 26-09 Code-Qualität (AvatarRenderer-Split)
+  26-18 Mobile                      ──→  Nach 26-11 UX + 26-03 Barrierefreiheit
+  26-06 i18n                        ──→  Idealerweise als letztes (betrifft alle Texte)
+```
+
+### Kritische Abhängigkeiten (Blocker)
+
+| Plan | Blockiert durch | Grund |
+|------|----------------|-------|
+| 26-16 Monetarisierung | 26-19 Backend | Ohne Security Rules + Cloud Functions keine sichere Payment-Logik |
+| 26-10 Testing | 26-08 Error-Handling | Erst Errors korrekt werfen, dann testen |
+| 26-04 TypeScript | 26-09 Code-Qualität | Erst Duplikate entfernen, dann weniger Dateien migrieren |
+| 26-20 Design | 26-03 Barrierefreiheit | Farben/Kontraste erst WCAG-konform, dann Design-System |
+| 26-14 Social (Chat) | 26-19 Backend | Chat-Moderation benötigt Server-Side-Logik |

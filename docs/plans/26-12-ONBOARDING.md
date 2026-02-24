@@ -21,7 +21,7 @@
 - [ ] **D) Interaktives Tutorial-Game** — Ein spezielles "MindForge Tutorial"-Spiel das die Plattform erklärt
 
 ## Vorschlag 12.2: Engagement-Förderung für neue User
-- [ ] **A) Daily-Login-Bonus (Empfohlen)** — Tägliche Belohnung (XP, nicht MindCoins!) für Login, Streak-System mit steigenden Rewards
+- [ ] **A) Lernfortschritt-Streak (Empfohlen)** — Tägliche Belohnung (XP, nicht MindCoins!) für **abgeschlossene Lernaktivitäten** (nicht nur Login!), Streak-System mit steigenden Rewards. *Hinweis: Reine Login-Streaks gelten als Dark Pattern auf Lernplattformen — Lernfortschritt-Streaks motivieren tatsächliches Lernen.*
 - [ ] **B) Empfohlene Games für Anfänger** — Kuratierte "Starter Games"-Kategorie auf der Startseite
 - [ ] **C) Fortschritts-Widget** — "Dein Weg zum ersten Level"-Widget auf dem Dashboard
 - [ ] **D) Alle drei** — Daily Bonus + Starter Games + Fortschritts-Widget als Gesamtpaket

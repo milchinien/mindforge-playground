@@ -15,6 +15,25 @@
 
 ---
 
+> **WARNUNG: Rechtliche Voraussetzungen**
+> Echte Zahlungsabwicklung erfordert neben der technischen Integration auch rechtliche Grundlagen:
+>
+> **Rechtliches (zwingend vor Go-Live):**
+> - Impressum mit Handelsregister-Eintrag (bei Gewerbebetrieb)
+> - AGB mit Widerrufsbelehrung (Fernabsatzgesetz)
+> - Datenschutzerklärung (DSGVO) mit Payment-Provider-Klauseln
+> - Jugendschutz: Zahlungen durch Minderjährige nur mit elterlicher Zustimmung
+> - USt-IdNr. und steuerliche Behandlung klären (Kleinunternehmerregelung vs. Regelbesteuerung)
+>
+> **Bei Creator Revenue-Share (70%) zusätzlich:**
+> - Steuerliche Behandlung für Creator (Honorar? Gewerbeschein nötig?)
+> - AGB für Creator mit Haftungsregelung
+> - Auszahlungsmodalitäten (Schwellwert, Frequenz, Steuerbescheinigung)
+>
+> **Voraussetzung:** 26-19 Backend (Cloud Functions für sichere Payment-Logik, Security Rules für MindCoin-Transaktionen)
+
+---
+
 ## Vorschlag 16.1: Payment-Integration
 - [ ] **A) Stripe (Empfohlen)** — Marktführer, einfache Integration, Subscriptions + Einmalzahlungen, EU-DSGVO-konform
 - [ ] **B) PayPal + Stripe** — Zwei Payment-Provider für maximale Abdeckung
