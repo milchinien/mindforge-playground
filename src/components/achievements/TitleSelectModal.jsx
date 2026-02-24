@@ -1,7 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import { ALL_ACHIEVEMENTS } from '../../data/achievementDefinitions'
 import Modal from '../common/Modal'
 
 export default function TitleSelectModal({ isOpen, onClose, unlockedAchievements, activeTitle, onSelect, shopTitles = [] }) {
+  const { t } = useTranslation()
+
   const achievementTitles = ALL_ACHIEVEMENTS
     .filter(a => a.reward.type === 'title')
     .map(a => ({
@@ -12,20 +15,20 @@ export default function TitleSelectModal({ isOpen, onClose, unlockedAchievements
       type: 'achievement',
     }))
 
-  const formattedShopTitles = shopTitles.map(t => ({
-    id: `shop-${t.title}`,
-    source: t.source,
-    title: t.title,
-    icon: t.icon,
+  const formattedShopTitles = shopTitles.map(st => ({
+    id: `shop-${st.title}`,
+    source: st.source,
+    title: st.title,
+    icon: st.icon,
     type: 'shop',
   }))
 
   const allTitles = [...achievementTitles, ...formattedShopTitles]
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Titel auswaehlen">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('achievements.selectTitle')}>
       <p className="text-text-muted text-sm mb-6">
-        Waehle einen Titel der unter deinem Namen angezeigt wird.
+        {t('achievements.selectTitleDesc')}
       </p>
 
       {/* No title option */}
@@ -37,7 +40,7 @@ export default function TitleSelectModal({ isOpen, onClose, unlockedAchievements
           onChange={() => onSelect(null)}
           className="accent-accent"
         />
-        <span className="text-text-secondary">Kein Titel</span>
+        <span className="text-text-secondary">{t('achievements.noTitleOption')}</span>
       </label>
 
       {/* Available titles */}
@@ -58,7 +61,7 @@ export default function TitleSelectModal({ isOpen, onClose, unlockedAchievements
           <div>
             <p className="text-text-primary font-medium">"{title}"</p>
             <p className="text-xs text-text-muted">
-              {type === 'shop' ? `Shop: ${source}` : `aus: ${source}`}
+              {type === 'shop' ? t('achievements.shopSource', { source }) : t('achievements.fromAchievement', { source })}
             </p>
           </div>
         </label>
@@ -66,7 +69,7 @@ export default function TitleSelectModal({ isOpen, onClose, unlockedAchievements
 
       {allTitles.length === 0 && (
         <p className="text-text-muted text-center py-8">
-          Du hast noch keine Titel freigeschaltet. Schliesse Achievements ab oder kaufe Saisonpakete im Shop!
+          {t('achievements.noTitlesUnlocked')}
         </p>
       )}
 
@@ -75,7 +78,7 @@ export default function TitleSelectModal({ isOpen, onClose, unlockedAchievements
         className="w-full mt-4 bg-bg-hover hover:bg-gray-600 text-text-primary py-2.5 rounded-lg
                    font-medium transition-colors cursor-pointer"
       >
-        Schliessen
+        {t('common.close')}
       </button>
     </Modal>
   )

@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { Trophy, Medal, Crown, Star, TrendingUp, Users, Calendar, ChevronDown, Flame, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { mockGames } from '../data/mockGames'
@@ -86,7 +88,7 @@ function RankBadge({ rank }) {
 }
 
 // --- Single leaderboard row ---
-function LeaderboardRow({ player, rank, isCurrentUser }) {
+function LeaderboardRow({ player, rank, isCurrentUser, t }) {
   const borderClass = rank === 1
     ? 'border-yellow-500/40 bg-yellow-500/5'
     : rank === 2
@@ -107,7 +109,7 @@ function LeaderboardRow({ player, rank, isCurrentUser }) {
             {player.username}
           </span>
           {isCurrentUser && (
-            <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full flex-shrink-0">Du</span>
+            <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full flex-shrink-0">{t('leaderboards.you')}</span>
           )}
           {player.streak >= 20 && (
             <Flame className="w-4 h-4 text-orange-400 flex-shrink-0" />
@@ -115,10 +117,10 @@ function LeaderboardRow({ player, rank, isCurrentUser }) {
         </div>
         <div className="flex items-center gap-3 text-xs text-text-muted mt-0.5">
           <span>Level {player.level}</span>
-          <span className="hidden sm:inline">{player.gamesPlayed} Spiele</span>
+          <span className="hidden sm:inline">{player.gamesPlayed} {t('leaderboards.gamesPlayed')}</span>
           {player.streak > 0 && (
             <span className="hidden sm:inline flex items-center gap-1">
-              <Flame className="w-3 h-3 inline" /> {player.streak} Tage
+              <Flame className="w-3 h-3 inline" /> {player.streak} {t('common.days')}
             </span>
           )}
         </div>
@@ -151,6 +153,7 @@ function TabButton({ active, onClick, children, icon: Icon }) {
 
 export default function Leaderboards() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [timeRange, setTimeRange] = useState('global')
   const [selectedGame, setSelectedGame] = useState('')
   const [showGameDropdown, setShowGameDropdown] = useState(false)
@@ -208,12 +211,19 @@ export default function Leaderboards() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <Helmet>
+        <title>Leaderboards | MindForge</title>
+        <meta name="description" content="Compare your scores with other players on the MindForge leaderboards." />
+        <meta property="og:title" content="Leaderboards | MindForge" />
+        <meta property="og:description" content="Compare your scores with other players on the MindForge leaderboards." />
+      </Helmet>
+
       {/* Page header */}
       <div className="flex items-center gap-3 mb-8">
         <Trophy className="w-8 h-8 text-accent" />
         <div>
-          <h1 className="text-3xl font-bold">Bestenliste</h1>
-          <p className="text-text-secondary">Vergleiche dich mit anderen Spielern</p>
+          <h1 className="text-3xl font-bold">{t('leaderboards.title')}</h1>
+          <p className="text-text-secondary">{t('leaderboards.subtitle')}</p>
         </div>
       </div>
 
@@ -231,9 +241,9 @@ export default function Leaderboards() {
                   <span className="flex items-center gap-1">
                     <Zap className="w-4 h-4 text-accent" /> Level {currentLevel}
                   </span>
-                  <span>Rang #{currentUserRank}</span>
+                  <span>{t('common.rank', { rank: currentUserRank })}</span>
                   <span className="flex items-center gap-1">
-                    <Flame className="w-4 h-4 text-orange-400" /> {CURRENT_USER_STATS.streak} Tage
+                    <Flame className="w-4 h-4 text-orange-400" /> {CURRENT_USER_STATS.streak} {t('common.days')}
                   </span>
                 </div>
               </div>
@@ -241,7 +251,7 @@ export default function Leaderboards() {
 
             <div className="text-right flex-shrink-0">
               <p className="text-2xl font-bold text-accent">{currentXp.toLocaleString('de-DE')} XP</p>
-              <p className="text-xs text-text-muted">{CURRENT_USER_STATS.gamesPlayed} Spiele gespielt</p>
+              <p className="text-xs text-text-muted">{CURRENT_USER_STATS.gamesPlayed} {t('leaderboards.gamesPlayed')}</p>
             </div>
           </div>
 
@@ -265,13 +275,13 @@ export default function Leaderboards() {
       {/* Time range tabs */}
       <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-6 overflow-x-auto">
         <TabButton active={timeRange === 'global'} onClick={() => setTimeRange('global')} icon={Trophy}>
-          Gesamt
+          {t('leaderboards.all')}
         </TabButton>
         <TabButton active={timeRange === 'weekly'} onClick={() => setTimeRange('weekly')} icon={Calendar}>
-          Diese Woche
+          {t('leaderboards.thisWeek')}
         </TabButton>
         <TabButton active={timeRange === 'monthly'} onClick={() => setTimeRange('monthly')} icon={TrendingUp}>
-          Dieser Monat
+          {t('leaderboards.thisMonth')}
         </TabButton>
       </div>
 
@@ -284,7 +294,7 @@ export default function Leaderboards() {
           <div className="flex items-center gap-2 min-w-0">
             <Users className="w-4 h-4 text-text-muted flex-shrink-0" />
             <span className="text-sm text-text-primary truncate">
-              {selectedGameData ? selectedGameData.title : 'Alle Spiele (Global)'}
+              {selectedGameData ? selectedGameData.title : t('leaderboards.allGames')}
             </span>
           </div>
           <ChevronDown className={`w-4 h-4 text-text-muted transition-transform flex-shrink-0 ${showGameDropdown ? 'rotate-180' : ''}`} />
@@ -296,7 +306,7 @@ export default function Leaderboards() {
               onClick={() => { setSelectedGame(''); setShowGameDropdown(false) }}
               className={`w-full text-left px-4 py-2.5 text-sm transition-colors cursor-pointer hover:bg-bg-hover ${!selectedGame ? 'text-accent bg-accent/10' : 'text-text-primary'}`}
             >
-              Alle Spiele (Global)
+              {t('leaderboards.allGames')}
             </button>
             {mockGames.map(game => (
               <button
@@ -305,7 +315,7 @@ export default function Leaderboards() {
                 className={`w-full text-left px-4 py-2.5 text-sm transition-colors cursor-pointer hover:bg-bg-hover ${selectedGame === game.id ? 'text-accent bg-accent/10' : 'text-text-primary'}`}
               >
                 <span className="block truncate">{game.title}</span>
-                <span className="text-xs text-text-muted">{game.plays.toLocaleString('de-DE')} Plays</span>
+                <span className="text-xs text-text-muted">{t('leaderboards.playCount', { count: game.plays.toLocaleString('de-DE') })}</span>
               </button>
             ))}
           </div>
@@ -319,7 +329,7 @@ export default function Leaderboards() {
           <div className="min-w-0">
             <p className="text-sm font-semibold text-text-primary truncate">{selectedGameData.title}</p>
             <p className="text-xs text-text-muted">
-              Top-Spieler nach XP - {selectedGameData.plays.toLocaleString('de-DE')} Plays insgesamt
+              Top-Spieler nach XP - {t('leaderboards.playCount', { count: selectedGameData.plays.toLocaleString('de-DE') })}
             </p>
           </div>
         </div>
@@ -337,7 +347,7 @@ export default function Leaderboards() {
               'border-gray-400/30 bg-gray-400/5',
               'border-amber-600/30 bg-amber-600/5',
             ]
-            const labels = ['Gold', 'Silber', 'Bronze']
+            const labels = [t('leaderboards.gold'), t('leaderboards.silver'), t('leaderboards.bronze')]
             const iconColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600']
 
             return (
@@ -368,6 +378,7 @@ export default function Leaderboards() {
             player={player}
             rank={index + 1}
             isCurrentUser={player.id === currentUid}
+            t={t}
           />
         ))}
       </div>
@@ -375,10 +386,10 @@ export default function Leaderboards() {
       {/* Info footer */}
       <div className="mt-8 bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
         <p className="text-text-secondary text-sm">
-          Ranglisten werden regelmaessig aktualisiert. Spiele mehr Lernspiele um XP zu sammeln und aufzusteigen!
+          {t('leaderboards.updateNote')}
         </p>
         <p className="text-text-muted text-xs mt-1">
-          XP werden durch das Abschliessen von Lernspielen verdient.
+          {t('leaderboards.xpNote')}
         </p>
       </div>
     </div>

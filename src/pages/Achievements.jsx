@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import {
   ALL_ACHIEVEMENTS,
@@ -53,6 +55,7 @@ function getAchievementStatus(achievement, userProgress, unlockedAchievements) {
 }
 
 function AchievementCard({ achievement, status, current, percent }) {
+  const { t } = useTranslation()
   const isUnlocked = status === 'unlocked'
   const isCompletable = status === 'completable'
 
@@ -74,7 +77,7 @@ function AchievementCard({ achievement, status, current, percent }) {
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <h3 className="font-semibold text-text-primary">{achievement.name}</h3>
             <span className="text-xs text-accent bg-accent/10 px-2 py-1 rounded-full flex-shrink-0">
-              Titel: "{achievement.reward.value}"
+              {t('achievements.titleLabel', { title: achievement.reward.value })}
             </span>
           </div>
           <p className="text-sm text-text-secondary mt-1">{achievement.description}</p>
@@ -99,6 +102,7 @@ function AchievementCard({ achievement, status, current, percent }) {
 }
 
 export default function Achievements() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [activeCategory, setActiveCategory] = useState('player')
   const [userProgress] = useState(MOCK_USER_PROGRESS)
@@ -113,11 +117,19 @@ export default function Achievements() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <Helmet>
+        <title>{t('achievements.title')} | MindForge</title>
+        <meta name="description" content={t('achievements.title')} />
+        <meta property="og:title" content={`${t('achievements.title')} | MindForge`} />
+        <meta property="og:description" content={t('achievements.title')} />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Achievements</h1>
+          <h1 className="text-3xl font-bold">{t('achievements.title')}</h1>
           <p className="text-text-secondary mt-1">
-            {totalUnlocked} von {totalAchievements} freigeschaltet
+            {t('achievements.progress', { unlocked: totalUnlocked, total: totalAchievements })}
           </p>
         </div>
 
@@ -126,9 +138,9 @@ export default function Achievements() {
           onClick={() => setShowTitleModal(true)}
           className="flex items-center gap-2 bg-bg-card border border-gray-700 hover:border-accent/50 px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
         >
-          <span className="text-sm text-text-muted">Aktiver Titel:</span>
+          <span className="text-sm text-text-muted">{t('achievements.activeTitle')}</span>
           <span className="text-sm font-semibold text-accent">
-            {activeTitle ? `"${activeTitle}"` : 'Keiner'}
+            {activeTitle ? `"${activeTitle}"` : t('achievements.noTitle')}
           </span>
           <ChevronDown className="w-4 h-4 text-text-muted" />
         </button>
@@ -177,10 +189,10 @@ export default function Achievements() {
       {/* Important note */}
       <div className="mt-8 bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
         <p className="text-text-secondary text-sm">
-          Achievements geben <strong className="text-text-primary">keine MindCoins</strong> - nur kosmetische Belohnungen wie Titel.
+          {t('achievements.noCoinsNote')}
         </p>
         <p className="text-text-muted text-xs mt-1">
-          Das ist eine bewusste Design-Entscheidung gegen Farming.
+          {t('achievements.designNote')}
         </p>
       </div>
 

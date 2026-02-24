@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Heart, Play, Layers, Code, FileArchive } from 'lucide-react'
 import { formatNumber } from '../../utils/formatters'
 import { getSubjectConfig } from '../../data/subjectConfig'
@@ -23,6 +24,7 @@ function ThumbnailPlaceholder({ title, subject }) {
 }
 
 export default memo(function GameCard({ game }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   return (
@@ -72,7 +74,7 @@ export default memo(function GameCard({ game }) {
           {game.title}
         </h3>
         <p className="text-text-muted text-xs mt-1">
-          von {game.creator}
+          {t('game.by')} {game.creator}
         </p>
 
         <div className="mt-2">

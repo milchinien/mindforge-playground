@@ -14,10 +14,11 @@ export function useTheme() {
 
   useEffect(() => {
     const root = document.documentElement
+    root.classList.remove('light', 'high-contrast')
     if (theme === 'light') {
       root.classList.add('light')
-    } else {
-      root.classList.remove('light')
+    } else if (theme === 'high-contrast') {
+      root.classList.add('high-contrast')
     }
     try { localStorage.setItem('mindforge-theme', theme) } catch { /* ignore */ }
   }, [theme])
@@ -26,7 +27,8 @@ export function useTheme() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark')
   }
 
-  const isDark = theme === 'dark'
+  const isDark = theme === 'dark' || theme === 'high-contrast'
+  const isHighContrast = theme === 'high-contrast'
 
-  return { theme, setTheme, toggleTheme, isDark }
+  return { theme, setTheme, toggleTheme, isDark, isHighContrast }
 }

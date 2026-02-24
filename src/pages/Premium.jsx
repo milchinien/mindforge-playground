@@ -1,72 +1,9 @@
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { Check, X, Crown, GraduationCap } from 'lucide-react'
 
-const PREMIUM_TIERS = [
-  {
-    id: 'free',
-    name: 'Kostenlos',
-    price: '0',
-    period: '',
-    icon: null,
-    description: 'Grundlegende MindForge-Funktionen',
-    features: [
-      { text: 'Lernspiele spielen', included: true },
-      { text: 'Profil erstellen', included: true },
-      { text: 'Freunde hinzufuegen', included: true },
-      { text: 'An Events teilnehmen', included: true },
-      { text: 'Achievements sammeln', included: true },
-      { text: 'Spiele hochladen', included: false },
-      { text: 'Custom Avatar Items', included: false },
-      { text: 'Marketplace verkaufen', included: false },
-      { text: 'Klassenverwaltung', included: false },
-    ],
-    buttonText: 'Aktueller Plan',
-    highlighted: false,
-  },
-  {
-    id: 'creator',
-    name: 'Creator Premium',
-    price: '9,99',
-    period: '/Monat',
-    icon: Crown,
-    description: 'Fuer Lernspiel-Ersteller und kreative Koepfe',
-    features: [
-      { text: 'Alles aus Kostenlos', included: true },
-      { text: 'Lernspiele erstellen & hochladen', included: true },
-      { text: 'Custom Avatar Items', included: true },
-      { text: 'Fruehzeitiger Event-Zugang', included: true },
-      { text: 'Creator-Badge am Profil', included: true },
-      { text: '100 MindCoins/Monat Bonus', included: true },
-      { text: 'Im Marketplace verkaufen', included: true },
-      { text: 'Klassenverwaltung', included: false },
-      { text: 'Schueler-Tracking', included: false },
-    ],
-    buttonText: 'Creator werden',
-    highlighted: true,
-  },
-  {
-    id: 'teacher',
-    name: 'Teacher Premium',
-    price: '14,99',
-    period: '/Monat',
-    icon: GraduationCap,
-    description: 'Fuer Lehrer und Bildungseinrichtungen',
-    features: [
-      { text: 'Alles aus Creator Premium', included: true },
-      { text: 'Klassen erstellen & verwalten', included: true },
-      { text: 'Schueler-Fortschritt tracken', included: true },
-      { text: 'Spiele als Aufgaben zuweisen', included: true },
-      { text: 'Teacher-Badge am Profil', included: true },
-      { text: '200 MindCoins/Monat Bonus', included: true },
-      { text: 'Erweiterte Lern-Statistiken', included: true },
-      { text: 'Prioritaets-Support', included: true },
-    ],
-    buttonText: 'Teacher werden',
-    highlighted: false,
-  },
-]
-
-function PricingCard({ tier, isCurrentTier }) {
+function PricingCard({ tier, isCurrentTier, t }) {
   const Icon = tier.icon
   return (
     <div className={`bg-bg-card rounded-xl p-6 border flex flex-col relative
@@ -76,7 +13,7 @@ function PricingCard({ tier, isCurrentTier }) {
       }`}>
       {tier.highlighted && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full">
-          EMPFOHLEN
+          {t('premium.recommended')}
         </span>
       )}
 
@@ -91,7 +28,7 @@ function PricingCard({ tier, isCurrentTier }) {
             <span className="text-text-muted">{tier.period}</span>
           </>
         ) : (
-          <span className="text-3xl font-bold text-text-primary">Gratis</span>
+          <span className="text-3xl font-bold text-text-primary">{t('premium.freePrice')}</span>
         )}
       </div>
       <p className="text-sm text-text-secondary mb-6">{tier.description}</p>
@@ -121,12 +58,12 @@ function PricingCard({ tier, isCurrentTier }) {
         }`}
         disabled={isCurrentTier || tier.id === 'free'}
       >
-        {isCurrentTier ? 'Aktueller Plan' : tier.buttonText}
+        {isCurrentTier ? t('premium.currentPlan') : tier.buttonText}
       </button>
 
       {tier.id !== 'free' && !isCurrentTier && (
         <p className="text-xs text-text-muted text-center mt-2">
-          Payment kommt bald
+          {t('premium.paymentSoon')}
         </p>
       )}
     </div>
@@ -134,16 +71,88 @@ function PricingCard({ tier, isCurrentTier }) {
 }
 
 export default function Premium() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const currentTier = user?.premiumTier || 'free'
 
+  const PREMIUM_TIERS = [
+    {
+      id: 'free',
+      name: t('premium.free'),
+      price: '0',
+      period: '',
+      icon: null,
+      description: t('premium.freeDesc'),
+      features: [
+        { text: t('premium.features.playGames'), included: true },
+        { text: t('premium.features.createProfile'), included: true },
+        { text: t('premium.features.addFriends'), included: true },
+        { text: t('premium.features.joinEvents'), included: true },
+        { text: t('premium.features.collectAchievements'), included: true },
+        { text: t('premium.features.uploadGames'), included: false },
+        { text: t('premium.features.customAvatar'), included: false },
+        { text: t('premium.features.sellMarketplace'), included: false },
+        { text: t('premium.features.classManagement'), included: false },
+      ],
+      buttonText: t('premium.currentPlan'),
+      highlighted: false,
+    },
+    {
+      id: 'creator',
+      name: t('premium.creator'),
+      price: '9,99',
+      period: t('common.perMonth'),
+      icon: Crown,
+      description: t('premium.creatorDesc'),
+      features: [
+        { text: t('premium.features.allFromFree'), included: true },
+        { text: t('premium.features.createGames'), included: true },
+        { text: t('premium.features.customAvatar'), included: true },
+        { text: t('premium.features.earlyAccess'), included: true },
+        { text: t('premium.features.creatorBadge'), included: true },
+        { text: t('premium.features.monthlyCoins100'), included: true },
+        { text: t('premium.features.sellOnMarketplace'), included: true },
+        { text: t('premium.features.classManagement'), included: false },
+        { text: t('premium.features.studentTracking'), included: false },
+      ],
+      buttonText: t('premium.becomeCreator'),
+      highlighted: true,
+    },
+    {
+      id: 'teacher',
+      name: t('premium.teacher'),
+      price: '14,99',
+      period: t('common.perMonth'),
+      icon: GraduationCap,
+      description: t('premium.teacherDesc'),
+      features: [
+        { text: t('premium.features.allFromCreator'), included: true },
+        { text: t('premium.features.manageClasses'), included: true },
+        { text: t('premium.features.trackProgress'), included: true },
+        { text: t('premium.features.assignGames'), included: true },
+        { text: t('premium.features.teacherBadge'), included: true },
+        { text: t('premium.features.monthlyCoins200'), included: true },
+        { text: t('premium.features.advancedStats'), included: true },
+        { text: t('premium.features.prioritySupport'), included: true },
+      ],
+      buttonText: t('premium.becomeTeacher'),
+      highlighted: false,
+    },
+  ]
+
   return (
     <div className="max-w-5xl mx-auto p-6">
+      <Helmet>
+        <title>Premium | MindForge</title>
+        <meta name="description" content={t('premium.subtitle')} />
+        <meta property="og:title" content="Premium | MindForge" />
+        <meta property="og:description" content={t('premium.subtitle')} />
+      </Helmet>
+
       <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold mb-3">Schalte das volle Potential von MindForge frei</h1>
+        <h1 className="text-3xl font-bold mb-3">{t('premium.headline')}</h1>
         <p className="text-text-secondary max-w-2xl mx-auto">
-          Werde Creator oder Teacher und erhalte Zugang zu exklusiven Features,
-          monatlichen MindCoins und vielem mehr.
+          {t('premium.subtitle')}
         </p>
       </div>
 
@@ -153,38 +162,39 @@ export default function Premium() {
             key={tier.id}
             tier={tier}
             isCurrentTier={currentTier === tier.id}
+            t={t}
           />
         ))}
       </div>
 
       <div className="mt-12 bg-bg-card rounded-xl p-6 border border-gray-700">
-        <h2 className="text-xl font-semibold mb-4 text-center">Haeufig gestellte Fragen</h2>
+        <h2 className="text-xl font-semibold mb-4 text-center">{t('premium.faq.title')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-medium text-text-primary mb-1">Kann ich jederzeit kuendigen?</h3>
-            <p className="text-sm text-text-secondary">Ja, du kannst dein Abo jederzeit kuendigen. Du behaeltst Premium bis zum Ende der Laufzeit.</p>
+            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.cancelQ')}</h3>
+            <p className="text-sm text-text-secondary">{t('premium.faq.cancelA')}</p>
           </div>
           <div>
-            <h3 className="font-medium text-text-primary mb-1">Was passiert mit meinen Spielen?</h3>
-            <p className="text-sm text-text-secondary">Bereits hochgeladene Spiele bleiben veroeffentlicht, auch nach Kuendigung.</p>
+            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.gamesQ')}</h3>
+            <p className="text-sm text-text-secondary">{t('premium.faq.gamesA')}</p>
           </div>
           <div>
-            <h3 className="font-medium text-text-primary mb-1">Kann ich upgraden?</h3>
-            <p className="text-sm text-text-secondary">Ja, du kannst jederzeit von Creator auf Teacher upgraden. Du zahlst nur die Differenz.</p>
+            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.upgradeQ')}</h3>
+            <p className="text-sm text-text-secondary">{t('premium.faq.upgradeA')}</p>
           </div>
           <div>
-            <h3 className="font-medium text-text-primary mb-1">Gibt es einen Studenten-Rabatt?</h3>
-            <p className="text-sm text-text-secondary">Ja! Studenten und Schueler erhalten 50% Rabatt auf alle Premium-Plaene.</p>
+            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.studentQ')}</h3>
+            <p className="text-sm text-text-secondary">{t('premium.faq.studentA')}</p>
           </div>
         </div>
       </div>
 
       <div className="mt-8 bg-warning/10 border border-warning/30 rounded-lg p-4 text-center">
         <p className="text-warning font-medium">
-          Payment-Integration kommt bald!
+          {t('premium.paymentSoon')}
         </p>
         <p className="text-sm text-text-muted mt-1">
-          Im MVP wird kein echtes Geld verarbeitet. Stripe/PayPal wird in einer spaeteren Version integriert.
+          {t('premium.paymentNote')}
         </p>
       </div>
     </div>

@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import AvatarRenderer from '../components/profile/AvatarRenderer'
 import MindCoinIcon from '../components/common/MindCoinIcon'
@@ -24,12 +26,6 @@ const CATEGORY_ICONS = {
   background: Palette,
   face: Smile,
 }
-
-const PRICE_FILTERS = [
-  { id: 'all', name: 'Alle Items', icon: Package },
-  { id: 'free', name: 'Kostenlos', icon: Gift },
-  { id: 'premium', name: 'Premium', icon: CircleDollarSign },
-]
 
 // Build a unified list of all marketplace items
 function buildMarketplaceItems() {
@@ -175,14 +171,7 @@ function buildMarketplaceItems() {
 
 const ALL_ITEMS = buildMarketplaceItems()
 
-const SORT_OPTIONS = [
-  { id: 'default', name: 'Standard' },
-  { id: 'price-asc', name: 'Preis aufsteigend' },
-  { id: 'price-desc', name: 'Preis absteigend' },
-  { id: 'name', name: 'Name A-Z' },
-  { id: 'rarity', name: 'Seltenheit' },
-  { id: 'rating', name: 'Beste Bewertung' },
-]
+const RARITY_ORDER = { common: 0, rare: 1, epic: 2, legendary: 3 }
 
 // ============= STAR RATING =============
 function StarRating({ rating, onRate, size = 16, interactive = false }) {
@@ -212,8 +201,6 @@ function StarRating({ rating, onRate, size = 16, interactive = false }) {
     </div>
   )
 }
-
-const RARITY_ORDER = { common: 0, rare: 1, epic: 2, legendary: 3 }
 
 function getAvatarConfig(user) {
   return {
@@ -248,7 +235,7 @@ function isItemEquipped(item, avatarConfig) {
 }
 
 // ============= ITEM CARD =============
-function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, rating, onClick }) {
+function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, rating, onClick, t }) {
   const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
   const previewConfig = { ...avatarConfig, [item.avatarKey]: item.itemId }
 
@@ -312,9 +299,9 @@ function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, rating, 
       <div className="flex items-center justify-between mt-1">
         <span className={`text-[10px] font-medium ${rarity.color}`}>{rarity.name}</span>
         {item.price === 0 ? (
-          <span className="text-[10px] text-success font-semibold">Gratis</span>
+          <span className="text-[10px] text-success font-semibold">{t('marketplace.gratis')}</span>
         ) : isOwned ? (
-          <span className="text-[10px] text-accent font-semibold">Gekauft</span>
+          <span className="text-[10px] text-accent font-semibold">{t('common.purchased')}</span>
         ) : (
           <span className="flex items-center gap-0.5 text-[10px] text-warning font-semibold">
             <MindCoinIcon size={10} /> {item.price}
@@ -333,7 +320,7 @@ function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, rating, 
 }
 
 // ============= ITEM DETAIL MODAL =============
-function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRating, onClose, onBuyAndEquip, onEquip, onRate }) {
+function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRating, onClose, onBuyAndEquip, onEquip, onRate, t }) {
   useEscapeKey(onClose)
 
   const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
@@ -360,7 +347,7 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
           <div className="flex gap-6 items-center">
             {/* Current */}
             <div className="text-center">
-              <p className="text-[10px] text-text-muted mb-2 uppercase tracking-wider font-medium">Aktuell</p>
+              <p className="text-[10px] text-text-muted mb-2 uppercase tracking-wider font-medium">{t('marketplace.currentLabel')}</p>
               <div className="rounded-xl overflow-hidden border-2 border-gray-700/30">
                 <AvatarRenderer
                   skinColor={avatarConfig.skinColor}
@@ -386,7 +373,7 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
 
             {/* Preview with item */}
             <div className="text-center">
-              <p className="text-[10px] text-accent mb-2 uppercase tracking-wider font-medium">Vorschau</p>
+              <p className="text-[10px] text-accent mb-2 uppercase tracking-wider font-medium">{t('marketplace.previewLabel')}</p>
               <div className="rounded-xl overflow-hidden border-2 border-accent/40 shadow-lg shadow-accent/10">
                 <AvatarRenderer
                   skinColor={previewConfig.skinColor}
@@ -414,15 +401,15 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
           {needsPurchase && (
             <div className="flex items-center justify-between bg-bg-card/60 rounded-xl p-4 border border-gray-700/30">
               <div>
-                <p className="text-xs text-text-muted">Preis</p>
+                <p className="text-xs text-text-muted">{t('common.price')}</p>
                 <p className="text-lg font-bold text-warning flex items-center gap-1.5">
-                  <MindCoinIcon size={20} /> {item.price} MC
+                  <MindCoinIcon size={20} /> {item.price} {t('common.mc')}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-text-muted">Dein Guthaben</p>
+                <p className="text-xs text-text-muted">{t('shop.yourBalance')}</p>
                 <p className={`text-lg font-bold ${canAfford ? 'text-success' : 'text-error'} flex items-center gap-1.5 justify-end`}>
-                  <MindCoinIcon size={20} /> {(user?.mindCoins || 0).toLocaleString('de-DE')} MC
+                  <MindCoinIcon size={20} /> {(user?.mindCoins || 0).toLocaleString('de-DE')} {t('common.mc')}
                 </p>
               </div>
             </div>
@@ -431,7 +418,7 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
           {/* Actions */}
           {isEquipped ? (
             <div className="w-full py-3 rounded-xl bg-accent/15 text-accent font-semibold text-center border border-accent/30">
-              Aktuell angelegt
+              {t('marketplace.currentlyEquipped')}
             </div>
           ) : needsPurchase ? (
             canAfford ? (
@@ -440,14 +427,14 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
                 className="w-full py-3 rounded-xl bg-accent hover:bg-accent-dark text-white font-semibold transition-colors cursor-pointer shadow-lg shadow-accent/20"
               >
                 <ShoppingBag size={16} className="inline mr-2 -mt-0.5" />
-                Kaufen & Anlegen ({item.price} MC)
+                {t('marketplace.buyAndEquip', { price: item.price })}
               </button>
             ) : (
               <div className="text-center space-y-2">
                 <button disabled className="w-full py-3 rounded-xl bg-gray-600 text-gray-400 font-semibold cursor-not-allowed">
-                  Nicht genug MindCoins
+                  {t('marketplace.notEnoughCoins')}
                 </button>
-                <p className="text-xs text-error">Dir fehlen {item.price - (user?.mindCoins || 0)} MC</p>
+                <p className="text-xs text-error">{t('marketplace.missingCoins', { amount: item.price - (user?.mindCoins || 0) })}</p>
               </div>
             )
           ) : (
@@ -455,7 +442,7 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
               onClick={() => onEquip(item)}
               className="w-full py-3 rounded-xl bg-accent hover:bg-accent-dark text-white font-semibold transition-colors cursor-pointer shadow-lg shadow-accent/20"
             >
-              Anlegen
+              {t('common.equip')}
             </button>
           )}
 
@@ -463,7 +450,7 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
           {isOwned && (
             <div className="pt-3 border-t border-gray-700/40">
               <p className="text-xs text-text-muted mb-2">
-                {userRating ? 'Deine Bewertung' : 'Wie gefaellt dir dieses Item?'}
+                {userRating ? t('marketplace.yourRating') : t('marketplace.rateItem')}
               </p>
               <div className="flex items-center gap-3">
                 <StarRating
@@ -485,14 +472,20 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
 }
 
 // ============= SIDEBAR FILTER =============
-function FilterSidebar({ activeCategory, setActiveCategory, priceFilter, setPriceFilter, categoryCount }) {
+function FilterSidebar({ activeCategory, setActiveCategory, priceFilter, setPriceFilter, categoryCount, t }) {
+  const PRICE_FILTERS = [
+    { id: 'all', name: t('marketplace.allItems'), icon: Package },
+    { id: 'free', name: t('marketplace.free'), icon: Gift },
+    { id: 'premium', name: t('marketplace.premium'), icon: CircleDollarSign },
+  ]
+
   return (
     <aside className="w-56 flex-shrink-0 space-y-6">
       {/* Category Filter */}
       <div>
         <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3 flex items-center gap-1.5">
           <Filter size={12} />
-          Kategorie
+          {t('marketplace.category')}
         </h3>
         <div className="space-y-1">
           {MARKETPLACE_CATEGORIES.map(cat => {
@@ -528,7 +521,7 @@ function FilterSidebar({ activeCategory, setActiveCategory, priceFilter, setPric
       <div>
         <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3 flex items-center gap-1.5">
           <CircleDollarSign size={12} />
-          Preis
+          {t('marketplace.priceLabel')}
         </h3>
         <div className="space-y-1">
           {PRICE_FILTERS.map(filter => {
@@ -558,11 +551,21 @@ function FilterSidebar({ activeCategory, setActiveCategory, priceFilter, setPric
 // ============= MAIN COMPONENT =============
 export default function Marketplace() {
   const { user, updateUser } = useAuth()
+  const { t } = useTranslation()
   const [activeCategory, setActiveCategory] = useState('all')
   const [priceFilter, setPriceFilter] = useState('all')
   const [sortBy, setSortBy] = useState('default')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedItem, setSelectedItem] = useState(null)
+
+  const SORT_OPTIONS = [
+    { id: 'default', name: t('marketplace.sortDefault') },
+    { id: 'price-asc', name: t('marketplace.sortPriceAsc') },
+    { id: 'price-desc', name: t('marketplace.sortPriceDesc') },
+    { id: 'name', name: t('marketplace.sortName') },
+    { id: 'rarity', name: t('marketplace.sortRarity') },
+    { id: 'rating', name: t('marketplace.sortRating') },
+  ]
 
   const avatarConfig = getAvatarConfig(user)
   const itemRatings = user?.itemRatings || {}
@@ -680,7 +683,7 @@ export default function Marketplace() {
     updates.transactions = [...(user?.transactions || []), {
       type: 'spend',
       amount: item.price,
-      description: `${item.name} im Marketplace gekauft`,
+      description: t('marketplace.purchasedInMarketplace', { name: item.name }),
       date: new Date().toISOString(),
     }]
 
@@ -707,16 +710,29 @@ export default function Marketplace() {
     setSelectedItem(null)
   }
 
+  const PRICE_FILTERS = [
+    { id: 'all', name: t('marketplace.allItems') },
+    { id: 'free', name: t('marketplace.free') },
+    { id: 'premium', name: t('marketplace.premium') },
+  ]
+
   return (
     <div className="w-full">
+      <Helmet>
+        <title>Marketplace | MindForge</title>
+        <meta name="description" content="Discover and buy avatar items on the MindForge Marketplace." />
+        <meta property="og:title" content="Marketplace | MindForge" />
+        <meta property="og:description" content="Discover and buy avatar items on the MindForge Marketplace." />
+      </Helmet>
+
       {/* Sub-Header: Description + Balance + Search + Sort */}
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex items-center justify-between">
-          <p className="text-text-muted">Entdecke und kaufe Items fuer deinen Avatar</p>
+          <p className="text-text-muted">{t('marketplace.discoverItems')}</p>
           <div className="flex items-center gap-2 bg-bg-secondary/80 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-gray-700/50 shadow-sm">
             <MindCoinIcon size={20} />
             <span className="font-bold text-accent text-lg">{(user?.mindCoins || 0).toLocaleString('de-DE')}</span>
-            <span className="text-text-muted text-sm">MC</span>
+            <span className="text-text-muted text-sm">{t('common.mc')}</span>
           </div>
         </div>
 
@@ -728,7 +744,7 @@ export default function Marketplace() {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Items durchsuchen..."
+              placeholder={t('marketplace.searchItems')}
               className="w-full bg-bg-card border border-gray-700/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-text-primary
                          placeholder:text-text-muted focus:outline-none focus:border-accent/50 transition-colors"
             />
@@ -744,7 +760,7 @@ export default function Marketplace() {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            aria-label="Sortierung"
+            aria-label={t('marketplace.sorting')}
             className="bg-bg-card text-text-primary border border-gray-700/40 rounded-xl px-4 py-2.5 text-sm cursor-pointer hover:border-gray-600 transition-colors"
           >
             {SORT_OPTIONS.map(opt => (
@@ -763,6 +779,7 @@ export default function Marketplace() {
           priceFilter={priceFilter}
           setPriceFilter={setPriceFilter}
           categoryCount={categoryCount}
+          t={t}
         />
 
         {/* Separator */}
@@ -773,10 +790,10 @@ export default function Marketplace() {
           {/* Results count */}
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-text-muted">
-              {filteredItems.length} {filteredItems.length === 1 ? 'Item' : 'Items'}
-              {activeCategory !== 'all' && ` in ${MARKETPLACE_CATEGORIES.find(c => c.id === activeCategory)?.name}`}
+              {filteredItems.length === 1 ? t('marketplace.itemCountSingle') : t('marketplace.itemCount', { count: filteredItems.length })}
+              {activeCategory !== 'all' && ` ${t('marketplace.inCategory', { category: MARKETPLACE_CATEGORIES.find(c => c.id === activeCategory)?.name })}`}
               {priceFilter !== 'all' && ` (${PRICE_FILTERS.find(f => f.id === priceFilter)?.name})`}
-              {searchQuery && ` fuer "${searchQuery}"`}
+              {searchQuery && ` ${t('marketplace.forSearch', { query: searchQuery })}`}
             </p>
           </div>
 
@@ -791,15 +808,16 @@ export default function Marketplace() {
                   isEquipped={isItemEquipped(item, avatarConfig)}
                   rating={getItemRating(item.id)}
                   onClick={setSelectedItem}
+                  t={t}
                 />
               ))}
             </div>
           ) : (
             <div className="text-center py-20">
               <Package size={48} className="mx-auto text-text-muted mb-4" />
-              <h3 className="text-xl font-semibold text-text-primary mb-2">Keine Items gefunden</h3>
+              <h3 className="text-xl font-semibold text-text-primary mb-2">{t('marketplace.noItemsFound')}</h3>
               <p className="text-text-muted">
-                {searchQuery ? 'Versuche einen anderen Suchbegriff.' : 'Versuche eine andere Kategorie oder einen anderen Filter.'}
+                {searchQuery ? t('marketplace.noItemsTryOther') : t('marketplace.noItemsTryFilter')}
               </p>
             </div>
           )}
@@ -819,6 +837,7 @@ export default function Marketplace() {
           onBuyAndEquip={handleBuyAndEquip}
           onEquip={handleEquip}
           onRate={handleRate}
+          t={t}
         />
       )}
     </div>

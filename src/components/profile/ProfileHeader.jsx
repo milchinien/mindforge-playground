@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Edit3, Crown, Globe, Twitter, ChevronDown, Lock, Check } from 'lucide-react'
 import { formatNumber } from '../../utils/formatters'
 import { ALL_ACHIEVEMENTS, MOCK_USER_PROGRESS } from '../../data/achievementDefinitions'
@@ -43,7 +44,7 @@ function isAchievementUnlocked(achievement, progress) {
   }
 }
 
-function TitleDropdown({ user, activeTitle, onSelect, onClose }) {
+function TitleDropdown({ user, activeTitle, onSelect, onClose, t }) {
   const progress = MOCK_USER_PROGRESS
 
   const achievementTitles = ALL_ACHIEVEMENTS
@@ -56,27 +57,27 @@ function TitleDropdown({ user, activeTitle, onSelect, onClose }) {
       hint: a.description,
     }))
 
-  const ownedShopTitleNames = (user.shopTitles || []).map(t => t.title)
-  const shopTitles = SHOP_TITLE_OFFERS.map(t => ({
-    ...t,
-    unlocked: ownedShopTitleNames.includes(t.title),
+  const ownedShopTitleNames = (user.shopTitles || []).map(st => st.title)
+  const shopTitles = SHOP_TITLE_OFFERS.map(st => ({
+    ...st,
+    unlocked: ownedShopTitleNames.includes(st.title),
   }))
 
   const unlockedTitles = [
-    ...achievementTitles.filter(t => t.unlocked),
-    ...shopTitles.filter(t => t.unlocked),
+    ...achievementTitles.filter(item => item.unlocked),
+    ...shopTitles.filter(item => item.unlocked),
   ]
   const lockedTitles = [
-    ...achievementTitles.filter(t => !t.unlocked),
-    ...shopTitles.filter(t => !t.unlocked),
+    ...achievementTitles.filter(item => !item.unlocked),
+    ...shopTitles.filter(item => !item.unlocked),
   ]
 
   return (
     <div className="absolute top-full left-0 sm:left-auto sm:right-auto mt-2 w-[300px] bg-bg-secondary border border-gray-700 rounded-xl shadow-2xl shadow-black/40 z-50 overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-700/50 bg-gradient-to-r from-accent/10 to-transparent">
-        <p className="text-sm font-semibold text-text-primary">Titel auswaehlen</p>
-        <p className="text-xs text-text-muted">{unlockedTitles.length} freigeschaltet / {unlockedTitles.length + lockedTitles.length} gesamt</p>
+        <p className="text-sm font-semibold text-text-primary">{t('profile.titleSelect')}</p>
+        <p className="text-xs text-text-muted">{t('profile.unlockedCount', { count: unlockedTitles.length, total: unlockedTitles.length + lockedTitles.length })}</p>
       </div>
 
       <div className="max-h-80 overflow-y-auto">
@@ -90,7 +91,7 @@ function TitleDropdown({ user, activeTitle, onSelect, onClose }) {
             &#10005;
           </span>
           <span className={`text-sm font-medium ${!activeTitle ? 'text-accent' : 'text-text-secondary'}`}>
-            Kein Titel
+            {t('profile.noTitleOption')}
           </span>
           {!activeTitle && <Check size={14} className="text-accent ml-auto" />}
         </button>
@@ -98,7 +99,7 @@ function TitleDropdown({ user, activeTitle, onSelect, onClose }) {
         {/* Unlocked titles */}
         {unlockedTitles.length > 0 && (
           <div className="px-3 pt-3 pb-1">
-            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider px-1">Freigeschaltet</p>
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider px-1">{t('profile.unlocked')}</p>
           </div>
         )}
         {unlockedTitles.map(({ title, icon, source }) => (
@@ -125,7 +126,7 @@ function TitleDropdown({ user, activeTitle, onSelect, onClose }) {
         {lockedTitles.length > 0 && (
           <div className="px-3 pt-4 pb-1 border-t border-gray-700/30 mt-1">
             <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider px-1 flex items-center gap-1">
-              <Lock size={10} /> Noch nicht freigeschaltet
+              <Lock size={10} /> {t('profile.notUnlockedYet')}
             </p>
           </div>
         )}
@@ -150,6 +151,7 @@ function TitleDropdown({ user, activeTitle, onSelect, onClose }) {
 }
 
 export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollowChange, isFollowing, isLoggedIn = false, onTitleChange }) {
+  const { t } = useTranslation()
   const [titleOpen, setTitleOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -162,10 +164,10 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
   }, [titleOpen])
 
   const stats = [
-    { label: 'Follower', value: user.followers || 0 },
-    { label: 'Following', value: user.following || 0 },
-    { label: 'Spiele', value: user.gamesCreated || 0 },
-    { label: 'Plays', value: user.totalPlays || 0 },
+    { label: t('profile.follower'), value: user.followers || 0 },
+    { label: t('profile.following'), value: user.following || 0 },
+    { label: t('profile.games'), value: user.gamesCreated || 0 },
+    { label: t('common.plays'), value: user.totalPlays || 0 },
   ]
 
   const memberSince = () => {
@@ -210,7 +212,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
                       : 'bg-bg-card border border-gray-700 text-text-muted hover:border-accent/50 hover:text-text-secondary'
                     }`}
                 >
-                  {user.activeTitle || 'Titel waehlen'}
+                  {user.activeTitle || t('profile.selectTitle')}
                   <ChevronDown size={12} className={`transition-transform ${titleOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {titleOpen && (
@@ -219,6 +221,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
                     activeTitle={user.activeTitle}
                     onSelect={onTitleChange}
                     onClose={() => setTitleOpen(false)}
+                    t={t}
                   />
                 )}
               </div>
@@ -251,7 +254,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
 
           {/* Member since + Social */}
           <div className="flex flex-wrap items-center gap-3 mt-3 justify-center sm:justify-start">
-            <p className="text-text-muted text-sm">Mitglied seit {memberSince()}</p>
+            <p className="text-text-muted text-sm">{t('profile.memberSince', { date: memberSince() })}</p>
             {user.socialLinks?.website && (
               <a href={user.socialLinks.website} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-accent">
                 <Globe size={14} />
@@ -272,7 +275,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
                 className="flex items-center gap-2 px-4 py-2 bg-bg-card hover:bg-bg-hover text-text-secondary rounded-lg transition-colors cursor-pointer"
               >
                 <Edit3 size={16} />
-                <span>Profil bearbeiten</span>
+                <span>{t('profile.editProfile')}</span>
               </button>
             ) : (
               <FollowButton

@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { mockFriends, mockFriendRequests } from '../data/mockFriends'
 import FriendCard from '../components/friends/FriendCard'
 import FriendRequestCard from '../components/friends/FriendRequestCard'
 import AddFriendModal from '../components/friends/AddFriendModal'
 
 export default function Friends() {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('all')
   const [friends, setFriends] = useState(mockFriends)
   const [requests, setRequests] = useState(mockFriendRequests)
@@ -14,10 +17,10 @@ export default function Friends() {
   const offlineFriends = friends.filter(f => !f.isOnline)
 
   const TABS = [
-    { id: 'all',      label: 'Alle',      count: friends.length },
-    { id: 'online',   label: 'Online',    count: onlineFriends.length },
-    { id: 'offline',  label: 'Offline',   count: offlineFriends.length },
-    { id: 'requests', label: 'Anfragen',  count: requests.length },
+    { id: 'all',      label: t('friends.all'),      count: friends.length },
+    { id: 'online',   label: t('friends.online'),    count: onlineFriends.length },
+    { id: 'offline',  label: t('friends.offline'),   count: offlineFriends.length },
+    { id: 'requests', label: t('friends.requests'),  count: requests.length },
   ]
 
   const handleAcceptRequest = async (friendshipId) => {
@@ -53,10 +56,10 @@ export default function Friends() {
         <div className="text-center py-16">
           <span className="text-5xl block mb-3">{'\u{1F465}'}</span>
           <h3 className="text-lg font-semibold text-text-primary mb-1">
-            Keine Freunde in dieser Kategorie
+            {t('friends.noFriends')}
           </h3>
           <p className="text-text-muted text-sm">
-            Fuege neue Freunde hinzu, um sie hier zu sehen.
+            {t('friends.addFriendsHint')}
           </p>
         </div>
       )
@@ -77,10 +80,10 @@ export default function Friends() {
         <div className="text-center py-16">
           <span className="text-5xl block mb-3">{'\u2709\uFE0F'}</span>
           <h3 className="text-lg font-semibold text-text-primary mb-1">
-            Keine offenen Anfragen
+            {t('friends.noRequests')}
           </h3>
           <p className="text-text-muted text-sm">
-            Wenn jemand dir eine Freundschaftsanfrage sendet, erscheint sie hier.
+            {t('friends.requestsHint')}
           </p>
         </div>
       )
@@ -102,14 +105,22 @@ export default function Friends() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <Helmet>
+        <title>{t('friends.title')} | MindForge</title>
+        <meta name="description" content={t('friends.title')} />
+        <meta property="og:title" content={`${t('friends.title')} | MindForge`} />
+        <meta property="og:description" content={t('friends.title')} />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Freunde</h1>
+        <h1 className="text-3xl font-bold">{t('friends.title')}</h1>
         <button
           onClick={() => setShowAddFriendModal(true)}
           className="bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded-lg
                      font-medium text-sm transition-colors"
         >
-          + Freund hinzufuegen
+          {t('friends.addFriend')}
         </button>
       </div>
 

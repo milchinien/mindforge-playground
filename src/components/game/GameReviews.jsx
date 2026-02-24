@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Star, ThumbsUp, ThumbsDown, Send, User, Clock, ChevronDown, MessageSquare } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
@@ -14,12 +15,6 @@ const MOCK_REVIEWS = [
   { id: '8', userId: 'u8', username: 'BiologieFan', avatar: null, rating: 4, text: 'Tolles Konzept! Besonders die interaktiven Elemente sind super gemacht.', date: '2026-02-03T17:10:00Z', helpful: 6, notHelpful: 1 },
   { id: '9', userId: 'u9', username: 'AnnaAdmin', avatar: null, rating: 5, text: 'Nutze es in meiner Klasse - die Kinder sind motivierter als je zuvor. Klare Empfehlung!', date: '2026-01-28T10:00:00Z', helpful: 25, notHelpful: 2 },
   { id: '10', userId: 'u10', username: 'CoolCoder', avatar: null, rating: 3, text: 'Für den Anfang nicht schlecht. Es fehlen aber noch Features wie Multiplayer oder Ranglisten.', date: '2026-01-25T15:30:00Z', helpful: 4, notHelpful: 2 },
-]
-
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Neueste zuerst' },
-  { value: 'highest', label: 'Beste Bewertung' },
-  { value: 'helpful', label: 'Hilfreichste' },
 ]
 
 function StarRating({ rating, size = 16, interactive = false, onChange }) {
@@ -76,7 +71,7 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-function ReviewCard({ review, onVote, votedReviews }) {
+function ReviewCard({ review, onVote, votedReviews, t }) {
   const vote = votedReviews[review.id]
   return (
     <div className="bg-bg-card rounded-xl border border-gray-700 p-4">
@@ -97,7 +92,7 @@ function ReviewCard({ review, onVote, votedReviews }) {
           </div>
           <p className="text-text-secondary text-sm mt-2 leading-relaxed">{review.text}</p>
           <div className="flex items-center gap-3 mt-3">
-            <span className="text-text-muted text-xs mr-1">Hilfreich?</span>
+            <span className="text-text-muted text-xs mr-1">{t('game.reviews.helpful')}</span>
             <button
               onClick={() => onVote(review.id, 'helpful')}
               className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors cursor-pointer ${
@@ -128,6 +123,7 @@ function ReviewCard({ review, onVote, votedReviews }) {
 }
 
 export default function GameReviews({ gameId }) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const { showToast } = useToast()
 
@@ -136,6 +132,12 @@ export default function GameReviews({ gameId }) {
   const [newRating, setNewRating] = useState(0)
   const [newText, setNewText] = useState('')
   const [votedReviews, setVotedReviews] = useState({})
+
+  const SORT_OPTIONS = [
+    { value: 'newest', label: t('game.reviews.sortNewest') },
+    { value: 'highest', label: t('game.reviews.sortHighest') },
+    { value: 'helpful', label: t('game.reviews.sortHelpful') },
+  ]
 
   const avgRating = useMemo(() => {
     if (reviews.length === 0) return 0
@@ -153,15 +155,15 @@ export default function GameReviews({ gameId }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!user) {
-      showToast('Bitte melde dich an, um eine Bewertung zu schreiben.', 'warning')
+      showToast(t('game.reviews.loginRequired'), 'warning')
       return
     }
     if (newRating === 0) {
-      showToast('Bitte wähle eine Sternebewertung.', 'warning')
+      showToast(t('game.reviews.selectRating'), 'warning')
       return
     }
     if (newText.trim().length < 10) {
-      showToast('Deine Bewertung sollte mindestens 10 Zeichen lang sein.', 'warning')
+      showToast(t('game.reviews.minLength'), 'warning')
       return
     }
     const review = {
@@ -178,12 +180,12 @@ export default function GameReviews({ gameId }) {
     setReviews((prev) => [review, ...prev])
     setNewRating(0)
     setNewText('')
-    showToast('Bewertung erfolgreich abgesendet!', 'success')
+    showToast(t('game.reviews.success'), 'success')
   }
 
   const handleVote = (reviewId, type) => {
     if (!user) {
-      showToast('Bitte melde dich an, um abzustimmen.', 'warning')
+      showToast(t('game.reviews.loginToVote'), 'warning')
       return
     }
     const current = votedReviews[reviewId]
@@ -218,7 +220,7 @@ export default function GameReviews({ gameId }) {
       {/* Header */}
       <div className="flex items-center gap-2">
         <MessageSquare size={20} className="text-accent" />
-        <h2 className="text-lg font-bold text-text-primary">Bewertungen</h2>
+        <h2 className="text-lg font-bold text-text-primary">{t('game.reviews.title')}</h2>
         <span className="text-text-muted text-sm">({reviews.length})</span>
       </div>
 
@@ -229,7 +231,7 @@ export default function GameReviews({ gameId }) {
           <div className="flex flex-col items-center justify-center sm:min-w-[140px]">
             <span className="text-4xl font-bold text-text-primary">{avgRating.toFixed(1)}</span>
             <StarRating rating={Math.round(avgRating)} size={18} />
-            <span className="text-text-muted text-xs mt-1">{reviews.length} Bewertungen</span>
+            <span className="text-text-muted text-xs mt-1">{t('game.reviews.count', { count: reviews.length })}</span>
           </div>
           {/* Distribution */}
           <div className="flex-1">
@@ -240,11 +242,11 @@ export default function GameReviews({ gameId }) {
 
       {/* Write Review */}
       <div className="bg-bg-card rounded-xl border border-gray-700 p-5">
-        <h3 className="text-sm font-semibold text-text-primary mb-3">Bewertung schreiben</h3>
+        <h3 className="text-sm font-semibold text-text-primary mb-3">{t('game.reviews.writeReview')}</h3>
         {user ? (
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex items-center gap-3">
-              <span className="text-text-secondary text-sm">Deine Bewertung:</span>
+              <span className="text-text-secondary text-sm">{t('game.reviews.yourRating')}</span>
               <StarRating rating={newRating} size={22} interactive onChange={setNewRating} />
               {newRating > 0 && (
                 <span className="text-yellow-500 text-sm font-medium">{newRating}/5</span>
@@ -253,7 +255,7 @@ export default function GameReviews({ gameId }) {
             <textarea
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
-              placeholder="Schreibe deine Bewertung... (min. 10 Zeichen)"
+              placeholder={t('game.reviews.placeholder')}
               rows={3}
               maxLength={500}
               className="w-full bg-bg-primary border border-gray-700 rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-muted resize-none focus:outline-none focus:border-accent transition-colors"
@@ -265,20 +267,20 @@ export default function GameReviews({ gameId }) {
                 className="flex items-center gap-2 bg-accent hover:bg-accent-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer"
               >
                 <Send size={14} />
-                Absenden
+                {t('game.reviews.submit')}
               </button>
             </div>
           </form>
         ) : (
           <p className="text-text-muted text-sm">
-            Bitte <a href="/login" className="text-accent hover:underline">melde dich an</a>, um eine Bewertung zu schreiben.
+            {t('game.reviews.loginRequired')}
           </p>
         )}
       </div>
 
       {/* Sort */}
       <div className="flex items-center justify-between">
-        <span className="text-text-secondary text-sm">{reviews.length} Bewertungen</span>
+        <span className="text-text-secondary text-sm">{t('game.reviews.count', { count: reviews.length })}</span>
         <div className="relative">
           <select
             value={sortBy}
@@ -301,6 +303,7 @@ export default function GameReviews({ gameId }) {
             review={review}
             onVote={handleVote}
             votedReviews={votedReviews}
+            t={t}
           />
         ))}
       </div>

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import AvatarRenderer from '../components/profile/AvatarRenderer'
 import MindCoinIcon from '../components/common/MindCoinIcon'
@@ -15,62 +17,6 @@ import {
   BODY_TYPES, ACCESSORY_TYPES, HAT_TYPES, CLOTHING_TYPES,
   BG_STYLES, RARITY_CONFIG,
 } from '../data/avatarItems'
-
-const AVATAR_PRESETS = [
-  {
-    id: 'warrior', name: 'Krieger', emoji: '\u2694\uFE0F',
-    config: { skinColor: '#D4A574', hairColor: '#1C1C1C', hairStyle: 'buzz', eyeType: 'almond', eyeColor: '#3E2723', eyebrows: 'angry', mouth: 'neutral', accessory: 'none', hat: 'none', clothing: 'tank', clothingColor: '#1a1a1a', bgStyle: 'gray', bodyType: 'wide' },
-  },
-  {
-    id: 'scholar', name: 'Gelehrter', emoji: '\u{1F4DA}',
-    config: { skinColor: '#F5D6B8', hairColor: '#6B3A2A', hairStyle: 'short', eyeType: 'round', eyeColor: '#4A90D9', eyebrows: 'arched', mouth: 'smile', accessory: 'glasses', hat: 'none', clothing: 'suit', clothingColor: '#2c3e50', bgStyle: 'blue', bodyType: 'normal' },
-  },
-  {
-    id: 'artist', name: 'Kuenstler', emoji: '\u{1F3A8}',
-    config: { skinColor: '#FDEBD0', hairColor: '#E91E63', hairStyle: 'curly', eyeType: 'cat', eyeColor: '#5B8C5A', eyebrows: 'normal', mouth: 'smirk', accessory: 'earring', hat: 'beanie', clothing: 'hoodie', clothingColor: '#8e44ad', bgStyle: 'neon', bodyType: 'slim' },
-  },
-  {
-    id: 'hacker', name: 'Hacker', emoji: '\u{1F4BB}',
-    config: { skinColor: '#C4956A', hairColor: '#2196F3', hairStyle: 'mohawk', eyeType: 'sleepy', eyeColor: '#8E8E8E', eyebrows: 'thick', mouth: 'smirk', accessory: 'sunglasses', hat: 'none', clothing: 'hoodie', clothingColor: '#1a1a1a', bgStyle: 'green', bodyType: 'normal' },
-  },
-  {
-    id: 'hero', name: 'Held', emoji: '\u{1F9B8}',
-    config: { skinColor: '#8D5524', hairColor: '#D4A843', hairStyle: 'short', eyeType: 'wide', eyeColor: '#D4A843', eyebrows: 'thick', mouth: 'grin', accessory: 'none', hat: 'none', clothing: 'jacket', clothingColor: '#c0392b', bgStyle: 'fire', bodyType: 'wide' },
-  },
-  {
-    id: 'mystic', name: 'Mystiker', emoji: '\u{1F52E}',
-    config: { skinColor: '#5C3317', hairColor: '#9E9E9E', hairStyle: 'long', eyeType: 'cat', eyeColor: '#9B59B6', eyebrows: 'arched', mouth: 'neutral', accessory: 'earring', hat: 'wizard', clothing: 'suit', clothingColor: '#4a1a6b', bgStyle: 'galaxy', bodyType: 'slim' },
-  },
-  {
-    id: 'ninja', name: 'Ninja', emoji: '\u{1F977}',
-    config: { skinColor: '#D4A574', hairColor: '#1C1C1C', hairStyle: 'ponytail', eyeType: 'almond', eyeColor: '#3E2723', eyebrows: 'normal', mouth: 'neutral', accessory: 'mask', hat: 'none', clothing: 'jacket', clothingColor: '#1a1a1a', bgStyle: 'gray', bodyType: 'slim' },
-  },
-  {
-    id: 'punk', name: 'Punk', emoji: '\u{1F3B8}',
-    config: { skinColor: '#FDEBD0', hairColor: '#8B2500', hairStyle: 'spiky', eyeType: 'round', eyeColor: '#C0392B', eyebrows: 'angry', mouth: 'open', accessory: 'earring', hat: 'none', clothing: 'tank', clothingColor: '#1a1a1a', bgStyle: 'sunset', bodyType: 'normal' },
-  },
-  {
-    id: 'pirate', name: 'Pirat', emoji: '\u{1F3F4}\u200D\u2620\uFE0F',
-    config: { skinColor: '#C4956A', hairColor: '#2C1810', hairStyle: 'messy', eyeType: 'almond', eyeColor: '#6B3A2A', eyebrows: 'thick', mouth: 'smirk', accessory: 'earring', hat: 'pirate', clothing: 'jacket', clothingColor: '#2c3e50', bgStyle: 'ocean', bodyType: 'wide' },
-  },
-  {
-    id: 'royal', name: 'Adlig', emoji: '\u{1F451}',
-    config: { skinColor: '#F5D6B8', hairColor: '#D4A843', hairStyle: 'long', eyeType: 'almond', eyeColor: '#4A90D9', eyebrows: 'arched', mouth: 'smile', accessory: 'none', hat: 'crown', clothing: 'suit', clothingColor: '#8e44ad', bgStyle: 'purple', bodyType: 'normal' },
-  },
-]
-
-// Category tabs with icons
-const CATEGORIES = [
-  { id: 'presets', name: 'Presets', icon: Sparkles },
-  { id: 'body', name: 'Koerper', icon: PersonStanding },
-  { id: 'skin', name: 'Haut', icon: User },
-  { id: 'hair', name: 'Haare', icon: Scissors },
-  { id: 'face', name: 'Gesicht', icon: Smile },
-  { id: 'hats', name: 'Huete', icon: Crown },
-  { id: 'clothing', name: 'Kleidung', icon: Shirt },
-  { id: 'accessories', name: 'Accessoires', icon: Glasses },
-  { id: 'background', name: 'Hintergrund', icon: Palette },
-]
 
 // ============= SUB-COMPONENTS =============
 
@@ -133,11 +79,11 @@ function StyleGrid({ label, options, selected, onChange, columns = 3 }) {
   )
 }
 
-function BodyTypeSelector({ selected, onChange, avatarConfig }) {
+function BodyTypeSelector({ selected, onChange, avatarConfig, t }) {
   return (
     <div>
-      <SectionLabel>Koerpertyp</SectionLabel>
-      <p className="text-xs text-text-muted mb-4 -mt-1">Waehle die Statur deines Avatars.</p>
+      <SectionLabel>{t('avatar.bodyType')}</SectionLabel>
+      <p className="text-xs text-text-muted mb-4 -mt-1">{t('avatar.bodyTypeDesc')}</p>
       <div className="grid grid-cols-3 gap-3">
         {BODY_TYPES.map((type) => (
           <button
@@ -181,7 +127,7 @@ function BodyTypeSelector({ selected, onChange, avatarConfig }) {
   )
 }
 
-function HatItemCard({ hat, isOwned, isEquipped, onSelect, avatarConfig }) {
+function HatItemCard({ hat, isOwned, isEquipped, onSelect, avatarConfig, t }) {
   const rarity = RARITY_CONFIG[hat.rarity] || RARITY_CONFIG.common
   const isFree = hat.price === 0
 
@@ -216,9 +162,9 @@ function HatItemCard({ hat, isOwned, isEquipped, onSelect, avatarConfig }) {
       <div className="flex items-center justify-between mt-1">
         <span className={`text-[10px] font-medium ${rarity.color}`}>{rarity.name}</span>
         {isFree ? (
-          <span className="text-[10px] text-success font-semibold">Gratis</span>
+          <span className="text-[10px] text-success font-semibold">{t('common.free')}</span>
         ) : isOwned ? (
-          <span className="text-[10px] text-accent font-semibold">Gekauft</span>
+          <span className="text-[10px] text-accent font-semibold">{t('common.purchased')}</span>
         ) : (
           <span className="flex items-center gap-0.5 text-[10px] text-warning font-semibold">
             <MindCoinIcon size={10} /> {hat.price}
@@ -234,7 +180,7 @@ function HatItemCard({ hat, isOwned, isEquipped, onSelect, avatarConfig }) {
   )
 }
 
-function AccessoryItemCard({ item, isOwned, isEquipped, onSelect, avatarConfig }) {
+function AccessoryItemCard({ item, isOwned, isEquipped, onSelect, avatarConfig, t }) {
   const isFree = item.price === 0
 
   return (
@@ -267,9 +213,9 @@ function AccessoryItemCard({ item, isOwned, isEquipped, onSelect, avatarConfig }
       <p className="text-xs font-semibold text-text-primary truncate">{item.name}</p>
       <div className="flex items-center justify-between mt-1">
         {isFree ? (
-          <span className="text-[10px] text-success font-semibold">Gratis</span>
+          <span className="text-[10px] text-success font-semibold">{t('common.free')}</span>
         ) : isOwned ? (
-          <span className="text-[10px] text-accent font-semibold">Gekauft</span>
+          <span className="text-[10px] text-accent font-semibold">{t('common.purchased')}</span>
         ) : (
           <span className="flex items-center gap-0.5 text-[10px] text-warning font-semibold">
             <MindCoinIcon size={10} /> {item.price}
@@ -285,7 +231,7 @@ function AccessoryItemCard({ item, isOwned, isEquipped, onSelect, avatarConfig }
   )
 }
 
-function PurchaseModal({ item, onClose, onConfirm, userBalance }) {
+function PurchaseModal({ item, onClose, onConfirm, userBalance, t }) {
   useEscapeKey(onClose)
 
   const canAfford = (userBalance || 0) >= item.price
@@ -295,7 +241,7 @@ function PurchaseModal({ item, onClose, onConfirm, userBalance }) {
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-bg-secondary rounded-2xl max-w-sm w-full overflow-hidden border border-gray-700 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="p-5 border-b border-gray-700/50 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Item kaufen</h2>
+          <h2 className="text-lg font-bold">{t('avatar.buyItem')}</h2>
           <button onClick={onClose} className="text-text-muted hover:text-text-primary text-lg cursor-pointer transition-colors">{'\u2715'}</button>
         </div>
 
@@ -307,15 +253,15 @@ function PurchaseModal({ item, onClose, onConfirm, userBalance }) {
 
           <div className="flex items-center justify-between bg-bg-card/60 rounded-xl p-4 border border-gray-700/30">
             <div>
-              <p className="text-xs text-text-muted">Preis</p>
+              <p className="text-xs text-text-muted">{t('common.price')}</p>
               <p className="text-lg font-bold text-warning flex items-center gap-1.5">
-                <MindCoinIcon size={20} /> {item.price} MC
+                <MindCoinIcon size={20} /> {item.price} {t('common.mc')}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-text-muted">Dein Guthaben</p>
+              <p className="text-xs text-text-muted">{t('avatar.yourBalance')}</p>
               <p className={`text-lg font-bold ${canAfford ? 'text-success' : 'text-error'} flex items-center gap-1.5 justify-end`}>
-                <MindCoinIcon size={20} /> {(userBalance || 0).toLocaleString('de-DE')} MC
+                <MindCoinIcon size={20} /> {(userBalance || 0).toLocaleString('de-DE')} {t('common.mc')}
               </p>
             </div>
           </div>
@@ -325,19 +271,19 @@ function PurchaseModal({ item, onClose, onConfirm, userBalance }) {
               onClick={() => onConfirm(item)}
               className="w-full py-3 rounded-xl bg-accent hover:bg-accent-dark text-white font-semibold transition-colors cursor-pointer shadow-lg shadow-accent/20"
             >
-              Kaufen fuer {item.price} MC
+              {t('avatar.buyFor', { price: item.price })}
             </button>
           ) : (
             <div className="text-center space-y-3">
               <p className="text-error text-sm font-medium">
-                Nicht genug MindCoins! Dir fehlen {item.price - (userBalance || 0)} MC.
+                {t('avatar.notEnoughCoins', { amount: item.price - (userBalance || 0) })}
               </p>
               <Link
                 to="/shop"
                 className="inline-block bg-warning hover:bg-yellow-600 text-black px-6 py-2.5 rounded-xl font-semibold transition-colors"
               >
                 <ShoppingBag size={14} className="inline mr-1.5 -mt-0.5" />
-                Zum Shop
+                {t('avatar.toShop')}
               </Link>
             </div>
           )}
@@ -349,10 +295,66 @@ function PurchaseModal({ item, onClose, onConfirm, userBalance }) {
 
 // ============= MAIN COMPONENT =============
 export default function Avatar() {
+  const { t } = useTranslation()
   const { user, updateUser } = useAuth()
   const [activeCategory, setActiveCategory] = useState('presets')
   const [purchaseItem, setPurchaseItem] = useState(null)
   const tabsRef = useRef(null)
+
+  const AVATAR_PRESETS = [
+    {
+      id: 'warrior', name: t('avatar.presetNames.warrior'), emoji: '\u2694\uFE0F',
+      config: { skinColor: '#D4A574', hairColor: '#1C1C1C', hairStyle: 'buzz', eyeType: 'almond', eyeColor: '#3E2723', eyebrows: 'angry', mouth: 'neutral', accessory: 'none', hat: 'none', clothing: 'tank', clothingColor: '#1a1a1a', bgStyle: 'gray', bodyType: 'wide' },
+    },
+    {
+      id: 'scholar', name: t('avatar.presetNames.scholar'), emoji: '\u{1F4DA}',
+      config: { skinColor: '#F5D6B8', hairColor: '#6B3A2A', hairStyle: 'short', eyeType: 'round', eyeColor: '#4A90D9', eyebrows: 'arched', mouth: 'smile', accessory: 'glasses', hat: 'none', clothing: 'suit', clothingColor: '#2c3e50', bgStyle: 'blue', bodyType: 'normal' },
+    },
+    {
+      id: 'artist', name: t('avatar.presetNames.artist'), emoji: '\u{1F3A8}',
+      config: { skinColor: '#FDEBD0', hairColor: '#E91E63', hairStyle: 'curly', eyeType: 'cat', eyeColor: '#5B8C5A', eyebrows: 'normal', mouth: 'smirk', accessory: 'earring', hat: 'beanie', clothing: 'hoodie', clothingColor: '#8e44ad', bgStyle: 'neon', bodyType: 'slim' },
+    },
+    {
+      id: 'hacker', name: t('avatar.presetNames.hacker'), emoji: '\u{1F4BB}',
+      config: { skinColor: '#C4956A', hairColor: '#2196F3', hairStyle: 'mohawk', eyeType: 'sleepy', eyeColor: '#8E8E8E', eyebrows: 'thick', mouth: 'smirk', accessory: 'sunglasses', hat: 'none', clothing: 'hoodie', clothingColor: '#1a1a1a', bgStyle: 'green', bodyType: 'normal' },
+    },
+    {
+      id: 'hero', name: t('avatar.presetNames.hero'), emoji: '\u{1F9B8}',
+      config: { skinColor: '#8D5524', hairColor: '#D4A843', hairStyle: 'short', eyeType: 'wide', eyeColor: '#D4A843', eyebrows: 'thick', mouth: 'grin', accessory: 'none', hat: 'none', clothing: 'jacket', clothingColor: '#c0392b', bgStyle: 'fire', bodyType: 'wide' },
+    },
+    {
+      id: 'mystic', name: t('avatar.presetNames.mystic'), emoji: '\u{1F52E}',
+      config: { skinColor: '#5C3317', hairColor: '#9E9E9E', hairStyle: 'long', eyeType: 'cat', eyeColor: '#9B59B6', eyebrows: 'arched', mouth: 'neutral', accessory: 'earring', hat: 'wizard', clothing: 'suit', clothingColor: '#4a1a6b', bgStyle: 'galaxy', bodyType: 'slim' },
+    },
+    {
+      id: 'ninja', name: t('avatar.presetNames.ninja'), emoji: '\u{1F977}',
+      config: { skinColor: '#D4A574', hairColor: '#1C1C1C', hairStyle: 'ponytail', eyeType: 'almond', eyeColor: '#3E2723', eyebrows: 'normal', mouth: 'neutral', accessory: 'mask', hat: 'none', clothing: 'jacket', clothingColor: '#1a1a1a', bgStyle: 'gray', bodyType: 'slim' },
+    },
+    {
+      id: 'punk', name: t('avatar.presetNames.punk'), emoji: '\u{1F3B8}',
+      config: { skinColor: '#FDEBD0', hairColor: '#8B2500', hairStyle: 'spiky', eyeType: 'round', eyeColor: '#C0392B', eyebrows: 'angry', mouth: 'open', accessory: 'earring', hat: 'none', clothing: 'tank', clothingColor: '#1a1a1a', bgStyle: 'sunset', bodyType: 'normal' },
+    },
+    {
+      id: 'pirate', name: t('avatar.presetNames.pirate'), emoji: '\u{1F3F4}\u200D\u2620\uFE0F',
+      config: { skinColor: '#C4956A', hairColor: '#2C1810', hairStyle: 'messy', eyeType: 'almond', eyeColor: '#6B3A2A', eyebrows: 'thick', mouth: 'smirk', accessory: 'earring', hat: 'pirate', clothing: 'jacket', clothingColor: '#2c3e50', bgStyle: 'ocean', bodyType: 'wide' },
+    },
+    {
+      id: 'royal', name: t('avatar.presetNames.noble'), emoji: '\u{1F451}',
+      config: { skinColor: '#F5D6B8', hairColor: '#D4A843', hairStyle: 'long', eyeType: 'almond', eyeColor: '#4A90D9', eyebrows: 'arched', mouth: 'smile', accessory: 'none', hat: 'crown', clothing: 'suit', clothingColor: '#8e44ad', bgStyle: 'purple', bodyType: 'normal' },
+    },
+  ]
+
+  const CATEGORIES = [
+    { id: 'presets', name: t('avatar.presets'), icon: Sparkles },
+    { id: 'body', name: t('avatar.body'), icon: PersonStanding },
+    { id: 'skin', name: t('avatar.skin'), icon: User },
+    { id: 'hair', name: t('avatar.hair'), icon: Scissors },
+    { id: 'face', name: t('avatar.face'), icon: Smile },
+    { id: 'hats', name: t('avatar.hats'), icon: Crown },
+    { id: 'clothing', name: t('avatar.clothing'), icon: Shirt },
+    { id: 'accessories', name: t('avatar.accessories'), icon: Glasses },
+    { id: 'background', name: t('avatar.background'), icon: Palette },
+  ]
 
   const savedConfig = useRef({
     skinColor: user?.avatar?.skinColor || '#F5D6B8',
@@ -488,11 +490,18 @@ export default function Avatar() {
   // ============= RENDER =============
   return (
     <div className="h-full max-w-[1400px] mx-auto">
+      <Helmet>
+        <title>Avatar | MindForge</title>
+        <meta name="description" content={t('avatar.subtitle')} />
+        <meta property="og:title" content="Avatar | MindForge" />
+        <meta property="og:description" content={t('avatar.subtitle')} />
+      </Helmet>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Avatar anpassen</h1>
-          <p className="text-sm text-text-muted mt-0.5">Gestalte deinen einzigartigen Charakter</p>
+          <h1 className="text-2xl font-bold text-text-primary">{t('avatar.title')}</h1>
+          <p className="text-sm text-text-muted mt-0.5">{t('avatar.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-sm bg-bg-secondary/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-gray-700/50 shadow-sm">
@@ -504,9 +513,9 @@ export default function Avatar() {
             saveStatus === 'saving' ? 'bg-accent/10 text-accent border-accent/20' :
             'bg-warning/10 text-warning border-warning/20'
           }`}>
-            {saveStatus === 'saved' ? 'Gespeichert' :
-             saveStatus === 'saving' ? 'Speichere...' :
-             'Ungespeichert'}
+            {saveStatus === 'saved' ? t('avatar.saved') :
+             saveStatus === 'saving' ? t('avatar.saving') :
+             t('avatar.unsaved')}
           </span>
         </div>
       </div>
@@ -551,7 +560,7 @@ export default function Avatar() {
               <p className="mt-4 text-lg font-bold text-text-primary">{user?.username}</p>
               <p className="text-text-muted text-xs flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                Live-Vorschau
+                {t('avatar.livePreview')}
               </p>
             </div>
           </div>
@@ -615,7 +624,7 @@ export default function Avatar() {
             {/* PRESETS */}
             {activeCategory === 'presets' && (
               <div>
-                <p className="text-xs text-text-muted mb-4">Waehle ein Preset als Startpunkt oder passe alles individuell an.</p>
+                <p className="text-xs text-text-muted mb-4">{t('avatar.presetsHint', 'Waehle ein Preset als Startpunkt oder passe alles individuell an.')}</p>
                 <div className="grid grid-cols-2 gap-3">
                   {AVATAR_PRESETS.map((preset) => (
                     <button
@@ -645,7 +654,7 @@ export default function Avatar() {
                         <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">
                           {preset.emoji} {preset.name}
                         </p>
-                        <p className="text-[11px] text-text-muted">Preset anwenden</p>
+                        <p className="text-[11px] text-text-muted">{t('avatar.applyPreset')}</p>
                       </div>
                     </button>
                   ))}
@@ -659,13 +668,14 @@ export default function Avatar() {
                 selected={avatarConfig.bodyType}
                 onChange={(type) => updateConfig('bodyType', type)}
                 avatarConfig={avatarConfig}
+                t={t}
               />
             )}
 
             {/* SKIN */}
             {activeCategory === 'skin' && (
               <ColorPicker
-                label="Hautfarbe"
+                label={t('avatar.skinColor')}
                 colors={SKIN_COLORS}
                 selected={avatarConfig.skinColor}
                 onChange={(color) => updateConfig('skinColor', color)}
@@ -676,14 +686,14 @@ export default function Avatar() {
             {activeCategory === 'hair' && (
               <>
                 <StyleGrid
-                  label="Frisur"
+                  label={t('avatar.hairStyle')}
                   options={HAIR_STYLES}
                   selected={avatarConfig.hairStyle}
                   onChange={(style) => updateConfig('hairStyle', style)}
                   columns={3}
                 />
                 <ColorPicker
-                  label="Haarfarbe"
+                  label={t('avatar.hairColor')}
                   colors={HAIR_COLORS}
                   selected={avatarConfig.hairColor}
                   onChange={(color) => updateConfig('hairColor', color)}
@@ -695,25 +705,25 @@ export default function Avatar() {
             {activeCategory === 'face' && (
               <>
                 <StyleGrid
-                  label="Augenform"
+                  label={t('avatar.eyeShape')}
                   options={EYE_TYPES}
                   selected={avatarConfig.eyeType}
                   onChange={(type) => updateConfig('eyeType', type)}
                 />
                 <ColorPicker
-                  label="Augenfarbe"
+                  label={t('avatar.eyeColor')}
                   colors={EYE_COLORS}
                   selected={avatarConfig.eyeColor}
                   onChange={(color) => updateConfig('eyeColor', color)}
                 />
                 <StyleGrid
-                  label="Augenbrauen"
+                  label={t('avatar.eyebrows')}
                   options={EYEBROW_TYPES}
                   selected={avatarConfig.eyebrows}
                   onChange={(type) => updateConfig('eyebrows', type)}
                 />
                 <StyleGrid
-                  label="Mund"
+                  label={t('avatar.mouth')}
                   options={MOUTH_TYPES}
                   selected={avatarConfig.mouth}
                   onChange={(type) => updateConfig('mouth', type)}
@@ -725,7 +735,7 @@ export default function Avatar() {
             {activeCategory === 'hats' && (
               <div>
                 <p className="text-xs text-text-muted mb-4">
-                  Kostenlose und Premium-Huete. Premium-Huete kaufst du mit MindCoins.
+                  {t('avatar.hatsDesc')}
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   {HAT_TYPES.map((hat) => (
@@ -736,6 +746,7 @@ export default function Avatar() {
                       isEquipped={avatarConfig.hat === hat.id}
                       onSelect={handleSelectHat}
                       avatarConfig={avatarConfig}
+                      t={t}
                     />
                   ))}
                 </div>
@@ -746,13 +757,13 @@ export default function Avatar() {
             {activeCategory === 'clothing' && (
               <>
                 <StyleGrid
-                  label="Kleidungsstil"
+                  label={t('avatar.clothingStyle')}
                   options={CLOTHING_TYPES}
                   selected={avatarConfig.clothing}
                   onChange={(style) => updateConfig('clothing', style)}
                 />
                 <ColorPicker
-                  label="Kleidungsfarbe"
+                  label={t('avatar.clothingColor')}
                   colors={CLOTHING_COLORS}
                   selected={avatarConfig.clothingColor}
                   onChange={(color) => updateConfig('clothingColor', color)}
@@ -764,7 +775,7 @@ export default function Avatar() {
             {activeCategory === 'accessories' && (
               <div>
                 <p className="text-xs text-text-muted mb-4">
-                  Accessoires fuer deinen Avatar. Einige kosten MindCoins.
+                  {t('avatar.accessoriesDesc')}
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   {ACCESSORY_TYPES.map((item) => (
@@ -775,6 +786,7 @@ export default function Avatar() {
                       isEquipped={avatarConfig.accessory === item.id}
                       onSelect={handleSelectAccessory}
                       avatarConfig={avatarConfig}
+                      t={t}
                     />
                   ))}
                 </div>
@@ -784,7 +796,7 @@ export default function Avatar() {
             {/* BACKGROUND */}
             {activeCategory === 'background' && (
               <div>
-                <SectionLabel>Hintergrund</SectionLabel>
+                <SectionLabel>{t('avatar.background')}</SectionLabel>
                 <div className="grid grid-cols-4 gap-3">
                   {BG_STYLES.map((bg) => (
                     <button
@@ -817,6 +829,7 @@ export default function Avatar() {
           onClose={() => setPurchaseItem(null)}
           onConfirm={handlePurchaseConfirm}
           userBalance={user?.mindCoins || 0}
+          t={t}
         />
       )}
     </div>

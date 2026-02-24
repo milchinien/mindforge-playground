@@ -17,10 +17,10 @@
 | [26-04](26-04-TYPESCRIPT.md) | TypeScript-Migration | Mittel |
 | [26-05](26-05-SEO.md) | SEO & Meta-Tags | Mittel |
 | [26-06](26-06-I18N.md) | Internationalisierung (i18n) | Nice-to-have |
-| [26-07](26-07-STATE-MANAGEMENT.md) | State Management | Mittel |
-| [26-08](26-08-ERROR-HANDLING.md) | Error Handling & Monitoring | Hoch |
-| [26-09](26-09-CODE-QUALITAET.md) | Code-Qualität & Duplikate | Hoch |
-| [26-10](26-10-TESTING.md) | Testing & QA | Hoch |
+| [26-07](26-07-STATE-MANAGEMENT.md) | State Management | ~~Mittel~~ Implementiert |
+| [26-08](26-08-ERROR-HANDLING.md) | Error Handling & Monitoring | ~~Hoch~~ Implementiert |
+| [26-09](26-09-CODE-QUALITAET.md) | Code-Qualität & Duplikate | ~~Hoch~~ Implementiert |
+| [26-10](26-10-TESTING.md) | Testing & QA | ~~Hoch~~ Implementiert |
 | [26-11](26-11-UX-NAVIGATION.md) | UX & Navigation | Hoch |
 | [26-12](26-12-ONBOARDING.md) | Onboarding & Erste Schritte | Mittel |
 | [26-13](26-13-GAMIFICATION.md) | Gamification-Erweiterungen | Nice-to-have |

@@ -1,7 +1,5 @@
-import { createContext, useContext, useState, useCallback } from 'react'
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react'
-
-const ToastContext = createContext()
+import { useToastStore } from '../stores/toastStore'
 
 const icons = {
   success: CheckCircle,
@@ -18,22 +16,11 @@ const colors = {
 }
 
 export function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState([])
-
-  const showToast = useCallback((message, type = 'info') => {
-    const id = Date.now()
-    setToasts((prev) => [...prev, { id, message, type }])
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 4000)
-  }, [])
-
-  const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
+  const toasts = useToastStore((s) => s.toasts)
+  const removeToast = useToastStore((s) => s.removeToast)
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <>
       {children}
       <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
         {toasts.map((toast) => {
@@ -52,10 +39,11 @@ export function ToastProvider({ children }) {
           )
         })}
       </div>
-    </ToastContext.Provider>
+    </>
   )
 }
 
 export function useToast() {
-  return useContext(ToastContext)
+  const showToast = useToastStore((s) => s.showToast)
+  return { showToast }
 }

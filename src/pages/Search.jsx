@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, SlidersHorizontal, Eye, Heart, ThumbsDown, Play } from 'lucide-react'
 import { mockGames } from '../data/mockGames'
 import { formatNumber } from '../utils/formatters'
@@ -48,14 +50,7 @@ function sortGames(games, sortBy) {
   }
 }
 
-const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Relevanz' },
-  { value: 'popular', label: 'Beliebt' },
-  { value: 'new', label: 'Neueste' },
-  { value: 'mostPlayed', label: 'Meistgespielt' },
-]
-
-function SearchResultItem({ game }) {
+function SearchResultItem({ game, t }) {
   const navigate = useNavigate()
   const config = getSubjectConfig(game.subject)
 
@@ -90,7 +85,7 @@ function SearchResultItem({ game }) {
         </div>
 
         <p className="text-text-muted text-sm mt-0.5">
-          von{' '}
+          {t('game.by')}{' '}
           <Link
             to={`/profile/${game.creator}`}
             onClick={(e) => e.stopPropagation()}
@@ -118,6 +113,7 @@ function SearchResultItem({ game }) {
 }
 
 export default function Search() {
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
   const tag = searchParams.get('tag') || ''
@@ -126,6 +122,13 @@ export default function Search() {
   const [localQuery, setLocalQuery] = useState(query)
   const [sortBy, setSortBy] = useState(sortParam)
   const [results, setResults] = useState([])
+
+  const SORT_OPTIONS = [
+    { value: 'relevance', label: t('search.sortRelevance') },
+    { value: 'popular', label: t('search.sortPopular') },
+    { value: 'new', label: t('search.sortNew') },
+    { value: 'mostPlayed', label: t('search.sortMostPlayed') },
+  ]
 
   useEffect(() => {
     setLocalQuery(query)
@@ -157,12 +160,19 @@ export default function Search() {
 
   return (
     <div className="py-4 max-w-4xl mx-auto">
+      <Helmet>
+        <title>Search | MindForge</title>
+        <meta name="description" content="Search for learning games on MindForge." />
+        <meta property="og:title" content="Search | MindForge" />
+        <meta property="og:description" content="Search for learning games on MindForge." />
+      </Helmet>
+
       {/* Header */}
       <div className="mb-6">
-        {query && <h1 className="text-2xl font-bold">Suchergebnisse fuer &quot;{query}&quot;</h1>}
-        {tag && !query && <h1 className="text-2xl font-bold">Spiele mit Tag #{tag}</h1>}
-        {!query && !tag && <h1 className="text-2xl font-bold">Suche</h1>}
-        <p className="text-text-secondary mt-1">{results.length} Ergebnisse gefunden</p>
+        {query && <h1 className="text-2xl font-bold">{t('search.resultsFor', { query })}</h1>}
+        {tag && !query && <h1 className="text-2xl font-bold">{t('search.gamesWithTag', { tag })}</h1>}
+        {!query && !tag && <h1 className="text-2xl font-bold">{t('search.title')}</h1>}
+        <p className="text-text-secondary mt-1">{t('search.resultsFound', { count: results.length })}</p>
       </div>
 
       {/* Search input */}
@@ -173,7 +183,7 @@ export default function Search() {
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
           onKeyDown={handleLocalSearch}
-          placeholder="Spiele suchen..."
+          placeholder={t('search.searchPlaceholder')}
           className="!pl-12 !py-3 !text-lg"
         />
       </div>
@@ -182,9 +192,9 @@ export default function Search() {
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <div className="flex items-center gap-2 flex-wrap">
           <SlidersHorizontal size={16} className="text-text-muted hidden sm:block" />
-          <span className="text-sm bg-accent/20 text-accent px-3 py-1 rounded-full font-medium">Spiele</span>
-          <span className="text-sm bg-bg-card text-text-muted px-3 py-1 rounded-full cursor-not-allowed hidden sm:inline" title="Kommt bald">Creators</span>
-          <span className="text-sm bg-bg-card text-text-muted px-3 py-1 rounded-full cursor-not-allowed hidden sm:inline" title="Kommt bald">Assets</span>
+          <span className="text-sm bg-accent/20 text-accent px-3 py-1 rounded-full font-medium">{t('search.games')}</span>
+          <span className="text-sm bg-bg-card text-text-muted px-3 py-1 rounded-full cursor-not-allowed hidden sm:inline" title={t('common.comingSoon')}>{t('search.creators')}</span>
+          <span className="text-sm bg-bg-card text-text-muted px-3 py-1 rounded-full cursor-not-allowed hidden sm:inline" title={t('common.comingSoon')}>{t('search.assets')}</span>
         </div>
 
         <div className="ml-auto">
@@ -204,31 +214,31 @@ export default function Search() {
       {results.length > 0 ? (
         <div className="space-y-3">
           {results.map(game => (
-            <SearchResultItem key={game.id} game={game} />
+            <SearchResultItem key={game.id} game={game} t={t} />
           ))}
         </div>
       ) : (query || tag) ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">&#128269;</div>
-          <h2 className="text-xl font-bold mb-2">Keine Ergebnisse gefunden</h2>
+          <h2 className="text-xl font-bold mb-2">{t('search.noResults')}</h2>
           <p className="text-text-secondary mb-6">
             {query
-              ? `Fuer "${query}" wurden keine Spiele gefunden.`
-              : `Keine Spiele mit dem Tag #${tag} gefunden.`}
+              ? t('search.noResultsForQuery', { query })
+              : t('search.noResultsForTag', { tag })}
           </p>
           <p className="text-text-muted mb-6">
-            Versuche einen anderen Suchbegriff oder stoebre im Mindbrowser.
+            {t('search.tryOther')}
           </p>
           <Link to="/browse" className="bg-accent hover:bg-accent-dark px-6 py-3 rounded-lg font-semibold inline-block text-white transition-colors">
-            Zum Mindbrowser
+            {t('search.toMindbrowser')}
           </Link>
         </div>
       ) : (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">&#128269;</div>
-          <h2 className="text-xl font-bold mb-2">Wonach suchst du?</h2>
+          <h2 className="text-xl font-bold mb-2">{t('search.whatAreYouLooking')}</h2>
           <p className="text-text-secondary">
-            Gib einen Suchbegriff ein um Spiele zu finden.
+            {t('search.enterSearchTerm')}
           </p>
         </div>
       )}

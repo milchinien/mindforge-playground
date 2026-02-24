@@ -1,11 +1,13 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import LoadingSpinner from './components/common/LoadingSpinner'
 import ErrorBoundary from './components/common/ErrorBoundary'
+import { useTranslation } from 'react-i18next'
 
 // Lazy-loaded pages for code splitting
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -41,16 +43,19 @@ function PageLoader() {
 }
 
 function Placeholder({ title }) {
+  const { t } = useTranslation()
   return (
     <div className="text-center py-20">
       <h1 className="text-3xl font-bold mb-4">{title}</h1>
-      <p className="text-text-secondary">Diese Seite wird bald implementiert.</p>
+      <p className="text-text-secondary">{t('common.placeholderPage')}</p>
     </div>
   )
 }
 
 function App() {
+  const { t } = useTranslation()
   return (
+    <HelmetProvider>
     <ErrorBoundary>
     <AuthProvider>
       <ToastProvider>
@@ -96,7 +101,7 @@ function App() {
                       {/* Teacher-only */}
                       <Route path="/teacher" element={<ProtectedRoute requireTeacher><TeacherDashboard /></ProtectedRoute>} />
 
-                      <Route path="*" element={<Placeholder title="404 - Seite nicht gefunden" />} />
+                      <Route path="*" element={<Placeholder title={t('common.pageNotFound')} />} />
                     </Routes>
                   </Suspense>
                 </Layout>
@@ -107,6 +112,7 @@ function App() {
       </ToastProvider>
     </AuthProvider>
     </ErrorBoundary>
+    </HelmetProvider>
   )
 }
 

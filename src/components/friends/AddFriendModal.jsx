@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import useEscapeKey from '../../hooks/useEscapeKey'
 
 export default function AddFriendModal({ onClose, onSendRequest }) {
+  const { t } = useTranslation()
   useEscapeKey(onClose)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
@@ -37,11 +39,11 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-         role="dialog" aria-modal="true" aria-label="Freund hinzufuegen"
+         role="dialog" aria-modal="true" aria-label={t('friends.addFriendTitle')}
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-md w-full p-6"
            onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-xl font-bold mb-4">Freund hinzufuegen</h2>
+        <h2 className="text-xl font-bold mb-4">{t('friends.addFriendTitle')}</h2>
 
         {/* Suchfeld */}
         <div className="flex gap-2 mb-4">
@@ -50,7 +52,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder="Username suchen..."
+            placeholder={t('friends.searchUsername')}
             className="flex-1 bg-bg-hover text-text-primary border border-gray-600
                        rounded-lg px-4 py-2"
           />
@@ -60,7 +62,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
             className="bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded-lg
                        font-medium transition-colors disabled:opacity-50"
           >
-            {isSearching ? '...' : 'Suchen'}
+            {isSearching ? '...' : t('friends.search')}
           </button>
         </div>
 
@@ -86,14 +88,14 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
                     : 'bg-accent hover:bg-accent-dark text-white'
                   }`}
               >
-                {sentRequests.includes(user.uid) ? 'Gesendet' : 'Anfrage senden'}
+                {sentRequests.includes(user.uid) ? t('friends.sent') : t('friends.sendRequest')}
               </button>
             </div>
           ))}
 
           {searchResults.length === 0 && hasSearched && !isSearching && (
             <p className="text-center text-text-muted py-8">
-              Kein User mit diesem Namen gefunden.
+              {t('friends.notFound')}
             </p>
           )}
         </div>
@@ -103,7 +105,7 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
           className="w-full mt-4 bg-bg-hover hover:bg-gray-500 text-text-primary py-2
                      rounded-lg font-medium transition-colors"
         >
-          Schliessen
+          {t('common.close')}
         </button>
       </div>
     </div>

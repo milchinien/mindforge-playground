@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { isTeacherPremium } from '../utils/premiumChecks'
 import useEscapeKey from '../hooks/useEscapeKey'
@@ -121,7 +123,7 @@ const AVAILABLE_GAMES = [
   { id: 'geschichts-quiz', name: 'Geschichts-Quiz: Mittelalter' },
 ]
 
-function QuickStats({ classes }) {
+function QuickStats({ classes, t }) {
   const totalStudents = classes.reduce((sum, c) => sum + c.students.length, 0)
   const totalAssignments = classes.reduce((sum, c) => sum + c.assignments.length, 0)
 
@@ -137,10 +139,10 @@ function QuickStats({ classes }) {
   const avgCompletion = totalPossible > 0 ? Math.round((totalCompletions / totalPossible) * 100) : 0
 
   const stats = [
-    { label: 'Klassen', value: classes.length, icon: '\u{1F3EB}' },
-    { label: 'Schueler', value: totalStudents, icon: '\u{1F464}' },
-    { label: 'Aufgaben', value: totalAssignments, icon: '\u{1F4CB}' },
-    { label: 'Abschluss', value: `${avgCompletion}%`, icon: '\u2705' },
+    { label: t('teacher.classes'), value: classes.length, icon: '\u{1F3EB}' },
+    { label: t('teacher.students'), value: totalStudents, icon: '\u{1F464}' },
+    { label: t('teacher.assignments'), value: totalAssignments, icon: '\u{1F4CB}' },
+    { label: t('teacher.completion'), value: `${avgCompletion}%`, icon: '\u2705' },
   ]
 
   return (
@@ -156,11 +158,11 @@ function QuickStats({ classes }) {
   )
 }
 
-function ClassSidebar({ classes, selectedClass, onSelect, onCreateNew }) {
+function ClassSidebar({ classes, selectedClass, onSelect, onCreateNew, t }) {
   return (
     <div className="w-full md:w-64 flex-shrink-0">
       <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-        Meine Klassen
+        {t('teacher.myClasses')}
       </h3>
       <div className="space-y-2">
         {classes.map((cls) => (
@@ -175,7 +177,7 @@ function ClassSidebar({ classes, selectedClass, onSelect, onCreateNew }) {
           >
             <p className="font-medium">{cls.name}</p>
             <p className="text-sm text-text-muted mt-0.5">
-              {cls.students.length} Schueler
+              {cls.students.length} {t('teacher.students')}
             </p>
           </button>
         ))}
@@ -186,13 +188,13 @@ function ClassSidebar({ classes, selectedClass, onSelect, onCreateNew }) {
                    text-text-muted hover:text-text-primary hover:border-gray-500
                    rounded-lg transition-colors text-sm"
       >
-        + Neue Klasse
+        {t('teacher.newClass')}
       </button>
     </div>
   )
 }
 
-function AssignmentCard({ assignment, totalStudents }) {
+function AssignmentCard({ assignment, totalStudents, t }) {
   const completionCount = Object.values(assignment.completions).filter(Boolean).length
   const completionPercent = totalStudents > 0 ? Math.round((completionCount / totalStudents) * 100) : 0
   const deadlineDate = new Date(assignment.deadline).toLocaleDateString('de-DE', {
@@ -208,10 +210,10 @@ function AssignmentCard({ assignment, totalStudents }) {
         <div>
           <h3 className="font-semibold text-text-primary">{assignment.gameName}</h3>
           <p className="text-sm text-text-muted mt-1">
-            Deadline: {deadlineDate}
-            {isOverdue && <span className="text-error ml-2">(Ueberfaellig!)</span>}
-            {isUrgent && <span className="text-warning ml-2">({daysLeft} Tage!)</span>}
-            {!isOverdue && !isUrgent && <span className="text-text-muted ml-2">({daysLeft} Tage)</span>}
+            {t('teacher.deadline', { date: deadlineDate })}
+            {isOverdue && <span className="text-error ml-2">{t('teacher.overdue')}</span>}
+            {isUrgent && <span className="text-warning ml-2">{t('teacher.daysLeft', { count: daysLeft })}</span>}
+            {!isOverdue && !isUrgent && <span className="text-text-muted ml-2">{t('teacher.daysRemaining', { count: daysLeft })}</span>}
           </p>
         </div>
         <span className={`text-sm font-bold px-3 py-1 rounded-full
@@ -222,11 +224,11 @@ function AssignmentCard({ assignment, totalStudents }) {
         </span>
       </div>
 
-      {/* Fortschrittsbalken */}
+      {/* Progress bar */}
       <div className="mt-3">
         <div className="flex justify-between text-xs text-text-muted mb-1">
-          <span>Abgeschlossen</span>
-          <span>{completionCount}/{totalStudents} Schueler</span>
+          <span>{t('teacher.completed')}</span>
+          <span>{t('teacher.studentsCompleted', { completed: completionCount, total: totalStudents })}</span>
         </div>
         <div className="w-full bg-bg-hover rounded-full h-2.5">
           <div
@@ -241,7 +243,7 @@ function AssignmentCard({ assignment, totalStudents }) {
   )
 }
 
-function ClassDetail({ cls, onAssignGame }) {
+function ClassDetail({ cls, onAssignGame, t }) {
   return (
     <div className="flex-1">
       <div className="flex items-center justify-between mb-6">
@@ -254,22 +256,23 @@ function ClassDetail({ cls, onAssignGame }) {
           className="bg-accent hover:bg-accent-dark text-white px-4 py-2
                      rounded-lg font-medium text-sm transition-colors"
         >
-          + Aufgabe zuweisen
+          {t('teacher.assignTask')}
         </button>
       </div>
 
-      {/* Schueler-Uebersicht */}
+      {/* Student overview */}
       <p className="text-sm text-text-muted mb-4">
-        {cls.students.length} Schueler eingeschrieben
+        {t('teacher.studentsEnrolled', { count: cls.students.length })}
       </p>
 
-      {/* Aufgaben-Liste */}
+      {/* Assignment list */}
       <div className="space-y-4">
         {cls.assignments.map((assignment) => (
           <AssignmentCard
             key={assignment.id}
             assignment={assignment}
             totalStudents={cls.students.length}
+            t={t}
           />
         ))}
       </div>
@@ -277,19 +280,18 @@ function ClassDetail({ cls, onAssignGame }) {
       {cls.assignments.length === 0 && (
         <div className="text-center py-12 text-text-muted">
           <span className="text-4xl block mb-2">{'\u{1F4CB}'}</span>
-          Noch keine Aufgaben zugewiesen.
+          {t('teacher.noAssignments')}
         </div>
       )}
 
       <p className="text-text-muted text-sm mt-6">
-        Schueler-Einschreibung: In einer spaeteren Version koennen Schueler ueber einen
-        Klassen-Code beitreten.
+        {t('teacher.enrollmentNote')}
       </p>
     </div>
   )
 }
 
-function CreateClassModal({ isOpen, onClose, onCreate }) {
+function CreateClassModal({ isOpen, onClose, onCreate, t }) {
   const [className, setClassName] = useState('')
   const [classDescription, setClassDescription] = useState('')
   useEscapeKey(onClose, isOpen)
@@ -313,34 +315,34 @@ function CreateClassModal({ isOpen, onClose, onCreate }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-         role="dialog" aria-modal="true" aria-label="Neue Klasse erstellen"
+         role="dialog" aria-modal="true" aria-label={t('teacher.createClass')}
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-md w-full p-6"
            onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-xl font-bold mb-4">Neue Klasse erstellen</h2>
+        <h2 className="text-xl font-bold mb-4">{t('teacher.createClass')}</h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
-              Klassenname *
+              {t('teacher.className')}
             </label>
             <input
               type="text"
               value={className}
               onChange={(e) => setClassName(e.target.value)}
-              placeholder="z.B. Mathe 10a"
+              placeholder={t('teacher.classNamePlaceholder')}
               className="w-full bg-bg-hover text-text-primary border border-gray-600
                          rounded-lg px-4 py-3"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
-              Beschreibung
+              {t('teacher.classDescription')}
             </label>
             <textarea
               value={classDescription}
               onChange={(e) => setClassDescription(e.target.value)}
-              placeholder="z.B. Mathematik Klasse 10a, Schuljahr 2024/2025"
+              placeholder={t('teacher.classDescPlaceholder')}
               rows={3}
               className="w-full bg-bg-hover text-text-primary border border-gray-600
                          rounded-lg px-4 py-3 resize-none"
@@ -354,7 +356,7 @@ function CreateClassModal({ isOpen, onClose, onCreate }) {
             className="flex-1 bg-bg-hover hover:bg-gray-500 text-text-primary py-2
                        rounded-lg font-medium transition-colors"
           >
-            Abbrechen
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleCreate}
@@ -362,7 +364,7 @@ function CreateClassModal({ isOpen, onClose, onCreate }) {
             className="flex-1 bg-accent hover:bg-accent-dark text-white py-2 rounded-lg
                        font-semibold transition-colors disabled:opacity-50"
           >
-            Erstellen
+            {t('teacher.create')}
           </button>
         </div>
       </div>
@@ -370,7 +372,7 @@ function CreateClassModal({ isOpen, onClose, onCreate }) {
   )
 }
 
-function AssignGameModal({ isOpen, onClose, onAssign, className }) {
+function AssignGameModal({ isOpen, onClose, onAssign, className, t }) {
   const [selectedGame, setSelectedGame] = useState('')
   const [deadline, setDeadline] = useState('')
   useEscapeKey(onClose, isOpen)
@@ -396,17 +398,17 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-         role="dialog" aria-modal="true" aria-label="Aufgabe zuweisen"
+         role="dialog" aria-modal="true" aria-label={t('teacher.assignGame')}
          onClick={onClose}>
       <div className="bg-bg-secondary rounded-xl max-w-md w-full p-6"
            onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-xl font-bold mb-2">Aufgabe zuweisen</h2>
-        <p className="text-text-muted text-sm mb-4">Klasse: {className}</p>
+        <h2 className="text-xl font-bold mb-2">{t('teacher.assignGame')}</h2>
+        <p className="text-text-muted text-sm mb-4">{t('teacher.forClass', { name: className })}</p>
 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
-              Spiel auswaehlen *
+              {t('teacher.selectGame')}
             </label>
             <select
               value={selectedGame}
@@ -414,7 +416,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
               className="w-full bg-bg-hover text-text-primary border border-gray-600
                          rounded-lg px-4 py-3"
             >
-              <option value="">Spiel waehlen...</option>
+              <option value="">{t('teacher.selectGamePlaceholder')}</option>
               {AVAILABLE_GAMES.map((game) => (
                 <option key={game.id} value={game.id}>{game.name}</option>
               ))}
@@ -422,7 +424,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
-              Deadline *
+              {t('teacher.deadlineLabel')}
             </label>
             <input
               type="date"
@@ -441,7 +443,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
             className="flex-1 bg-bg-hover hover:bg-gray-500 text-text-primary py-2
                        rounded-lg font-medium transition-colors"
           >
-            Abbrechen
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleAssign}
@@ -449,7 +451,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
             className="flex-1 bg-accent hover:bg-accent-dark text-white py-2 rounded-lg
                        font-semibold transition-colors disabled:opacity-50"
           >
-            Zuweisen
+            {t('teacher.assign')}
           </button>
         </div>
       </div>
@@ -459,6 +461,7 @@ function AssignGameModal({ isOpen, onClose, onAssign, className }) {
 
 export default function TeacherDashboard() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [classes, setClasses] = useState(MOCK_CLASSES)
   const [selectedClassId, setSelectedClassId] = useState(MOCK_CLASSES[0]?.id)
   const [showCreateClassModal, setShowCreateClassModal] = useState(false)
@@ -466,24 +469,29 @@ export default function TeacherDashboard() {
 
   const selectedClass = classes.find(c => c.id === selectedClassId) || null
 
-  // Redirect wenn kein Teacher Premium
+  // Redirect when no Teacher Premium
   if (!isTeacherPremium(user)) {
     return (
       <div className="max-w-2xl mx-auto p-6 text-center py-20">
+        <Helmet>
+          <title>Teacher Dashboard | MindForge</title>
+          <meta name="description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
+          <meta property="og:title" content="Teacher Dashboard | MindForge" />
+          <meta property="og:description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
+        </Helmet>
         <span className="text-6xl block mb-4">{'\u{1F469}\u200D\u{1F3EB}'}</span>
         <h2 className="text-2xl font-bold text-text-primary mb-4">
-          Teacher Premium erforderlich
+          {t('teacher.premiumRequired')}
         </h2>
         <p className="text-text-muted mb-6">
-          Das Teacher Dashboard ist exklusiv fuer Teacher Premium Mitglieder.
-          Erstelle Klassen, weise Spiele zu und verfolge den Fortschritt deiner Schueler.
+          {t('teacher.premiumDesc')}
         </p>
         <Link
           to="/premium"
           className="inline-block bg-accent hover:bg-accent-dark text-white px-8 py-3
                      rounded-lg font-semibold transition-colors"
         >
-          Teacher Premium entdecken
+          {t('teacher.discoverPremium')}
         </Link>
       </div>
     )
@@ -504,27 +512,36 @@ export default function TeacherDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">Teacher Dashboard</h1>
+      <Helmet>
+        <title>Teacher Dashboard | MindForge</title>
+        <meta name="description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
+        <meta property="og:title" content="Teacher Dashboard | MindForge" />
+        <meta property="og:description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
+      </Helmet>
+
+      <h1 className="text-3xl font-bold mb-2">{t('teacher.title')}</h1>
       <p className="text-text-muted mb-8">
-        Hallo, {user?.username || 'Lehrer'}! {'\u{1F469}\u200D\u{1F3EB}'}
+        {t('teacher.greeting', { name: user?.username || 'Lehrer' })} {'\u{1F469}\u200D\u{1F3EB}'}
       </p>
 
-      {/* Schnell-Statistiken */}
-      <QuickStats classes={classes} />
+      {/* Quick Stats */}
+      <QuickStats classes={classes} t={t} />
 
-      {/* Hauptbereich: Sidebar + Detail */}
+      {/* Main area: Sidebar + Detail */}
       <div className="flex flex-col md:flex-row gap-6">
         <ClassSidebar
           classes={classes}
           selectedClass={selectedClass}
           onSelect={(cls) => setSelectedClassId(cls.id)}
           onCreateNew={() => setShowCreateClassModal(true)}
+          t={t}
         />
 
         {selectedClass && (
           <ClassDetail
             cls={selectedClass}
             onAssignGame={() => setShowAssignGameModal(true)}
+            t={t}
           />
         )}
       </div>
@@ -534,6 +551,7 @@ export default function TeacherDashboard() {
         isOpen={showCreateClassModal}
         onClose={() => setShowCreateClassModal(false)}
         onCreate={handleCreateClass}
+        t={t}
       />
 
       <AssignGameModal
@@ -541,6 +559,7 @@ export default function TeacherDashboard() {
         onClose={() => setShowAssignGameModal(false)}
         onAssign={handleAssignGame}
         className={selectedClass?.name}
+        t={t}
       />
     </div>
   )

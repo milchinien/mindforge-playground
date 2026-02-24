@@ -1,31 +1,29 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 
-const RARITY_CONFIG = {
+const RARITY_STYLES = {
   common: {
-    name: 'Gewoehnlich',
     color: 'text-gray-400',
     bgColor: 'bg-gray-400/10',
     borderColor: 'border-gray-400/30',
     badgeBg: 'bg-gray-500/20',
   },
   rare: {
-    name: 'Selten',
     color: 'text-blue-400',
     bgColor: 'bg-blue-400/10',
     borderColor: 'border-blue-400/30',
     badgeBg: 'bg-blue-500/20',
   },
   epic: {
-    name: 'Episch',
     color: 'text-purple-400',
     bgColor: 'bg-purple-400/10',
     borderColor: 'border-purple-400/30',
     badgeBg: 'bg-purple-500/20',
   },
   legendary: {
-    name: 'Legendaer',
     color: 'text-orange-400',
     bgColor: 'bg-orange-400/10',
     borderColor: 'border-orange-400/30',
@@ -39,26 +37,21 @@ const DEFAULT_ITEMS = [
   { id: 'item-3', name: 'Sternen-Hintergrund', icon: '\u2728', rarity: 'rare', type: 'background', effect: 'galaxy', source: 'Starterset' },
 ]
 
-const TYPE_LABELS = {
-  frame: 'Rahmen',
-  hair_color: 'Haarfarbe',
-  background: 'Hintergrund',
-  effect: 'Effekt',
-  accessory: 'Accessoire',
-}
-
-const TABS = [
-  { id: 'avatarItems', label: 'Avatar Items' },
-  { id: 'games', label: 'Gekaufte Spiele' },
-  { id: 'assets', label: 'Assets' },
-]
-
 function InventoryItemCard({ item, isEquipped, onToggleEquip }) {
-  const rarity = RARITY_CONFIG[item.rarity] || RARITY_CONFIG.common
+  const { t } = useTranslation()
+  const rarityStyle = RARITY_STYLES[item.rarity] || RARITY_STYLES.common
+
+  const TYPE_KEY_MAP = {
+    frame: 'frame',
+    hair_color: 'hairColor',
+    background: 'background',
+    effect: 'effect',
+    accessory: 'accessory',
+  }
 
   return (
-    <div className={`bg-bg-card rounded-xl p-4 border ${isEquipped ? 'border-accent ring-2 ring-accent/30' : rarity.borderColor} hover:scale-[1.02] transition-transform`}>
-      <div className={`w-full aspect-square rounded-lg ${rarity.bgColor} flex items-center justify-center text-4xl mb-3 relative`}>
+    <div className={`bg-bg-card rounded-xl p-4 border ${isEquipped ? 'border-accent ring-2 ring-accent/30' : rarityStyle.borderColor} hover:scale-[1.02] transition-transform`}>
+      <div className={`w-full aspect-square rounded-lg ${rarityStyle.bgColor} flex items-center justify-center text-4xl mb-3 relative`}>
         {item.icon}
         {isEquipped && (
           <div className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center">
@@ -68,11 +61,13 @@ function InventoryItemCard({ item, isEquipped, onToggleEquip }) {
       </div>
       <h3 className="text-sm font-semibold text-text-primary truncate">{item.name}</h3>
       <div className="flex items-center gap-2 mt-1">
-        <span className={`inline-block text-xs px-2 py-0.5 rounded-full ${rarity.badgeBg} ${rarity.color}`}>
-          {rarity.name}
+        <span className={`inline-block text-xs px-2 py-0.5 rounded-full ${rarityStyle.badgeBg} ${rarityStyle.color}`}>
+          {t(`inventory.rarity.${item.rarity}`)}
         </span>
         {item.type && (
-          <span className="text-xs text-text-muted">{TYPE_LABELS[item.type] || item.type}</span>
+          <span className="text-xs text-text-muted">
+            {TYPE_KEY_MAP[item.type] ? t(`inventory.type.${TYPE_KEY_MAP[item.type]}`) : item.type}
+          </span>
         )}
       </div>
       {item.source && (
@@ -86,7 +81,7 @@ function InventoryItemCard({ item, isEquipped, onToggleEquip }) {
             : 'bg-bg-hover text-text-secondary hover:bg-accent/20 hover:text-accent'
         }`}
       >
-        {isEquipped ? 'Ablegen' : 'Anlegen'}
+        {isEquipped ? t('common.unequip') : t('common.equip')}
       </button>
     </div>
   )
@@ -111,6 +106,7 @@ function EmptyTabState({ icon, title, description, actionLabel, actionLink }) {
 }
 
 export default function Inventory() {
+  const { t } = useTranslation()
   const { user, updateUser } = useAuth()
   const [activeTab, setActiveTab] = useState('avatarItems')
 
@@ -147,19 +143,28 @@ export default function Inventory() {
     })
   }
 
-  const tabs = TABS.map(tab => ({
-    ...tab,
-    count: tab.id === 'avatarItems' ? allItems.length : 0,
-  }))
+  const TABS = [
+    { id: 'avatarItems', label: t('inventory.avatarItems'), count: allItems.length },
+    { id: 'games', label: t('inventory.purchasedGames'), count: 0 },
+    { id: 'assets', label: t('inventory.assets'), count: 0 },
+  ]
 
   return (
     <div className="py-4 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Inventar</h1>
+      <Helmet>
+        <title>{t('inventory.title')} | MindForge</title>
+        <meta name="description" content={t('inventory.title')} />
+        <meta property="og:title" content={`${t('inventory.title')} | MindForge`} />
+        <meta property="og:description" content={t('inventory.title')} />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
+      <h1 className="text-3xl font-bold mb-6">{t('inventory.title')}</h1>
 
       {/* Active Equipment Summary */}
       {Object.keys(equippedItems).length > 0 && (
         <div className="bg-bg-card rounded-xl p-4 mb-6 border border-accent/20">
-          <h3 className="text-sm font-semibold text-accent mb-2">Ausgeruestet</h3>
+          <h3 className="text-sm font-semibold text-accent mb-2">{t('inventory.equipped')}</h3>
           <div className="flex flex-wrap gap-2">
             {Object.entries(equippedItems).map(([type, itemId]) => {
               const item = allItems.find(i => i.id === itemId)
@@ -182,7 +187,7 @@ export default function Inventory() {
 
       {/* Tab Navigation */}
       <div className="flex border-b border-gray-700 mb-6">
-        {tabs.map((tab) => (
+        {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -219,9 +224,9 @@ export default function Inventory() {
         ) : (
           <EmptyTabState
             icon={'\u{1F464}'}
-            title="Keine Avatar Items"
-            description="Kaufe Items im Marketplace, um deinen Avatar anzupassen!"
-            actionLabel="Zum Marketplace"
+            title={t('inventory.noAvatarItems')}
+            description={t('inventory.noAvatarItemsDesc')}
+            actionLabel={t('inventory.toMarketplace')}
             actionLink="/marketplace"
           />
         )
@@ -230,9 +235,9 @@ export default function Inventory() {
       {activeTab === 'games' && (
         <EmptyTabState
           icon={'\u{1F3AE}'}
-          title="Keine gekauften Spiele"
-          description="Spiele die du im Marketplace kaufst, erscheinen hier."
-          actionLabel="Zum Marketplace"
+          title={t('inventory.noGames')}
+          description={t('inventory.noGamesDesc')}
+          actionLabel={t('inventory.toMarketplace')}
           actionLink="/marketplace"
         />
       )}
@@ -240,9 +245,9 @@ export default function Inventory() {
       {activeTab === 'assets' && (
         <EmptyTabState
           icon={'\u{1F4E6}'}
-          title="Keine Assets"
-          description="Assets die du herunterlaedst oder kaufst, erscheinen hier."
-          actionLabel="Assets durchsuchen"
+          title={t('inventory.noAssets')}
+          description={t('inventory.noAssetsDesc')}
+          actionLabel={t('inventory.browseAssets')}
           actionLink="/marketplace"
         />
       )}

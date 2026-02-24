@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import {
@@ -10,7 +12,7 @@ import {
 // Mock quiz questions
 const QUIZ_POOLS = {
   math: {
-    name: 'Mathematik',
+    nameKey: 'quiz.categories.math',
     emoji: '\u{1F4D0}',
     questions: [
       { q: 'Was ist 15 x 12?', options: ['180', '170', '190', '160'], correct: 0 },
@@ -22,7 +24,7 @@ const QUIZ_POOLS = {
     ],
   },
   science: {
-    name: 'Naturwissenschaft',
+    nameKey: 'quiz.categories.science',
     emoji: '\u{1F52C}',
     questions: [
       { q: 'Welches Element hat das Symbol "Fe"?', options: ['Fluor', 'Eisen', 'Francium', 'Fermium'], correct: 1 },
@@ -34,7 +36,7 @@ const QUIZ_POOLS = {
     ],
   },
   general: {
-    name: 'Allgemeinwissen',
+    nameKey: 'quiz.categories.general',
     emoji: '\u{1F4DA}',
     questions: [
       { q: 'Welche Stadt ist die Hauptstadt von Australien?', options: ['Sydney', 'Melbourne', 'Canberra', 'Brisbane'], correct: 2 },
@@ -73,6 +75,7 @@ function generateBotPlayers(count) {
 
 // ============= LOBBY =============
 function QuizLobby({ user, onStart }) {
+  const { t } = useTranslation()
   const [roomCode, setRoomCode] = useState('')
   const [joinCode, setJoinCode] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('general')
@@ -108,8 +111,8 @@ function QuizLobby({ user, onStart }) {
       <div className="max-w-2xl mx-auto py-8">
         <div className="text-center mb-10">
           <span className="text-6xl block mb-4">{'\u26A1'}</span>
-          <h1 className="text-3xl font-bold text-text-primary mb-2">Multiplayer Quiz</h1>
-          <p className="text-text-secondary">Tritt gegen andere Spieler an und beweise dein Wissen!</p>
+          <h1 className="text-3xl font-bold text-text-primary mb-2">{t('quiz.title')}</h1>
+          <p className="text-text-secondary">{t('quiz.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -118,8 +121,8 @@ function QuizLobby({ user, onStart }) {
             className="bg-bg-card rounded-2xl p-8 border border-gray-700 hover:border-accent/50 transition-all cursor-pointer text-left group"
           >
             <Swords size={32} className="text-accent mb-4 group-hover:scale-110 transition-transform" />
-            <h3 className="text-lg font-bold text-text-primary mb-1">Spiel erstellen</h3>
-            <p className="text-sm text-text-muted">Erstelle einen Raum und lade Freunde ein</p>
+            <h3 className="text-lg font-bold text-text-primary mb-1">{t('quiz.createGame')}</h3>
+            <p className="text-sm text-text-muted">{t('quiz.createDesc')}</p>
           </button>
 
           <button
@@ -127,8 +130,8 @@ function QuizLobby({ user, onStart }) {
             className="bg-bg-card rounded-2xl p-8 border border-gray-700 hover:border-accent/50 transition-all cursor-pointer text-left group"
           >
             <Users size={32} className="text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
-            <h3 className="text-lg font-bold text-text-primary mb-1">Spiel beitreten</h3>
-            <p className="text-sm text-text-muted">Tritt einem Raum mit Code bei</p>
+            <h3 className="text-lg font-bold text-text-primary mb-1">{t('quiz.joinGame')}</h3>
+            <p className="text-sm text-text-muted">{t('quiz.joinDesc')}</p>
           </button>
         </div>
 
@@ -149,7 +152,7 @@ function QuizLobby({ user, onStart }) {
           className="w-full mt-6 bg-accent hover:bg-accent-dark text-white py-4 rounded-2xl font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2"
         >
           <Zap size={20} />
-          Schnellspiel (mit Bots)
+          {t('quiz.quickPlay')}
         </button>
       </div>
     )
@@ -158,15 +161,15 @@ function QuizLobby({ user, onStart }) {
   if (mode === 'join') {
     return (
       <div className="max-w-md mx-auto py-8">
-        <h2 className="text-2xl font-bold text-center mb-6">Spiel beitreten</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">{t('quiz.joinGame')}</h2>
         <div className="bg-bg-card rounded-2xl p-6 border border-gray-700">
-          <label className="block text-sm font-medium text-text-secondary mb-2">Raumcode eingeben</label>
+          <label className="block text-sm font-medium text-text-secondary mb-2">{t('quiz.enterCode')}</label>
           <div className="flex gap-2">
             <input
               type="text"
               value={joinCode}
               onChange={e => setJoinCode(e.target.value.toUpperCase())}
-              placeholder="z.B. ABC123"
+              placeholder={t('quiz.codePlaceholder')}
               maxLength={6}
               className="flex-1 bg-bg-primary border border-gray-600 rounded-xl px-4 py-3 text-center text-2xl font-mono tracking-widest text-text-primary uppercase
                          focus:outline-none focus:border-accent"
@@ -177,13 +180,13 @@ function QuizLobby({ user, onStart }) {
             disabled={joinCode.length < 4}
             className="w-full mt-4 bg-accent hover:bg-accent-dark disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-xl font-semibold transition-colors cursor-pointer"
           >
-            Beitreten
+            {t('quiz.join')}
           </button>
           <button
             onClick={() => setMode(null)}
             className="w-full mt-2 text-text-muted hover:text-text-primary py-2 text-sm transition-colors cursor-pointer"
           >
-            Zurueck
+            {t('common.back')}
           </button>
         </div>
       </div>
@@ -193,23 +196,23 @@ function QuizLobby({ user, onStart }) {
   // Create mode - settings
   return (
     <div className="max-w-lg mx-auto py-8">
-      <h2 className="text-2xl font-bold text-center mb-6">Spiel erstellen</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">{t('quiz.createGame')}</h2>
 
       {/* Room Code */}
       <div className="bg-bg-card rounded-2xl p-5 border border-accent/30 mb-6 text-center">
-        <p className="text-xs text-text-muted uppercase tracking-wider mb-2">Raumcode</p>
+        <p className="text-xs text-text-muted uppercase tracking-wider mb-2">{t('quiz.roomCode')}</p>
         <div className="flex items-center justify-center gap-3">
           <span className="text-3xl font-mono font-bold tracking-[0.3em] text-accent">{roomCode}</span>
           <button onClick={handleCopy} className="text-text-muted hover:text-accent transition-colors cursor-pointer">
             {copied ? <Check size={20} className="text-success" /> : <Copy size={20} />}
           </button>
         </div>
-        <p className="text-xs text-text-muted mt-2">Teile diesen Code mit deinen Mitspielern</p>
+        <p className="text-xs text-text-muted mt-2">{t('quiz.shareCode')}</p>
       </div>
 
       {/* Category */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-text-secondary mb-2">Kategorie</label>
+        <label className="block text-sm font-medium text-text-secondary mb-2">{t('quiz.category')}</label>
         <div className="grid grid-cols-3 gap-2">
           {Object.entries(QUIZ_POOLS).map(([key, cat]) => (
             <button
@@ -222,7 +225,7 @@ function QuizLobby({ user, onStart }) {
               }`}
             >
               <span className="text-2xl block">{cat.emoji}</span>
-              <span className="text-xs font-medium mt-1 block">{cat.name}</span>
+              <span className="text-xs font-medium mt-1 block">{t(cat.nameKey)}</span>
             </button>
           ))}
         </div>
@@ -232,7 +235,7 @@ function QuizLobby({ user, onStart }) {
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">
-            <Hash size={14} className="inline mr-1" /> Fragen
+            <Hash size={14} className="inline mr-1" /> {t('quiz.questions')}
           </label>
           <select
             value={questionCount}
@@ -240,13 +243,13 @@ function QuizLobby({ user, onStart }) {
             className="w-full bg-bg-card border border-gray-700 rounded-xl px-4 py-2.5 text-text-primary cursor-pointer"
           >
             {[3, 5, 6].map(n => (
-              <option key={n} value={n}>{n} Fragen</option>
+              <option key={n} value={n}>{t('quiz.questionsCount', { count: n })}</option>
             ))}
           </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">
-            <Clock size={14} className="inline mr-1" /> Zeit pro Frage
+            <Clock size={14} className="inline mr-1" /> {t('quiz.timePerQuestion')}
           </label>
           <select
             value={timePerQuestion}
@@ -254,7 +257,7 @@ function QuizLobby({ user, onStart }) {
             className="w-full bg-bg-card border border-gray-700 rounded-xl px-4 py-2.5 text-text-primary cursor-pointer"
           >
             {[10, 15, 20, 30].map(n => (
-              <option key={n} value={n}>{n} Sekunden</option>
+              <option key={n} value={n}>{t('quiz.seconds', { count: n })}</option>
             ))}
           </select>
         </div>
@@ -264,13 +267,13 @@ function QuizLobby({ user, onStart }) {
         onClick={handleStartGame}
         className="w-full bg-accent hover:bg-accent-dark text-white py-3 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2"
       >
-        <Play size={20} /> Spiel starten
+        <Play size={20} /> {t('quiz.startGame')}
       </button>
       <button
         onClick={() => setMode(null)}
         className="w-full mt-2 text-text-muted hover:text-text-primary py-2 text-sm transition-colors cursor-pointer"
       >
-        Zurueck
+        {t('common.back')}
       </button>
     </div>
   )
@@ -278,6 +281,7 @@ function QuizLobby({ user, onStart }) {
 
 // ============= LIVE QUIZ GAME =============
 function LiveQuiz({ config, user, onFinish }) {
+  const { t } = useTranslation()
   const [currentQ, setCurrentQ] = useState(0)
   const [timeLeft, setTimeLeft] = useState(config.timePerQuestion)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
@@ -287,7 +291,7 @@ function LiveQuiz({ config, user, onFinish }) {
   const [players, setPlayers] = useState(() => {
     const bots = generateBotPlayers(4)
     return [
-      { id: 'me', name: user?.username || 'Du', score: 0, isBot: false, streak: 0 },
+      { id: 'me', name: user?.username || t('leaderboards.you'), score: 0, isBot: false, streak: 0 },
       ...bots,
     ]
   })
@@ -381,14 +385,14 @@ function LiveQuiz({ config, user, onFinish }) {
       <div className="max-w-lg mx-auto py-8 text-center">
         <span className="text-6xl block mb-4">{myRank === 1 ? '\u{1F3C6}' : myRank <= 3 ? '\u{1F3C5}' : '\u{1F44F}'}</span>
         <h2 className="text-3xl font-bold text-text-primary mb-1">
-          {myRank === 1 ? 'Glueckwunsch!' : myRank <= 3 ? 'Gut gespielt!' : 'Spiel beendet!'}
+          {myRank === 1 ? t('quiz.congratulations') : myRank <= 3 ? t('quiz.wellPlayed') : t('quiz.gameOver')}
         </h2>
-        <p className="text-text-muted mb-6">Du bist Platz {myRank} von {sorted.length}</p>
+        <p className="text-text-muted mb-6">{t('quiz.yourRank', { rank: myRank, total: sorted.length })}</p>
 
         {/* Score Card */}
         <div className="bg-bg-card rounded-2xl p-6 border border-gray-700 mb-6">
           <p className="text-4xl font-bold text-accent mb-1">{score.toLocaleString('de-DE')}</p>
-          <p className="text-text-muted text-sm">Punkte</p>
+          <p className="text-text-muted text-sm">{t('quiz.points')}</p>
         </div>
 
         {/* Scoreboard */}
@@ -407,7 +411,7 @@ function LiveQuiz({ config, user, onFinish }) {
                  <span className="text-text-muted">{i + 1}</span>}
               </span>
               <span className={`flex-1 text-left font-medium ${p.id === 'me' ? 'text-accent' : 'text-text-primary'}`}>
-                {p.name} {p.id === 'me' && '(Du)'}
+                {p.name} {p.id === 'me' && `(${t('leaderboards.you')})`}
               </span>
               <span className="font-bold text-text-primary">{p.score.toLocaleString('de-DE')}</span>
             </div>
@@ -419,13 +423,13 @@ function LiveQuiz({ config, user, onFinish }) {
             onClick={() => onFinish('lobby')}
             className="flex-1 bg-bg-card hover:bg-bg-hover text-text-primary py-3 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2 border border-gray-700"
           >
-            <Home size={18} /> Lobby
+            <Home size={18} /> {t('quiz.lobby')}
           </button>
           <button
             onClick={() => onFinish('replay')}
             className="flex-1 bg-accent hover:bg-accent-dark text-white py-3 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
-            <RotateCcw size={18} /> Nochmal
+            <RotateCcw size={18} /> {t('quiz.playAgain')}
           </button>
         </div>
       </div>
@@ -440,15 +444,15 @@ function LiveQuiz({ config, user, onFinish }) {
       {/* Header: Question counter + Timer + Score */}
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm font-medium text-text-muted">
-          Frage {currentQ + 1}/{questions.length}
+          {t('quiz.questionOf', { current: currentQ + 1, total: questions.length })}
         </span>
         <div className="flex items-center gap-2">
           {streak >= 2 && (
             <span className="text-xs bg-warning/20 text-warning px-2 py-1 rounded-full font-bold flex items-center gap-1">
-              <Zap size={12} /> {streak}x Streak
+              <Zap size={12} /> {t('quiz.streak', { count: streak })}
             </span>
           )}
-          <span className="text-sm font-bold text-accent">{score.toLocaleString('de-DE')} Pkt</span>
+          <span className="text-sm font-bold text-accent">{score.toLocaleString('de-DE')} {t('quiz.pts')}</span>
         </div>
       </div>
 
@@ -515,6 +519,7 @@ function LiveQuiz({ config, user, onFinish }) {
 // ============= MAIN =============
 export default function MultiplayerQuiz() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [gameState, setGameState] = useState('lobby') // 'lobby' | 'playing'
   const [gameConfig, setGameConfig] = useState(null)
@@ -522,7 +527,7 @@ export default function MultiplayerQuiz() {
   const handleStart = (config) => {
     setGameConfig(config)
     setGameState('playing')
-    showToast('Quiz startet!', 'success')
+    showToast(t('quiz.quizStarting'), 'success')
   }
 
   const handleFinish = (action) => {
@@ -536,8 +541,28 @@ export default function MultiplayerQuiz() {
   }
 
   if (gameState === 'playing' && gameConfig) {
-    return <LiveQuiz key={JSON.stringify(gameConfig)} config={gameConfig} user={user} onFinish={handleFinish} />
+    return (
+      <>
+        <Helmet>
+          <title>Quiz Arena | MindForge</title>
+          <meta name="description" content="Compete against other players in the MindForge Quiz Arena." />
+          <meta property="og:title" content="Quiz Arena | MindForge" />
+          <meta property="og:description" content="Compete against other players in the MindForge Quiz Arena." />
+        </Helmet>
+        <LiveQuiz key={JSON.stringify(gameConfig)} config={gameConfig} user={user} onFinish={handleFinish} />
+      </>
+    )
   }
 
-  return <QuizLobby user={user} onStart={handleStart} />
+  return (
+    <>
+      <Helmet>
+        <title>Quiz Arena | MindForge</title>
+        <meta name="description" content="Compete against other players in the MindForge Quiz Arena." />
+        <meta property="og:title" content="Quiz Arena | MindForge" />
+        <meta property="og:description" content="Compete against other players in the MindForge Quiz Arena." />
+      </Helmet>
+      <QuizLobby user={user} onStart={handleStart} />
+    </>
+  )
 }

@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/common/Button'
 
-const errorMessages = {
-  'auth/user-not-found': 'Kein Account mit dieser E-Mail gefunden',
-  'auth/wrong-password': 'Falsches Passwort',
-  'auth/invalid-email': 'Ungueltige E-Mail-Adresse',
-  'auth/too-many-requests': 'Zu viele Versuche. Bitte spaeter erneut versuchen',
-  'auth/invalid-credential': 'E-Mail oder Passwort falsch',
+const errorKeyMap = {
+  'auth/user-not-found': 'auth.errors.noAccount',
+  'auth/wrong-password': 'auth.errors.wrongPassword',
+  'auth/invalid-email': 'auth.errors.invalidEmail',
+  'auth/too-many-requests': 'auth.errors.tooManyAttempts',
+  'auth/invalid-credential': 'auth.errors.emailOrPassword',
 }
 
 export default function Login() {
+  const { t } = useTranslation()
   const { user, login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -30,28 +33,34 @@ export default function Login() {
       await login(email, password, rememberMe)
       navigate('/')
     } catch (err) {
-      setError(errorMessages[err.code] || 'Fehler beim Einloggen')
+      const key = errorKeyMap[err.code]
+      setError(key ? t(key) : t('auth.errors.loginFailed'))
     }
     setLoading(false)
   }
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
+      <Helmet>
+        <title>{t('auth.welcomeBack')} | MindForge</title>
+        <meta name="description" content="Login to MindForge" />
+        <meta property="og:title" content={`${t('auth.welcomeBack')} | MindForge`} />
+      </Helmet>
       <div className="w-full max-w-sm bg-bg-card rounded-xl p-8 shadow-xl">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-accent mb-1">MindForge</h1>
-          <p className="text-text-secondary">Willkommen zurueck!</p>
+          <p className="text-text-secondary">{t('auth.welcomeBack')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label>E-Mail</label>
+            <label>{t('auth.email')}</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="deine@email.com" required />
           </div>
 
           <div>
-            <label>Passwort</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Passwort" required />
+            <label>{t('auth.password')}</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('auth.password')} required />
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer !mb-0">
@@ -61,17 +70,17 @@ export default function Login() {
               onChange={(e) => setRememberMe(e.target.checked)}
               className="!w-4 !h-4 rounded"
             />
-            <span className="text-text-secondary text-sm">Angemeldet bleiben (30 Tage)</span>
+            <span className="text-text-secondary text-sm">{t('auth.rememberMe')}</span>
           </label>
 
           {error && <p className="form-error">{error}</p>}
 
-          <Button type="submit" fullWidth loading={loading}>Einloggen</Button>
+          <Button type="submit" fullWidth loading={loading}>{t('auth.loginButton')}</Button>
         </form>
 
         <p className="text-center text-text-secondary text-sm mt-6">
-          Noch kein Account?{' '}
-          <Link to="/register" className="text-accent hover:underline">Jetzt registrieren</Link>
+          {t('auth.noAccount')}{' '}
+          <Link to="/register" className="text-accent hover:underline">{t('auth.registerNow')}</Link>
         </p>
       </div>
     </div>

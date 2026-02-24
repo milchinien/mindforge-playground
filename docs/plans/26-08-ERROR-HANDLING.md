@@ -1,36 +1,36 @@
 # Plan 26-08: Error Handling & Monitoring
 
-> **Priorität:** Hoch (Kurzfristig, 1-4 Wochen)
+> **Priorität:** ~~Hoch~~ Implementiert
 > **Zurück zur [Übersicht](26-00-UEBERSICHT.md)**
 
 ---
 
 ## Aktueller Stand
-- Globaler ErrorBoundary vorhanden (gut)
+- Globaler ErrorBoundary vorhanden (verbessert mit Reset-Funktion + Error-Logging)
 - Try-Catch in 130+ Stellen (gut)
-- Toast-Benachrichtigungen für User-Feedback
-- Firebase-Error-Mapping bei Login
-- ABER: Stille Fehler (Home.jsx gibt [] zurück ohne Warnung)
-- ABER: Kein Error-Logging-Service
-- ABER: `window.location.reload()` statt State-Updates
-- ABER: Kein Retry-Mechanismus
+- Toast-Benachrichtigungen via Zustand Store
+- Firebase-Error-Mapping in errorLogger.js
+- ~~Stille Fehler~~ → errorLogger.js für zentrales Error-Logging
+- ~~Kein Error-Logging-Service~~ → src/utils/errorLogger.js implementiert
+- ~~`window.location.reload()` statt State-Updates~~ → Durch React-State-Updates ersetzt
+- ~~Kein Retry-Mechanismus~~ → useRetry Hook + FallbackUI Komponente implementiert
 
 ---
 
 ## Vorschlag 8.1: Error-Monitoring
-- [ ] **A) Sentry integrieren (Empfohlen)** — Error-Tracking, Performance-Monitoring, Session-Replay, kostenloser Tier für kleine Apps
-- [ ] **B) LogRocket** — Session-Replay + Error-Tracking, gut für UX-Debugging
-- [ ] **C) Eigenes Error-Logging** — Console.error + Firebase Analytics für Fehler-Events, kein externes Paket
-- [ ] **D) Erst bei Produktion** — Error-Monitoring erst einrichten wenn die App live geht
+- [ ] **A) Sentry integrieren**
+- [ ] **B) LogRocket**
+- [x] **C) Eigenes Error-Logging** — Implementiert: src/utils/errorLogger.js
+- [ ] **D) Erst bei Produktion**
 
 ## Vorschlag 8.2: Error-Recovery-Strategie
-- [ ] **A) Retry + Fallback-UI (Empfohlen)** — Automatische Retries für Netzwerk-Fehler, Fallback-UI für fehlgeschlagene Datenladen
-- [ ] **B) Offline-First** — Service Worker + Cache für Offline-Fähigkeit, graceful degradation
-- [ ] **C) Optimistic Updates** — UI sofort aktualisieren, bei Fehler zurückrollen (bessere UX)
-- [ ] **D) Nur Fehlermeldungen verbessern** — Spezifischere, hilfreichere Fehlermeldungen für User, keine technischen Änderungen
+- [x] **A) Retry + Fallback-UI (Empfohlen)** — Implementiert: src/hooks/useRetry.js + src/components/common/FallbackUI.jsx
+- [ ] **B) Offline-First**
+- [ ] **C) Optimistic Updates**
+- [ ] **D) Nur Fehlermeldungen verbessern**
 
 ## Vorschlag 8.3: window.location.reload() ersetzen
-- [ ] **A) React-State-Updates (Empfohlen)** — Alle reload()-Aufrufe durch State-Invalidierung ersetzen (z.B. nach Game-Deletion)
-- [ ] **B) Router.refresh()** — React Router Navigation nutzen statt Hard-Reload
-- [ ] **C) Custom Event-System** — EventBus für Refresh-Signale zwischen Komponenten
-- [ ] **D) Status Quo** — Reload funktioniert, hat nur UX-Nachteil (kurzes Flackern)
+- [x] **A) React-State-Updates (Empfohlen)** — Implementiert: CreatorDashboard + ErrorBoundary
+- [ ] **B) Router.refresh()**
+- [ ] **C) Custom Event-System**
+- [ ] **D) Status Quo**

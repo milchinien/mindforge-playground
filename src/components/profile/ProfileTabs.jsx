@@ -1,12 +1,15 @@
+import { useTranslation } from 'react-i18next'
 import { Gamepad2, Heart, Trophy } from 'lucide-react'
 
-const tabs = [
-  { id: 'games', label: 'Erstellte Spiele', icon: Gamepad2, showCount: true },
-  { id: 'favorites', label: 'Favoriten', icon: Heart, showCount: true },
-  { id: 'achievements', label: 'Achievements', icon: Trophy, showCount: false },
-]
-
 export default function ProfileTabs({ activeTab, onTabChange, gamesCount = 0, favoritesCount = 0 }) {
+  const { t } = useTranslation()
+
+  const tabs = [
+    { id: 'games', label: t('profile.tabs.createdGames'), icon: Gamepad2, showCount: true },
+    { id: 'favorites', label: t('profile.tabs.favorites'), icon: Heart, showCount: true },
+    { id: 'achievements', label: t('profile.tabs.achievements'), icon: Trophy, showCount: false },
+  ]
+
   const getCounts = (tabId) => {
     if (tabId === 'games') return gamesCount
     if (tabId === 'favorites') return favoritesCount

@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import {
   Heart,
   Trophy,
@@ -15,20 +17,13 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 
 const ACTIVITY_TYPES = {
-  achievement: { icon: Trophy, label: 'Achievement', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
-  game_played: { icon: Gamepad2, label: 'Spiel gespielt', color: 'text-blue-400', bg: 'bg-blue-400/10' },
-  highscore: { icon: TrendingUp, label: 'Highscore', color: 'text-green-400', bg: 'bg-green-400/10' },
-  item_purchased: { icon: ShoppingBag, label: 'Item gekauft', color: 'text-purple-400', bg: 'bg-purple-400/10' },
-  game_uploaded: { icon: Upload, label: 'Spiel hochgeladen', color: 'text-accent', bg: 'bg-accent/10' },
-  star_rating: { icon: Star, label: 'Bewertung', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+  achievement: { icon: Trophy, labelKey: 'social.activityTypes.achievement', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+  game_played: { icon: Gamepad2, labelKey: 'social.activityTypes.gamePlayed', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+  highscore: { icon: TrendingUp, labelKey: 'social.activityTypes.highscore', color: 'text-green-400', bg: 'bg-green-400/10' },
+  item_purchased: { icon: ShoppingBag, labelKey: 'social.activityTypes.itemPurchased', color: 'text-purple-400', bg: 'bg-purple-400/10' },
+  game_uploaded: { icon: Upload, labelKey: 'social.activityTypes.gameUploaded', color: 'text-accent', bg: 'bg-accent/10' },
+  star_rating: { icon: Star, labelKey: 'social.activityTypes.starRating', color: 'text-orange-400', bg: 'bg-orange-400/10' },
 }
-
-const FILTER_TABS = [
-  { id: 'all', label: 'Alle' },
-  { id: 'achievement', label: 'Achievements' },
-  { id: 'game', label: 'Spiele' },
-  { id: 'highscore', label: 'Highscores' },
-]
 
 const now = Date.now()
 const HOUR = 3600000
@@ -55,27 +50,27 @@ const MOCK_ACTIVITIES = [
   { id: 18, user: { name: 'LenaLernt', emoji: '\uD83E\uDD13' }, type: 'game_uploaded', text: 'hat ein neues Spiel hochgeladen', detail: '"Musik-Memory" \u2013 Instrumente erkennen', timestamp: now - DAY * 6 },
 ]
 
-function getTimeGroup(timestamp) {
+function getTimeGroup(timestamp, t) {
   const diff = now - timestamp
-  if (diff < DAY) return 'Heute'
-  if (diff < DAY * 2) return 'Gestern'
-  if (diff < DAY * 7) return 'Diese Woche'
-  return 'Aelter'
+  if (diff < DAY) return t('social.timeGroups.today')
+  if (diff < DAY * 2) return t('social.timeGroups.yesterday')
+  if (diff < DAY * 7) return t('social.timeGroups.thisWeek')
+  return t('social.timeGroups.older')
 }
 
-function formatRelativeTime(timestamp) {
+function formatRelativeTime(timestamp, t) {
   const diff = now - timestamp
   const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return 'Gerade eben'
-  if (minutes < 60) return `vor ${minutes} Min.`
+  if (minutes < 1) return t('social.relativeTime.justNow')
+  if (minutes < 60) return t('social.relativeTime.minutesAgo', { count: minutes })
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `vor ${hours} Std.`
+  if (hours < 24) return t('social.relativeTime.hoursAgo', { count: hours })
   const days = Math.floor(hours / 24)
-  if (days === 1) return 'Gestern'
-  return `vor ${days} Tagen`
+  if (days === 1) return t('social.relativeTime.yesterday')
+  return t('social.relativeTime.daysAgo', { count: days })
 }
 
-function ActivityCard({ activity, isNew }) {
+function ActivityCard({ activity, isNew, t }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 12))
   const typeConfig = ACTIVITY_TYPES[activity.type]
@@ -93,7 +88,7 @@ function ActivityCard({ activity, isNew }) {
       {isNew && (
         <span className="absolute -top-2 -right-2 bg-accent text-white text-[10px] font-bold
                          px-2 py-0.5 rounded-full animate-pulse shadow-lg shadow-accent/25">
-          NEU
+          {t('social.new')}
         </span>
       )}
 
@@ -138,7 +133,7 @@ function ActivityCard({ activity, isNew }) {
 
           <span className="flex items-center gap-1 text-xs text-text-muted">
             <Clock size={12} />
-            {formatRelativeTime(activity.timestamp)}
+            {formatRelativeTime(activity.timestamp, t)}
           </span>
         </div>
       </div>
@@ -148,7 +143,15 @@ function ActivityCard({ activity, isNew }) {
 
 export default function SocialFeed() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [activeFilter, setActiveFilter] = useState('all')
+
+  const FILTER_TABS = [
+    { id: 'all', label: t('social.filters.all') },
+    { id: 'achievement', label: t('social.filters.achievements') },
+    { id: 'game', label: t('social.filters.games') },
+    { id: 'highscore', label: t('social.filters.highscores') },
+  ]
 
   const filteredActivities = useMemo(() => {
     if (activeFilter === 'all') return MOCK_ACTIVITIES
@@ -163,17 +166,29 @@ export default function SocialFeed() {
   const groupedActivities = useMemo(() => {
     const groups = {}
     for (const activity of filteredActivities) {
-      const group = getTimeGroup(activity.timestamp)
+      const group = getTimeGroup(activity.timestamp, t)
       if (!groups[group]) groups[group] = []
       groups[group].push(activity)
     }
     return groups
-  }, [filteredActivities])
+  }, [filteredActivities, t])
 
-  const groupOrder = ['Heute', 'Gestern', 'Diese Woche', 'Aelter']
+  const groupOrder = [
+    t('social.timeGroups.today'),
+    t('social.timeGroups.yesterday'),
+    t('social.timeGroups.thisWeek'),
+    t('social.timeGroups.older'),
+  ]
 
   return (
     <div className="min-h-screen bg-bg-primary">
+      <Helmet>
+        <title>Activity Feed | MindForge</title>
+        <meta name="description" content="See what your friends are up to on MindForge." />
+        <meta property="og:title" content="Activity Feed | MindForge" />
+        <meta property="og:description" content="See what your friends are up to on MindForge." />
+      </Helmet>
+
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -181,8 +196,8 @@ export default function SocialFeed() {
             <Rss size={24} className="text-accent" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">Aktivitaeten</h1>
-            <p className="text-sm text-text-muted">Was deine Freunde so treiben</p>
+            <h1 className="text-2xl font-bold text-text-primary">{t('social.title')}</h1>
+            <p className="text-sm text-text-muted">{t('social.subtitle')}</p>
           </div>
         </div>
 
@@ -210,11 +225,10 @@ export default function SocialFeed() {
           <div className="text-center py-20">
             <Sparkles size={48} className="text-text-muted mx-auto mb-4 opacity-40" />
             <h3 className="text-lg font-semibold text-text-primary mb-1">
-              Keine Aktivitaeten gefunden
+              {t('social.noActivities')}
             </h3>
             <p className="text-text-muted text-sm max-w-xs mx-auto">
-              In dieser Kategorie gibt es noch keine Aktivitaeten.
-              Versuch einen anderen Filter!
+              {t('social.noActivitiesDesc')}
             </p>
           </div>
         ) : (
@@ -236,6 +250,7 @@ export default function SocialFeed() {
                         key={activity.id}
                         activity={activity}
                         isNew={now - activity.timestamp < HOUR * 2}
+                        t={t}
                       />
                     ))}
                   </div>

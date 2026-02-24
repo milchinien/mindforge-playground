@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /settings
+Disallow: /avatar
+Disallow: /inventory
+Disallow: /shop
+Disallow: /create
+Disallow: /my-games
+Disallow: /teacher
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://mindforge.app/sitemap.xml

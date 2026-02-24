@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserByUsername } from '../data/mockUsers'
 import { mockGames } from '../data/mockGames'
@@ -9,6 +11,7 @@ import GameCard from '../components/game/GameCard'
 import Modal from '../components/common/Modal'
 
 export default function Profile() {
+  const { t } = useTranslation()
   const { username } = useParams()
   const { user: currentUser, updateUser } = useAuth()
   const [profileUser, setProfileUser] = useState(null)
@@ -77,11 +80,14 @@ export default function Profile() {
   if (notFound) {
     return (
       <div className="text-center py-20">
+        <Helmet>
+          <title>{t('profile.userNotFound')} | MindForge</title>
+        </Helmet>
         <h1 className="text-6xl font-bold text-text-muted mb-4">404</h1>
-        <p className="text-xl text-text-secondary mb-2">Benutzer nicht gefunden</p>
-        <p className="text-text-muted mb-6">Der Benutzer &quot;{username}&quot; existiert nicht.</p>
+        <p className="text-xl text-text-secondary mb-2">{t('profile.userNotFound')}</p>
+        <p className="text-text-muted mb-6">{t('profile.userNotFoundDesc', { username })}</p>
         <Link to="/" className="text-accent hover:underline">
-          Zurueck zur Startseite
+          {t('profile.backToHome')}
         </Link>
       </div>
     )
@@ -91,6 +97,9 @@ export default function Profile() {
   if (!profileUser) {
     return (
       <div className="flex items-center justify-center py-20">
+        <Helmet>
+          <title>{username} | MindForge</title>
+        </Helmet>
         <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -98,6 +107,14 @@ export default function Profile() {
 
   return (
     <div className="py-4 max-w-5xl mx-auto">
+      <Helmet>
+        <title>{profileUser.username || username} | MindForge</title>
+        <meta name="description" content={`${profileUser.username || username} - MindForge`} />
+        <meta property="og:title" content={`${profileUser.username || username} | MindForge`} />
+        <meta property="og:description" content={`${profileUser.username || username} - MindForge`} />
+        <meta property="og:type" content="profile" />
+      </Helmet>
+
       {/* Profile Header */}
       <ProfileHeader
         user={profileUser}
@@ -136,8 +153,8 @@ export default function Profile() {
             {userGames.length === 0 && (
               <p className="text-text-muted w-full text-center py-8">
                 {isOwnProfile
-                  ? 'Du hast noch keine Spiele erstellt.'
-                  : 'Dieser User hat noch keine Spiele erstellt.'}
+                  ? t('profile.noGamesCreated')
+                  : t('profile.noGamesCreatedOther')}
               </p>
             )}
           </div>
@@ -148,7 +165,7 @@ export default function Profile() {
             {favoriteGames.map(game => <GameCard key={game.id} game={game} />)}
             {favoriteGames.length === 0 && (
               <p className="text-text-muted w-full text-center py-8">
-                Noch keine Favoriten.
+                {t('profile.noFavorites')}
               </p>
             )}
           </div>
@@ -159,15 +176,15 @@ export default function Profile() {
             <p className="text-4xl mb-4">&#127942;</p>
             <p className="text-text-secondary mb-4">
               {isOwnProfile
-                ? 'Schau dir deine Achievements an!'
-                : `${profileUser.username}s Achievements`}
+                ? t('profile.checkAchievements')
+                : t('profile.userAchievements', { username: profileUser.username })}
             </p>
             {isOwnProfile && (
               <Link
                 to="/achievements"
                 className="inline-block bg-accent hover:bg-accent-dark text-white px-5 py-2.5 rounded-lg transition-colors font-medium"
               >
-                Zu den Achievements
+                {t('profile.viewAchievements')}
               </Link>
             )}
           </div>
@@ -178,48 +195,48 @@ export default function Profile() {
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Profil bearbeiten"
+        title={t('profile.editProfile')}
       >
         <div className="space-y-4">
           <div>
-            <label>Bio</label>
+            <label>{t('profile.bio')}</label>
             <textarea
               value={editBio}
               onChange={(e) => setEditBio(e.target.value)}
               maxLength={200}
               rows={3}
-              placeholder="Erzaehl etwas ueber dich..."
+              placeholder={t('profile.bioPlaceholder')}
             />
             <p className="text-text-muted text-xs mt-1 text-right">{editBio.length}/200</p>
           </div>
 
           <div>
-            <label>Website</label>
+            <label>{t('profile.website')}</label>
             <input
               type="text"
               value={editWebsite}
               onChange={(e) => setEditWebsite(e.target.value)}
-              placeholder="https://deine-website.de"
+              placeholder={t('profile.websitePlaceholder')}
             />
           </div>
 
           <div>
-            <label>Twitter</label>
+            <label>{t('profile.twitter')}</label>
             <input
               type="text"
               value={editTwitter}
               onChange={(e) => setEditTwitter(e.target.value)}
-              placeholder="@deinname"
+              placeholder={t('profile.twitterPlaceholder')}
             />
           </div>
 
           <div>
-            <label>YouTube</label>
+            <label>{t('profile.youtube')}</label>
             <input
               type="text"
               value={editYoutube}
               onChange={(e) => setEditYoutube(e.target.value)}
-              placeholder="@deinkanal"
+              placeholder={t('profile.youtubePlaceholder')}
             />
           </div>
 
@@ -228,13 +245,13 @@ export default function Profile() {
               onClick={() => setIsEditModalOpen(false)}
               className="flex-1 bg-bg-card hover:bg-bg-hover text-text-secondary py-2.5 rounded-lg transition-colors cursor-pointer"
             >
-              Abbrechen
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleEditSave}
               className="flex-1 bg-accent hover:bg-accent-dark text-white py-2.5 rounded-lg transition-colors cursor-pointer font-semibold"
             >
-              Speichern
+              {t('common.save')}
             </button>
           </div>
         </div>

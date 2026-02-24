@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { timeAgo } from '../../utils/formatters'
 
 export default function FriendRequestCard({ request, onAccept, onDecline }) {
+  const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleAccept = () => {
@@ -33,7 +35,7 @@ export default function FriendRequestCard({ request, onAccept, onDecline }) {
           {request.displayName}
         </Link>
         <p className="text-sm text-text-muted">
-          moechte dein Freund sein - {timeAgo(request.requestedAt)}
+          {t('friends.wantsToBeFriend')} - {timeAgo(request.requestedAt)}
         </p>
       </div>
 
@@ -45,7 +47,7 @@ export default function FriendRequestCard({ request, onAccept, onDecline }) {
           className="bg-success hover:bg-green-600 text-white px-4 py-2 rounded-lg
                      text-sm font-medium transition-colors disabled:opacity-50"
         >
-          Annehmen
+          {t('friends.accept')}
         </button>
         <button
           onClick={handleDecline}
@@ -53,7 +55,7 @@ export default function FriendRequestCard({ request, onAccept, onDecline }) {
           className="bg-bg-hover hover:bg-gray-500 text-text-primary px-4 py-2 rounded-lg
                      text-sm font-medium transition-colors disabled:opacity-50"
         >
-          Ablehnen
+          {t('friends.decline')}
         </button>
       </div>
     </div>

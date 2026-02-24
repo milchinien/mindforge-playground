@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Eye, Play, Heart, ThumbsDown, Calendar } from 'lucide-react'
 import { getGameById } from '../data/mockGames'
 import { formatNumber, formatDate } from '../utils/formatters'
@@ -23,6 +25,7 @@ function ThumbnailPlaceholder({ title, subject, className = '' }) {
 }
 
 export default function GameDetail() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const game = getGameById(id)
@@ -36,12 +39,15 @@ export default function GameDetail() {
   if (!game) {
     return (
       <div className="text-center py-20">
+        <Helmet>
+          <title>404 | MindForge</title>
+        </Helmet>
         <h1 className="text-6xl font-bold text-text-muted mb-4">404</h1>
         <p className="text-xl text-text-secondary mb-6">
-          Dieses Spiel wurde nicht gefunden.
+          {t('game.notFound')}
         </p>
         <Link to="/browse" className="text-accent hover:underline">
-          Zurueck zum Mindbrowser
+          {t('game.backToBrowser')}
         </Link>
       </div>
     )
@@ -49,13 +55,22 @@ export default function GameDetail() {
 
   return (
     <div className="py-4">
+      <Helmet>
+        <title>{game.title} | MindForge</title>
+        <meta name="description" content={game.description} />
+        <meta property="og:title" content={`${game.title} | MindForge`} />
+        <meta property="og:description" content={game.description} />
+        <meta property="og:type" content="website" />
+        {game.thumbnail && <meta property="og:image" content={game.thumbnail} />}
+      </Helmet>
+
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-6 cursor-pointer"
       >
         <ArrowLeft size={20} />
-        <span>Zurueck</span>
+        <span>{t('common.back')}</span>
       </button>
 
       {/* Two Column Layout */}
@@ -126,7 +141,7 @@ export default function GameDetail() {
 
           {/* Creator */}
           <p className="text-text-secondary mb-4">
-            von{' '}
+            {t('game.by')}{' '}
             <Link
               to={`/profile/${game.creator}`}
               className="text-accent hover:underline"
@@ -148,7 +163,7 @@ export default function GameDetail() {
           {/* Question count for template games */}
           {game.mode === 'template' && game.questions && (
             <p className="text-text-secondary text-sm mb-4">
-              {game.questions.length} Fragen
+              {t('game.questionCount', { count: game.questions.length })}
             </p>
           )}
 
@@ -159,25 +174,25 @@ export default function GameDetail() {
           <div className="space-y-2 mb-6">
             <div className="flex items-center gap-2 text-text-secondary">
               <Eye size={16} className="text-text-muted" />
-              <span>{formatNumber(game.views)} Views</span>
+              <span>{formatNumber(game.views)} {t('common.views')}</span>
             </div>
             <div className="flex items-center gap-2 text-text-secondary">
               <Play size={16} className="text-text-muted" />
-              <span>{formatNumber(game.plays)} Plays</span>
+              <span>{formatNumber(game.plays)} {t('common.plays')}</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2 text-text-secondary">
                 <Heart size={16} className="text-text-muted" />
-                {formatNumber(game.likes)} Likes
+                {formatNumber(game.likes)} {t('common.likes')}
               </span>
               <span className="flex items-center gap-2 text-text-secondary">
                 <ThumbsDown size={16} className="text-text-muted" />
-                {formatNumber(game.dislikes)} Dislikes
+                {formatNumber(game.dislikes)} {t('common.dislikes')}
               </span>
             </div>
             <div className="flex items-center gap-2 text-text-secondary">
               <Calendar size={16} className="text-text-muted" />
-              <span>Erstellt am {formatDate(game.createdAt)}</span>
+              <span>{t('game.createdAt', { date: formatDate(game.createdAt) })}</span>
             </div>
           </div>
 
@@ -186,7 +201,7 @@ export default function GameDetail() {
             onClick={() => navigate(`/play/${game.id}`)}
             className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors mb-4 cursor-pointer text-lg"
           >
-            Jetzt spielen
+            {t('game.playNow')}
           </button>
 
           {/* Like / Dislike */}

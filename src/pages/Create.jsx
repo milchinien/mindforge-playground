@@ -1,5 +1,7 @@
 import { useState, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { Upload, X, Plus, Image, FileArchive, Tag, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import ProgressBar from '../components/common/ProgressBar'
@@ -14,31 +16,31 @@ const SUGGESTED_TAGS = [
   'grundschule', 'mittelstufe', 'oberstufe', 'interaktiv'
 ]
 
-function validateForm(formData) {
+function validateForm(formData, t) {
   const errors = {}
-  if (!formData.title.trim()) errors.title = 'Titel ist erforderlich.'
-  else if (formData.title.length < 3) errors.title = 'Titel muss mindestens 3 Zeichen lang sein.'
-  else if (formData.title.length > 100) errors.title = 'Titel darf maximal 100 Zeichen lang sein.'
+  if (!formData.title.trim()) errors.title = t('create.errors.titleRequired')
+  else if (formData.title.length < 3) errors.title = t('create.errors.titleMin')
+  else if (formData.title.length > 100) errors.title = t('create.errors.titleMax')
 
-  if (!formData.description.trim()) errors.description = 'Beschreibung ist erforderlich.'
-  else if (formData.description.length < 10) errors.description = 'Beschreibung muss mindestens 10 Zeichen lang sein.'
-  else if (formData.description.length > 2000) errors.description = 'Beschreibung darf maximal 2000 Zeichen lang sein.'
+  if (!formData.description.trim()) errors.description = t('create.errors.descRequired')
+  else if (formData.description.length < 10) errors.description = t('create.errors.descMin')
+  else if (formData.description.length > 2000) errors.description = t('create.errors.descMax')
 
-  if (!formData.gameFile) errors.gameFile = 'Bitte waehle eine ZIP-Datei aus.'
-  else if (!formData.gameFile.name.endsWith('.zip')) errors.gameFile = 'Nur ZIP-Dateien sind erlaubt.'
-  else if (formData.gameFile.size > 200 * 1024 * 1024) errors.gameFile = 'Die Datei darf maximal 200 MB gross sein.'
+  if (!formData.gameFile) errors.gameFile = t('create.errors.zipRequired')
+  else if (!formData.gameFile.name.endsWith('.zip')) errors.gameFile = t('create.errors.zipOnly')
+  else if (formData.gameFile.size > 200 * 1024 * 1024) errors.gameFile = t('create.errors.fileSize')
 
-  if (!formData.thumbnail) errors.thumbnail = 'Bitte waehle ein Thumbnail aus.'
-  else if (formData.thumbnail.size > 5 * 1024 * 1024) errors.thumbnail = 'Das Thumbnail darf maximal 5 MB gross sein.'
+  if (!formData.thumbnail) errors.thumbnail = t('create.errors.thumbRequired')
+  else if (formData.thumbnail.size > 5 * 1024 * 1024) errors.thumbnail = t('create.errors.thumbSize')
 
-  if (formData.tags.length === 0) errors.tags = 'Mindestens ein Tag ist erforderlich.'
+  if (formData.tags.length === 0) errors.tags = t('create.errors.tagRequired')
 
-  if (!formData.isFree && formData.price < 1) errors.price = 'Preis muss mindestens 1 MindCoin betragen.'
+  if (!formData.isFree && formData.price < 1) errors.price = t('create.errors.priceMin')
 
   return errors
 }
 
-function DropZone({ onFileSelect, file, error }) {
+function DropZone({ onFileSelect, file, error, t }) {
   const [isDragOver, setIsDragOver] = useState(false)
 
   return (
@@ -69,8 +71,8 @@ function DropZone({ onFileSelect, file, error }) {
       ) : (
         <div>
           <Upload className="w-8 h-8 mx-auto mb-2 text-text-muted" />
-          <p className="font-semibold text-text-primary">Datei auswaehlen oder hierher ziehen</p>
-          <p className="text-text-muted text-sm mt-1">ZIP-Datei, max. 200 MB, muss index.html enthalten</p>
+          <p className="font-semibold text-text-primary">{t('create.dropFile')}</p>
+          <p className="text-text-muted text-sm mt-1">{t('create.fileHint')}</p>
         </div>
       )}
       <input
@@ -87,6 +89,7 @@ function DropZone({ onFileSelect, file, error }) {
 function ZipUploadMode({ onBack }) {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -170,7 +173,7 @@ function ZipUploadMode({ onBack }) {
   }
 
   const handleUpload = async () => {
-    const validationErrors = validateForm(formData)
+    const validationErrors = validateForm(formData, t)
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       return
@@ -180,14 +183,14 @@ function ZipUploadMode({ onBack }) {
     setErrors({})
 
     const steps = [
-      { step: 'Validiere Daten...', progress: 10 },
-      { step: 'Bereite Upload vor...', progress: 15 },
-      { step: 'Lade Spiel-Datei hoch...', progress: 45 },
-      { step: 'Lade Thumbnail hoch...', progress: 72 },
-      { step: 'Lade Screenshots hoch...', progress: 85 },
-      { step: 'Erstelle Spieleintrag...', progress: 92 },
-      { step: 'Aktualisiere Profil...', progress: 97 },
-      { step: 'Fertig!', progress: 100 },
+      { step: t('create.steps.validate'), progress: 10 },
+      { step: t('create.steps.prepare'), progress: 15 },
+      { step: t('create.steps.uploadFile'), progress: 45 },
+      { step: t('create.steps.uploadThumb'), progress: 72 },
+      { step: t('create.steps.uploadScreens'), progress: 85 },
+      { step: t('create.steps.createEntry'), progress: 92 },
+      { step: t('create.steps.updateProfile'), progress: 97 },
+      { step: t('create.steps.done'), progress: 100 },
     ]
 
     for (const { step, progress } of steps) {
@@ -217,41 +220,41 @@ function ZipUploadMode({ onBack }) {
     <div className="py-4 max-w-3xl mx-auto">
       <button onClick={onBack} className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-6 cursor-pointer">
         <ArrowLeft size={20} />
-        <span>Zurueck zur Modusauswahl</span>
+        <span>{t('create.backToMode')}</span>
       </button>
 
-      <h1 className="text-3xl font-bold mb-8">ZIP Upload</h1>
+      <h1 className="text-3xl font-bold mb-8">{t('create.zipUpload')}</h1>
 
       <div className="space-y-6">
         {/* Title */}
         <div>
-          <label>Titel</label>
-          <input type="text" value={formData.title} onChange={(e) => updateField('title', e.target.value)} placeholder="Gib deinem Spiel einen Titel..." maxLength={100} />
+          <label>{t('create.gameTitle')}</label>
+          <input type="text" value={formData.title} onChange={(e) => updateField('title', e.target.value)} placeholder={t('create.titlePlaceholder')} maxLength={100} />
           {errors.title && <p className="form-error">{errors.title}</p>}
         </div>
 
         {/* Description */}
         <div>
-          <label>Beschreibung</label>
-          <textarea value={formData.description} onChange={(e) => updateField('description', e.target.value)} placeholder="Beschreibe dein Spiel..." rows={5} maxLength={2000} />
+          <label>{t('create.description')}</label>
+          <textarea value={formData.description} onChange={(e) => updateField('description', e.target.value)} placeholder={t('create.descriptionPlaceholder')} rows={5} maxLength={2000} />
           <p className="text-text-muted text-xs mt-1 text-right">{formData.description.length}/2000</p>
           {errors.description && <p className="form-error">{errors.description}</p>}
         </div>
 
         {/* Game File (ZIP) */}
         <div>
-          <label>Spiel-Datei (ZIP)</label>
-          <DropZone onFileSelect={(file) => updateField('gameFile', file)} file={formData.gameFile} error={errors.gameFile} />
+          <label>{t('create.gameFile')}</label>
+          <DropZone onFileSelect={(file) => updateField('gameFile', file)} file={formData.gameFile} error={errors.gameFile} t={t} />
           {errors.gameFile && <p className="form-error">{errors.gameFile}</p>}
         </div>
 
         {/* Thumbnail */}
         <div>
-          <label>Thumbnail</label>
+          <label>{t('create.thumbnail')}</label>
           <div className="flex items-center gap-4">
             {formData.thumbnailPreview ? (
               <div className="relative">
-                <img src={formData.thumbnailPreview} alt="Thumbnail Vorschau" className="w-40 h-24 object-cover rounded-lg" />
+                <img src={formData.thumbnailPreview} alt={t('create.thumbnailPreview')} className="w-40 h-24 object-cover rounded-lg" />
                 <button onClick={() => { updateField('thumbnail', null); updateField('thumbnailPreview', null) }} className="absolute -top-2 -right-2 w-6 h-6 bg-error rounded-full flex items-center justify-center text-white">
                   <X size={12} />
                 </button>
@@ -263,10 +266,10 @@ function ZipUploadMode({ onBack }) {
             )}
             <div>
               <label htmlFor="thumbnail-input" className="bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer inline-block !mb-0">
-                Bild auswaehlen
+                {t('create.selectImage')}
               </label>
               <input id="thumbnail-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleThumbnailSelect} className="hidden" />
-              <p className="text-text-muted text-xs mt-1">PNG, JPG oder WebP. Max 5 MB.</p>
+              <p className="text-text-muted text-xs mt-1">{t('create.imageHint')}</p>
             </div>
           </div>
           {errors.thumbnail && <p className="form-error">{errors.thumbnail}</p>}
@@ -274,7 +277,7 @@ function ZipUploadMode({ onBack }) {
 
         {/* Screenshots */}
         <div>
-          <label>Screenshots (optional, max 5)</label>
+          <label>{t('create.screenshots')}</label>
           <div className="flex flex-wrap gap-2">
             {formData.screenshotPreviews.map((src, idx) => (
               <div key={idx} className="relative">
@@ -295,7 +298,7 @@ function ZipUploadMode({ onBack }) {
 
         {/* Tags */}
         <div>
-          <label>Tags</label>
+          <label>{t('create.tags')}</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {formData.tags.map(tag => (
               <span key={tag} className="flex items-center gap-1 bg-primary/20 text-primary-light px-3 py-1 rounded-full text-sm">
@@ -307,7 +310,7 @@ function ZipUploadMode({ onBack }) {
           {formData.tags.length < 10 && (
             <div className="relative">
               <div className="flex gap-2">
-                <input type="text" value={tagInput} onChange={(e) => { setTagInput(e.target.value); setShowTagSuggestions(true) }} onFocus={() => setShowTagSuggestions(true)} onBlur={() => setTimeout(() => setShowTagSuggestions(false), 150)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput); setShowTagSuggestions(false) } }} placeholder="Tag hinzufuegen..." className="!flex-1" />
+                <input type="text" value={tagInput} onChange={(e) => { setTagInput(e.target.value); setShowTagSuggestions(true) }} onFocus={() => setShowTagSuggestions(true)} onBlur={() => setTimeout(() => setShowTagSuggestions(false), 150)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput); setShowTagSuggestions(false) } }} placeholder={t('create.addTag')} className="!flex-1" />
                 <button onClick={() => { addTag(tagInput); setShowTagSuggestions(false) }} className="bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer"><Tag size={16} /></button>
               </div>
               {showTagSuggestions && tagInput && filteredSuggestions.length > 0 && (
@@ -320,20 +323,20 @@ function ZipUploadMode({ onBack }) {
             </div>
           )}
           {errors.tags && <p className="form-error">{errors.tags}</p>}
-          <p className="text-text-muted text-xs mt-1">{formData.tags.length}/10 Tags</p>
+          <p className="text-text-muted text-xs mt-1">{t('create.tagCount', { count: formData.tags.length })}</p>
         </div>
 
         {/* Price */}
         <div>
-          <label>Preis</label>
+          <label>{t('create.pricing')}</label>
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer !mb-0">
               <input type="radio" checked={formData.isFree} onChange={() => updateField('isFree', true)} className="!w-4 !h-4" />
-              <span className="text-text-primary text-sm">Kostenlos</span>
+              <span className="text-text-primary text-sm">{t('create.freeLabel')}</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer !mb-0">
               <input type="radio" checked={!formData.isFree} onChange={() => updateField('isFree', false)} className="!w-4 !h-4" />
-              <span className="text-text-primary text-sm">MindCoins:</span>
+              <span className="text-text-primary text-sm">{t('create.mindcoinsLabel')}</span>
               {!formData.isFree && (
                 <input type="number" value={formData.price} onChange={(e) => updateField('price', parseInt(e.target.value) || 0)} min={1} max={9999} className="!w-24 !py-1 !text-sm" />
               )}
@@ -358,7 +361,7 @@ function ZipUploadMode({ onBack }) {
         )}
 
         <button onClick={handleUpload} disabled={isUploading} className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-lg">
-          {isUploading ? 'Wird hochgeladen...' : 'Spiel hochladen'}
+          {isUploading ? t('create.uploading') : t('create.uploadGame')}
         </button>
       </div>
     </div>
@@ -369,6 +372,7 @@ const CodeEditorLayout = lazy(() => import('../components/codeEditor/CodeEditorL
 
 export default function Create() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [mode, setMode] = useState(null)
   const [editDraftId, setEditDraftId] = useState(null)
 
@@ -383,7 +387,7 @@ export default function Create() {
 
   if (mode === 'freeform') {
     return (
-      <Suspense fallback={<div className="text-center py-20 text-text-muted">Code Editor wird geladen...</div>}>
+      <Suspense fallback={<div className="text-center py-20 text-text-muted">{t('create.loadingEditor')}</div>}>
         <CodeEditorLayout onBack={handleBack} />
       </Suspense>
     )
@@ -393,5 +397,15 @@ export default function Create() {
     return <ZipUploadMode onBack={handleBack} />
   }
 
-  return <ModeSelector onSelect={setMode} />
+  return (
+    <>
+      <Helmet>
+        <title>Create | MindForge</title>
+        <meta name="description" content="Create and upload your own learning games on MindForge." />
+        <meta property="og:title" content="Create | MindForge" />
+        <meta property="og:description" content="Create and upload your own learning games on MindForge." />
+      </Helmet>
+      <ModeSelector onSelect={setMode} />
+    </>
+  )
 }

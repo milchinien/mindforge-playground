@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Settings2, Palette, ListChecks, Eye, Save } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useGameDrafts } from '../../hooks/useGameDrafts'
@@ -8,14 +9,6 @@ import QuestionEditorTab from './tabs/QuestionEditorTab'
 import DesignTab from './tabs/DesignTab'
 import SettingsTab from './tabs/SettingsTab'
 import PreviewPublishTab from './tabs/PreviewPublishTab'
-
-const TABS = [
-  { id: 'basics', label: 'Grundlagen', icon: Settings2 },
-  { id: 'questions', label: 'Fragen', icon: ListChecks },
-  { id: 'design', label: 'Design', icon: Palette },
-  { id: 'settings', label: 'Einstellungen', icon: Settings2 },
-  { id: 'preview', label: 'Vorschau & Publish', icon: Eye },
-]
 
 function createEmptyGame(userId, username) {
   return {
@@ -52,6 +45,7 @@ function createEmptyGame(userId, username) {
 }
 
 export default function GameBuilderPage({ editDraftId, onBack }) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const navigate = useNavigate()
   const { saveDraft, getDraft } = useGameDrafts()
@@ -65,6 +59,14 @@ export default function GameBuilderPage({ editDraftId, onBack }) {
   })
   const [lastSaved, setLastSaved] = useState(null)
   const autoSaveRef = useRef(null)
+
+  const TABS = [
+    { id: 'basics', label: t('create.builder.tabs.basics'), icon: Settings2 },
+    { id: 'questions', label: t('create.builder.tabs.questions'), icon: ListChecks },
+    { id: 'design', label: t('create.builder.tabs.design'), icon: Palette },
+    { id: 'settings', label: t('create.builder.tabs.settings'), icon: Settings2 },
+    { id: 'preview', label: t('create.builder.tabs.preview'), icon: Eye },
+  ]
 
   // Auto-save every 30 seconds
   useEffect(() => {
@@ -95,10 +97,10 @@ export default function GameBuilderPage({ editDraftId, onBack }) {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-xl font-bold">{gameData.title || 'Neues Quiz'}</h1>
+            <h1 className="text-xl font-bold">{gameData.title || t('create.builder.newQuiz')}</h1>
             <p className="text-text-muted text-xs">
-              Template-Modus
-              {lastSaved && ` · Gespeichert ${lastSaved.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`}
+              {t('create.builder.templateMode')}
+              {lastSaved && ` · ${t('create.builder.savedAt', { time: lastSaved.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) })}`}
             </p>
           </div>
         </div>
@@ -107,7 +109,7 @@ export default function GameBuilderPage({ editDraftId, onBack }) {
           className="flex items-center gap-2 bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm"
         >
           <Save size={16} />
-          Entwurf speichern
+          {t('create.builder.saveDraft')}
         </button>
       </div>
 

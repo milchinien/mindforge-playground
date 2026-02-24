@@ -1,8 +1,11 @@
 import { memo } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { timeAgo } from '../../utils/formatters'
 
 export default memo(function FriendCard({ friend }) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex items-center gap-4 bg-bg-card rounded-xl p-4
                     hover:bg-bg-hover transition-colors">
@@ -29,21 +32,21 @@ export default memo(function FriendCard({ friend }) {
             {friend.displayName}
           </Link>
           <span className={`text-xs ${friend.isOnline ? 'text-success' : 'text-text-muted'}`}>
-            {friend.isOnline ? 'Online' : 'Offline'}
+            {friend.isOnline ? t('friends.online') : t('friends.offline')}
           </span>
         </div>
         <p className="text-sm text-text-muted truncate">
           {friend.isOnline && friend.activity
             ? friend.activity
             : friend.lastOnline
-              ? `Zuletzt online ${timeAgo(friend.lastOnline)}`
-              : 'Offline'
+              ? t('friends.lastOnline', { time: timeAgo(friend.lastOnline) })
+              : t('friends.offline')
           }
         </p>
       </div>
 
       {/* Aktions-Menu */}
-      <button className="text-text-muted hover:text-text-primary p-2" aria-label="Mehr Optionen">
+      <button className="text-text-muted hover:text-text-primary p-2" aria-label={t('friends.moreOptions')}>
         {'\u2022\u2022\u2022'}
       </button>
     </div>

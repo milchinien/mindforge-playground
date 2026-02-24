@@ -96,3 +96,109 @@ label {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ============================================
+   Accessibility Styles (WCAG AA)
+   ============================================ */
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0 0 0.5rem 0.5rem;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Focus visible - keyboard-only focus indicator */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Improved focus for form elements */
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   High Contrast Mode
+   ============================================ */
+.high-contrast {
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-card: #2a2a2a;
+  --color-bg-hover: #3a3a3a;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e0e0e0;
+  --color-text-muted: #b0b0b0;
+  --color-accent: #ff9500;
+  --color-accent-light: #ffb340;
+  --color-accent-dark: #e68600;
+  --color-success: #00e676;
+  --color-error: #ff5252;
+  --color-warning: #ffd600;
+}
+
+.high-contrast *:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.high-contrast a,
+.high-contrast button {
+  text-decoration-thickness: 2px;
+}
+
+.high-contrast ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.high-contrast ::-webkit-scrollbar-thumb {
+  background: #666666;
+}
+
+.high-contrast ::-webkit-scrollbar-thumb:hover {
+  background: #888888;
+}
