@@ -1,23 +1,22 @@
 /**
  * Dev-Mode Authentication
  * Replaces Firebase Auth for local development when no Firebase project is configured.
- *
- * Test Account:
- *   Email:    test@mindforge.dev
- *   Password: test1234
- *   Username: TestPlayer
- *   Status:   Premium (Pro)
+ * Credentials are loaded from .env.local (not committed to git).
  */
+
+if (!import.meta.env.DEV) {
+  throw new Error('devAuth.js should only be loaded in development mode')
+}
 
 const TEST_ACCOUNTS = [
   {
     uid: 'dev-user-001',
-    email: 'test@mindforge.dev',
-    password: 'test1234',
+    email: import.meta.env.VITE_DEV_EMAIL_1 || 'test@mindforge.dev',
+    password: import.meta.env.VITE_DEV_PASSWORD_1 || 'test1234',
     profile: {
       uid: 'dev-user-001',
       username: 'TestPlayer',
-      email: 'test@mindforge.dev',
+      email: import.meta.env.VITE_DEV_EMAIL_1 || 'test@mindforge.dev',
       createdAt: new Date('2025-01-01'),
       avatar: { skinColor: '#ffcc99', hairColor: '#4a90d9', hairStyle: 'short', eyes: 'round' },
       bio: 'Premium Test Account',
@@ -36,12 +35,12 @@ const TEST_ACCOUNTS = [
   },
   {
     uid: 'dev-user-dev',
-    email: 'dev@mindforge.dev',
-    password: 'dev1234',
+    email: import.meta.env.VITE_DEV_EMAIL_2 || 'dev@mindforge.dev',
+    password: import.meta.env.VITE_DEV_PASSWORD_2 || 'dev1234',
     profile: {
       uid: 'dev-user-dev',
       username: 'DevAccount',
-      email: 'dev@mindforge.dev',
+      email: import.meta.env.VITE_DEV_EMAIL_2 || 'dev@mindforge.dev',
       createdAt: new Date('2024-01-01'),
       avatar: { skinColor: '#f5d0a9', hairColor: '#ff6600', hairStyle: 'short', eyes: 'happy' },
       bio: 'Developer Super-Account - Voller Zugriff auf alle Features',

@@ -1,7 +1,8 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { timeAgo } from '../../utils/formatters'
 
-export default function FriendCard({ friend }) {
+export default memo(function FriendCard({ friend }) {
   return (
     <div className="flex items-center gap-4 bg-bg-card rounded-xl p-4
                     hover:bg-bg-hover transition-colors">
@@ -47,4 +48,4 @@ export default function FriendCard({ friend }) {
       </button>
     </div>
   )
-}
+})

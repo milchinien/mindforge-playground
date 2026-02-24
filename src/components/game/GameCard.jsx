@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Heart, Play, Layers, Code, FileArchive } from 'lucide-react'
 import { formatNumber } from '../../utils/formatters'
@@ -21,7 +22,7 @@ function ThumbnailPlaceholder({ title, subject }) {
   )
 }
 
-export default function GameCard({ game }) {
+export default memo(function GameCard({ game }) {
   const navigate = useNavigate()
 
   return (
@@ -92,4 +93,4 @@ export default function GameCard({ game }) {
       </div>
     </div>
   )
-}
+})

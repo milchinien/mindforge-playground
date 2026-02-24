@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { ASSET_TYPES } from '../../data/mockAssets'
 import MindCoinIcon from '../common/MindCoinIcon'
 
@@ -9,7 +10,7 @@ const TYPE_ICONS = {
   'avatar-item': '\u{1F464}',
 }
 
-export default function AssetCard({ asset, onClick, purchased }) {
+export default memo(function AssetCard({ asset, onClick, purchased }) {
   const isFree = asset.price === 0
 
   return (
@@ -70,4 +71,4 @@ export default function AssetCard({ asset, onClick, purchased }) {
       </div>
     </div>
   )
-}
+})

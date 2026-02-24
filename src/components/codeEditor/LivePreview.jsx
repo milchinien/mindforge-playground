@@ -11,6 +11,7 @@ export default function LivePreview({ html, css, js }) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:;">
 <style>${css || ''}</style>
 </head>
 <body>
@@ -30,6 +31,7 @@ ${html || ''}
         className="w-full h-full border-0"
         title="Live Preview"
         sandbox="allow-scripts"
+        referrerPolicy="no-referrer"
       />
     </div>
   )
