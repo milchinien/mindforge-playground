@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
@@ -46,7 +47,14 @@ export default function Login() {
         <meta name="description" content="Login to MindForge" />
         <meta property="og:title" content={`${t('auth.welcomeBack')} | MindForge`} />
       </Helmet>
-      <div className="w-full max-w-sm bg-bg-card rounded-xl p-8 shadow-xl">
+      <div className="w-full max-w-sm bg-bg-card rounded-xl p-8 shadow-xl relative">
+        <Link
+          to="/"
+          className="absolute top-4 left-4 text-text-muted hover:text-text-primary transition-colors"
+          aria-label={t('common.back')}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-accent mb-1">MindForge</h1>
           <p className="text-text-secondary">{t('auth.welcomeBack')}</p>

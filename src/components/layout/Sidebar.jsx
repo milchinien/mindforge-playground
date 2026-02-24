@@ -108,13 +108,14 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Nav items */}
         <nav className="flex-1 flex flex-col gap-1 px-2" aria-label="Main menu">
           {navItems.map((item) => {
-            // Skip auth-required items for non-logged-in users
-            if (!user && !item.public) return null
-            if (item.premiumOnly && !user?.isPremium) return null
+            // Only hide premium items for logged-in non-premium users
+            if (item.premiumOnly && user && !user.isPremium) return null
 
+            // Determine link target: auth-required items → /login when not logged in
+            const needsAuth = !item.public && !user
             const to = item.needsUsername
               ? (user ? `/profile/${user.username}` : '/login')
-              : item.to
+              : needsAuth ? '/login' : item.to
             const Icon = item.icon
             const label = t(item.labelKey)
 

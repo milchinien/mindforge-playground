@@ -106,7 +106,7 @@ export default function Home() {
         <Trans
           i18nKey="home.welcomeBack"
           values={{ username: user.username }}
-          components={[null, <span className="text-accent" />]}
+          components={[<span />, <span className="text-accent" />]}
         />
       </h1>
 

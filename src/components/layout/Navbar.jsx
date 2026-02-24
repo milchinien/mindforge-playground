@@ -39,12 +39,8 @@ export default function Navbar({ onToggleSidebar }) {
           <Link to="/browse" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.mindbrowser')}</Link>
           <Link to="/events" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.events')}</Link>
           <Link to="/marketplace" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.marketplace')}</Link>
-          {user?.isPremium && (
-            <>
-              <Link to="/create" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.create')}</Link>
-              <Link to="/my-games" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.myGames')}</Link>
-            </>
-          )}
+          <Link to={user?.isPremium ? '/create' : user ? '/premium' : '/login'} className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.create')}</Link>
+          <Link to={user?.isPremium ? '/my-games' : user ? '/premium' : '/login'} className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.myGames')}</Link>
         </div>
 
         <form onSubmit={handleSearch} className="hidden sm:flex items-center flex-1 max-w-xs" role="search">
