@@ -105,7 +105,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="py-4 max-w-5xl mx-auto">
+    <div className="py-4">
       <>
         <title>{profileUser.username || username} | MindForge</title>
         <meta name="description" content={`${profileUser.username || username} - MindForge`} />

@@ -103,7 +103,7 @@ export default function Friends() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="p-6">
       <>
         <title>{t('friends.title')} | MindForge</title>
         <meta name="description" content={t('friends.title')} />

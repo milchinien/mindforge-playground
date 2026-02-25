@@ -532,7 +532,7 @@ export default function Avatar() {
 
   // ============= RENDER =============
   return (
-    <div className="h-full max-w-[1400px] mx-auto">
+    <div className="h-full">
       <>
         <title>Avatar | MindForge</title>
         <meta name="description" content={t('avatar.subtitle')} />

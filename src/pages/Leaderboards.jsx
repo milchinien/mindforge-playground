@@ -213,7 +213,7 @@ export default function Leaderboards() {
   const selectedGameData = mockGames.find(g => g.id === selectedGame)
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="p-6">
       <>
         <title>Leaderboards | MindForge</title>
         <meta name="description" content="Compare your scores with other players on the MindForge leaderboards." />

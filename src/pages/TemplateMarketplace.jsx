@@ -193,7 +193,7 @@ export default function TemplateMarketplace() {
   if (sortBy === 'free') filtered = filtered.filter(t => t.price === 0)
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div>
       <>
         <title>Template Marketplace | MindForge</title>
         <meta name="description" content="Entdecke und nutze Game-Templates von der MindForge Community." />

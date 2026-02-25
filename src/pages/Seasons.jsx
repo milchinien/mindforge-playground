@@ -640,7 +640,7 @@ export default function Seasons() {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="p-6">
       <>
         <title>{`Season ${CURRENT_SEASON.number}: ${CURRENT_SEASON.name} | MindForge`}</title>
         <meta name="description" content={`Season ${CURRENT_SEASON.number} "${CURRENT_SEASON.name}" - ${CURRENT_SEASON.description}`} />

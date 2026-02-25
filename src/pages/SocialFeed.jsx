@@ -188,7 +188,7 @@ export default function SocialFeed() {
         <meta property="og:description" content="See what your friends are up to on MindForge." />
       </>
 
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 bg-accent/10 rounded-xl">

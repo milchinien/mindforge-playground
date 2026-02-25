@@ -149,7 +149,7 @@ export default function Inventory() {
   ]
 
   return (
-    <div className="py-4 max-w-5xl mx-auto">
+    <div className="py-4">
       <>
         <title>{t('inventory.title')} | MindForge</title>
         <meta name="description" content={t('inventory.title')} />

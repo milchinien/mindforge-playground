@@ -216,7 +216,7 @@ function ZipUploadMode({ onBack }) {
   ).slice(0, 5)
 
   return (
-    <div className="py-4 max-w-3xl mx-auto">
+    <div className="py-4">
       <button onClick={onBack} className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-6 cursor-pointer">
         <ArrowLeft size={20} />
         <span>{t('create.backToMode')}</span>

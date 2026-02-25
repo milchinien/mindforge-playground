@@ -305,7 +305,7 @@ export default function Quests() {
   }, [checkResets])
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="p-6">
       <>
         <title>Quests & Abzeichen | MindForge</title>
         <meta name="description" content="Taeglich neue Quests, Story-Abenteuer und Abzeichen zum Sammeln auf MindForge." />

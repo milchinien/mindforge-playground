@@ -154,7 +154,7 @@ export default function Events() {
   const endedEvents = events.filter(e => e.status === 'ended')
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="p-6">
       <>
         <title>{t('events.title')} | MindForge</title>
         <meta name="description" content={t('events.title')} />

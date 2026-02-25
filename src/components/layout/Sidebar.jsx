@@ -1,5 +1,6 @@
-import { NavLink, Link } from 'react-router-dom'
-import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn, Gamepad2, Swords, Rss, BarChart3, Star, Clock, Pin, PinOff, MessageCircle, Shield, Scroll, Gift } from 'lucide-react'
+import { useState } from 'react'
+import { NavLink, Link, useLocation } from 'react-router-dom'
+import { Home, User, Users, Palette, Backpack, Trophy, ChevronLeft, ChevronRight, ChevronDown, Diamond, X, Star, PinOff, MessageCircle, Shield, Scroll, Gift } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { useUIStore } from '../../stores/uiStore'
@@ -8,35 +9,110 @@ import AvatarRenderer from '../profile/AvatarRenderer'
 
 const navItems = [
   { to: '/', icon: Home, labelKey: 'nav.home', public: true },
-  { to: '/profile/', icon: User, labelKey: 'nav.profile', needsUsername: true },
-  { to: '/events', icon: Calendar, labelKey: 'nav.events', public: true },
-  { to: '/leaderboards', icon: BarChart3, labelKey: 'nav.leaderboards', public: true },
-  { to: '/seasons', icon: Shield, labelKey: 'Seasons', public: true },
-  { to: '/quests', icon: Scroll, labelKey: 'Quests', public: true },
-  { to: '/quiz', icon: Swords, labelKey: 'nav.quizArena', public: true },
-  { to: '/feed', icon: Rss, labelKey: 'nav.activityFeed', public: true },
+  { to: '/quests', icon: Scroll, labelKey: 'Quests', public: true, children: [
+    { to: '/achievements', icon: Trophy, labelKey: 'nav.achievements' },
+    { to: '/seasons', icon: Shield, labelKey: 'Seasons', public: true },
+  ]},
   { to: '/chat', icon: MessageCircle, labelKey: 'Chat' },
   { to: '/groups', icon: Users, labelKey: 'Gruppen' },
-  { to: '/my-games', icon: Gamepad2, labelKey: 'nav.myGames', premiumOnly: true },
-  { to: '/achievements', icon: Trophy, labelKey: 'nav.achievements' },
   { to: '/friends', icon: Users, labelKey: 'nav.friends' },
   { to: '/avatar', icon: Palette, labelKey: 'nav.avatar' },
   { to: '/inventory', icon: Backpack, labelKey: 'nav.inventory' },
-  { to: '/shop', icon: (props) => <MindCoinIcon size={28} className="shrink-0" />, labelKey: 'nav.shop' },
-  { to: '/gift', icon: Gift, labelKey: 'Verschenken' },
-  { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
+  { to: '/shop', icon: (props) => <MindCoinIcon size={28} className="shrink-0" />, labelKey: 'nav.shop', children: [
+    { to: '/gift', icon: Gift, labelKey: 'Verschenken' },
+  ]},
 ]
 
 export default function Sidebar({ isOpen, onClose }) {
   const { user } = useAuth()
   const { t } = useTranslation()
+  const location = useLocation()
   const collapsed = useUIStore((s) => s.sidebarCollapsed)
   const toggleSidebar = useUIStore((s) => s.toggleSidebar)
   const favorites = useUIStore((s) => s.favorites)
-  const recentPages = useUIStore((s) => s.recentPages)
   const removeFavorite = useUIStore((s) => s.removeFavorite)
 
+  // Track which parent items are expanded
+  const [expandedItems, setExpandedItems] = useState(() => {
+    // Auto-expand parents whose child is the current route
+    const initial = new Set()
+    for (const item of navItems) {
+      if (item.children?.some((child) => location.pathname === child.to)) {
+        initial.add(item.to)
+      }
+    }
+    return initial
+  })
+
+  const toggleExpand = (path) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) {
+        next.delete(path)
+      } else {
+        next.add(path)
+      }
+      return next
+    })
+  }
+
+  const isChildActive = (item) =>
+    item.children?.some((child) => location.pathname === child.to)
+
   const sidebarWidth = collapsed ? 'w-16' : 'w-60'
+
+  const renderNavItem = (item, isChild = false) => {
+    const needsAuth = !item.public && !user
+    const to = needsAuth ? '/login' : item.to
+    const Icon = item.icon
+    const label = item.labelKey.includes('.') ? t(item.labelKey) : item.labelKey
+    const hasChildren = item.children?.length > 0
+    const isExpanded = expandedItems.has(item.to)
+    const childActive = isChildActive(item)
+
+    return (
+      <div key={item.to}>
+        <div className={`flex items-center ${collapsed ? 'justify-center' : ''}`}>
+          <NavLink
+            to={to}
+            end={to === '/'}
+            onClick={onClose}
+            aria-label={collapsed ? label : undefined}
+            className={({ isActive }) => `
+              flex items-center gap-3 ${isChild ? 'pl-10 pr-3 py-2' : 'px-3 py-2.5'} rounded-lg transition-colors ${isChild ? 'text-xs' : 'text-sm'}
+              ${collapsed ? 'justify-center flex-1' : 'flex-1'}
+              ${isActive || (!isChild && childActive)
+                ? 'bg-accent/15 text-accent border-l-3 border-accent font-semibold'
+                : 'text-text-secondary hover:bg-bg-card hover:text-text-primary'}
+            `}
+          >
+            <Icon className={`${isChild ? 'w-4 h-4' : 'w-5 h-5'} shrink-0`} aria-hidden="true" />
+            {!collapsed && <span>{label}</span>}
+            {!collapsed && hasChildren && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  toggleExpand(item.to)
+                }}
+                className="ml-auto p-0.5 text-text-muted hover:text-text-primary transition-colors"
+                aria-label={isExpanded ? `Collapse ${label}` : `Expand ${label}`}
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? '' : '-rotate-90'}`} />
+              </button>
+            )}
+          </NavLink>
+        </div>
+
+        {/* Sub-items */}
+        {hasChildren && !collapsed && (
+          <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+            {item.children.map((child) => renderNavItem(child, true))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <>
@@ -145,74 +221,10 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
         )}
 
-        {/* Recently Visited Section */}
-        {!collapsed && recentPages.length > 0 && (
-          <div className="px-3 mb-2 pb-2 border-b border-gray-700">
-            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Zuletzt besucht
-            </p>
-            <div className="space-y-0.5">
-              {recentPages.slice(0, 4).map((page) => (
-                <NavLink
-                  key={page.path}
-                  to={page.path}
-                  onClick={onClose}
-                  className={({ isActive }) => `
-                    block text-xs px-2 py-1.5 rounded transition-colors truncate
-                    ${isActive ? 'text-accent bg-accent/10' : 'text-text-secondary hover:text-text-primary hover:bg-bg-card'}
-                  `}
-                >
-                  {page.label}
-                </NavLink>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Nav items */}
         <nav className="flex-1 flex flex-col gap-1 px-2" aria-label="Main menu">
-          {navItems.map((item) => {
-            // Only hide premium items for logged-in non-premium users
-            if (item.premiumOnly && user && !user.isPremium) return null
-
-            // Determine link target: auth-required items -> /login when not logged in
-            const needsAuth = !item.public && !user
-            const to = item.needsUsername
-              ? (user ? `/profile/${user.username}` : '/login')
-              : needsAuth ? '/login' : item.to
-            const Icon = item.icon
-            const label = item.labelKey.includes('.') ? t(item.labelKey) : item.labelKey
-
-            if (item.disabled) {
-              return (
-                <div key={item.to} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted opacity-50 cursor-not-allowed ${collapsed ? 'justify-center' : ''}`}>
-                  <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
-                  {!collapsed && <span className="text-sm">{label}</span>}
-                  {!collapsed && <span className="text-xs ml-auto">{t('common.comingSoon')}</span>}
-                </div>
-              )
-            }
-
-            return (
-              <NavLink
-                key={item.to}
-                to={to}
-                end={to === '/'}
-                onClick={onClose}
-                aria-label={collapsed ? label : undefined}
-                className={({ isActive }) => `
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm
-                  ${collapsed ? 'justify-center' : ''}
-                  ${isActive
-                    ? 'bg-accent/15 text-accent border-l-3 border-accent font-semibold'
-                    : 'text-text-secondary hover:bg-bg-card hover:text-text-primary'}
-                `}
-              >
-                <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
-                {!collapsed && <span>{label}</span>}
-              </NavLink>
-            )
-          })}
+          {navItems.map((item) => renderNavItem(item))}
         </nav>
 
         {/* Premium button */}

@@ -355,7 +355,7 @@ export default function Groups() {
   )
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="p-6">
       <>
         <title>Gruppen | MindForge</title>
         <meta name="description" content="Tritt Lerngruppen, Clans und Klassen bei. Lerne gemeinsam und kaempfe in Clan Wars!" />

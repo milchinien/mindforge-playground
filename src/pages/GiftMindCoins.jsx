@@ -194,7 +194,7 @@ export default function GiftMindCoins() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="p-6">
       <>
         <title>MindCoins verschenken | MindForge</title>
         <meta name="description" content="Verschenke MindCoins an deine Freunde auf MindForge." />

@@ -149,7 +149,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="py-4 max-w-2xl mx-auto space-y-6">
+    <div className="py-4 space-y-6">
       <>
         <title>{t('settings.title')} | MindForge</title>
         <meta name="description" content={t('settings.title')} />

@@ -244,7 +244,7 @@ export default function Search() {
   const currentResults = results[activeTab] || []
 
   return (
-    <div className="py-4 max-w-4xl mx-auto">
+    <div className="py-4">
       <>
         <title>Suche | MindForge</title>
         <meta name="description" content="Suche nach Lernspielen, Usern, Achievements und Events auf MindForge." />
