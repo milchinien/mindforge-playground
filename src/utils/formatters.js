@@ -14,7 +14,7 @@ export function formatDate(dateString) {
 }
 
 export function timeAgo(date) {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = date instanceof Date ? date : new Date(date)
   const seconds = Math.floor((Date.now() - d.getTime()) / 1000)
   if (seconds < 60) return 'Gerade eben'
   const minutes = Math.floor(seconds / 60)
