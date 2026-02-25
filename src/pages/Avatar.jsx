@@ -6,10 +6,11 @@ import { useAuth } from '../contexts/AuthContext'
 import AvatarRenderer from '../components/profile/AvatarRenderer'
 import MindCoinIcon from '../components/common/MindCoinIcon'
 import useEscapeKey from '../hooks/useEscapeKey'
+import useUndoRedo from '../hooks/useUndoRedo'
 import {
   Sparkles, User, Scissors, Smile, Crown, Shirt,
   Glasses, Palette, Eye, ShoppingBag, PersonStanding,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Undo2, Redo2,
 } from 'lucide-react'
 import {
   SKIN_COLORS, HAIR_COLORS, EYE_COLORS, CLOTHING_COLORS,
@@ -377,6 +378,47 @@ export default function Avatar() {
   const debounceRef = useRef(null)
   const latestConfig = useRef(avatarConfig)
 
+  // Undo/Redo
+  const { pushState: pushUndoState, undo, redo, canUndo, canRedo } = useUndoRedo(savedConfig.current)
+
+  const handleUndo = () => {
+    const prev = undo()
+    if (prev) {
+      setAvatarConfig(prev)
+      latestConfig.current = prev
+      setSaveStatus('pending')
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => saveToServer(prev), 800)
+    }
+  }
+
+  const handleRedo = () => {
+    const next = redo()
+    if (next) {
+      setAvatarConfig(next)
+      latestConfig.current = next
+      setSaveStatus('pending')
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => saveToServer(next), 800)
+    }
+  }
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        handleUndo()
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault()
+        handleRedo()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [canUndo, canRedo])
+
   const ownedHats = user?.ownedHats || []
   const ownedAccessories = user?.ownedAccessories || []
 
@@ -412,6 +454,7 @@ export default function Avatar() {
     const newConfig = { ...avatarConfig, [key]: value }
     setAvatarConfig(newConfig)
     latestConfig.current = newConfig
+    pushUndoState(newConfig)
     setSaveStatus('pending')
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -424,6 +467,7 @@ export default function Avatar() {
     const newConfig = { ...preset.config }
     setAvatarConfig(newConfig)
     latestConfig.current = newConfig
+    pushUndoState(newConfig)
     setSaveStatus('pending')
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -504,6 +548,25 @@ export default function Avatar() {
           <p className="text-sm text-text-muted mt-0.5">{t('avatar.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
+          {/* Undo/Redo Buttons */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleUndo}
+              disabled={!canUndo}
+              title={`${t('avatar.undo', 'Rückgängig')} (Ctrl+Z)`}
+              className="p-2 rounded-lg bg-bg-secondary/80 border border-gray-700/50 text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Undo2 size={16} />
+            </button>
+            <button
+              onClick={handleRedo}
+              disabled={!canRedo}
+              title={`${t('avatar.redo', 'Wiederholen')} (Ctrl+Y)`}
+              className="p-2 rounded-lg bg-bg-secondary/80 border border-gray-700/50 text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Redo2 size={16} />
+            </button>
+          </div>
           <span className="flex items-center gap-1.5 text-sm bg-bg-secondary/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-gray-700/50 shadow-sm">
             <MindCoinIcon size={16} />
             <span className="font-bold text-accent">{(user?.mindCoins || 0).toLocaleString('de-DE')}</span>

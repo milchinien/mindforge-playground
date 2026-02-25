@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Eye, Play, Heart, ThumbsDown, Calendar } from 'lucide-react'
+import { ArrowLeft, Eye, Play, Heart, ThumbsDown, Calendar, MonitorPlay, X } from 'lucide-react'
+import ShareButtons from '../components/common/ShareButtons'
 import { getGameById } from '../data/mockGames'
 import { formatNumber, formatDate } from '../utils/formatters'
 import { getSubjectConfig } from '../data/subjectConfig'
@@ -29,6 +30,7 @@ export default function GameDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const game = getGameById(id)
+  const [showPreview, setShowPreview] = useState(false)
 
   useEffect(() => {
     if (game) {
@@ -196,13 +198,24 @@ export default function GameDetail() {
             </div>
           </div>
 
-          {/* Play Button */}
-          <button
-            onClick={() => navigate(`/play/${game.id}`)}
-            className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors mb-4 cursor-pointer text-lg"
-          >
-            {t('game.playNow')}
-          </button>
+          {/* Play + Preview Buttons */}
+          <div className="flex gap-3 mb-4">
+            <button
+              onClick={() => navigate(`/play/${game.id}`)}
+              className="flex-1 bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors cursor-pointer text-lg flex items-center justify-center gap-2"
+            >
+              <Play size={20} />
+              {t('game.playNow')}
+            </button>
+            <button
+              onClick={() => setShowPreview(true)}
+              className="bg-bg-card hover:bg-bg-hover text-text-primary font-semibold py-3 px-4 rounded-lg transition-colors cursor-pointer flex items-center gap-2 border border-gray-700"
+              title={t('game.preview', 'Vorschau')}
+            >
+              <MonitorPlay size={18} />
+              <span className="hidden sm:inline">{t('game.preview', 'Vorschau')}</span>
+            </button>
+          </div>
 
           {/* Like / Dislike */}
           <LikeDislike
@@ -210,6 +223,11 @@ export default function GameDetail() {
             initialLikes={game.likes}
             initialDislikes={game.dislikes}
           />
+
+          {/* Share */}
+          <div className="mt-4 pt-4 border-t border-bg-hover">
+            <ShareButtons title={game.title} compact />
+          </div>
         </div>
       </div>
 
@@ -217,6 +235,69 @@ export default function GameDetail() {
       <div className="mt-8">
         <GameReviews gameId={game.id} />
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setShowPreview(false)}>
+          <div className="relative w-full max-w-4xl max-h-[80vh] bg-bg-secondary rounded-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-3 border-b border-gray-700">
+              <span className="text-sm font-semibold text-text-primary flex items-center gap-2">
+                <MonitorPlay size={16} />
+                {t('game.preview', 'Vorschau')}: {game.title}
+              </span>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="text-text-muted hover:text-text-primary cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="aspect-video bg-bg-primary flex items-center justify-center">
+              {game.mode === 'template' && game.questions ? (
+                <div className="text-center p-8 max-w-lg">
+                  <p className="text-text-muted text-sm mb-4">{t('game.previewQuiz', 'Quiz-Vorschau')}</p>
+                  <div className="space-y-3">
+                    {game.questions.slice(0, 3).map((q, i) => (
+                      <div key={i} className="bg-bg-card rounded-lg p-3 text-left">
+                        <p className="text-text-primary text-sm font-medium">{i + 1}. {q.text}</p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {q.options?.map((opt, j) => (
+                            <span key={j} className="text-xs bg-bg-hover px-2 py-0.5 rounded text-text-secondary">
+                              {opt.text}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    {game.questions.length > 3 && (
+                      <p className="text-text-muted text-xs">
+                        +{game.questions.length - 3} {t('game.moreQuestions', 'weitere Fragen')}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => { setShowPreview(false); navigate(`/play/${game.id}`) }}
+                    className="mt-4 bg-accent hover:bg-accent-dark text-white font-bold py-2 px-6 rounded-lg transition-colors cursor-pointer"
+                  >
+                    {t('game.playNow')}
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center p-8">
+                  <MonitorPlay size={48} className="text-text-muted mx-auto mb-3" />
+                  <p className="text-text-secondary mb-2">{t('game.previewNotAvailable', 'Vorschau für dieses Spielformat nicht verfügbar.')}</p>
+                  <button
+                    onClick={() => { setShowPreview(false); navigate(`/play/${game.id}`) }}
+                    className="mt-2 bg-accent hover:bg-accent-dark text-white font-bold py-2 px-6 rounded-lg transition-colors cursor-pointer"
+                  >
+                    {t('game.playNow')}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

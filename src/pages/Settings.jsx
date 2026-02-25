@@ -196,6 +196,38 @@ export default function Settings() {
             </button>
           </div>
         </div>
+
+        {/* Theme Preview */}
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          {[
+            { id: 'dark', label: t('settings.dark'), bg: '#111827', card: '#374151', text: '#ffffff', accent: '#f97316' },
+            { id: 'light', label: t('settings.light'), bg: '#f9fafb', card: '#ffffff', text: '#111827', accent: '#2563eb' },
+            { id: 'high-contrast', label: t('settings.highContrast'), bg: '#000000', card: '#1a1a1a', text: '#ffffff', accent: '#00ff88' },
+          ].map((preview) => (
+            <button
+              key={preview.id}
+              onClick={() => setTheme(preview.id)}
+              className={`rounded-lg p-3 border-2 transition-all cursor-pointer ${
+                theme === preview.id
+                  ? 'border-accent shadow-lg shadow-accent/20'
+                  : 'border-gray-600 hover:border-gray-500'
+              }`}
+              style={{ backgroundColor: preview.bg }}
+            >
+              <div className="space-y-1.5">
+                <div className="h-2 w-3/4 rounded" style={{ backgroundColor: preview.text, opacity: 0.8 }} />
+                <div className="h-2 w-1/2 rounded" style={{ backgroundColor: preview.text, opacity: 0.4 }} />
+                <div className="flex gap-1 mt-2">
+                  <div className="h-6 flex-1 rounded" style={{ backgroundColor: preview.card }} />
+                  <div className="h-6 flex-1 rounded" style={{ backgroundColor: preview.accent }} />
+                </div>
+                <p className="text-xs font-medium mt-1 text-center" style={{ color: preview.text }}>
+                  {preview.label}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* Language */}

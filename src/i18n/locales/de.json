@@ -565,6 +565,12 @@
         "features": ["Kein Code noetig", "Quiz-Editor mit Drag & Drop", "5 Design-Themes", "Sofort spielbar"],
         "recommended": "Empfohlen"
       },
+      "visual": {
+        "title": "Visual Builder",
+        "subtitle": "Scratch-aehnlich",
+        "description": "Baue Spiele mit Drag-and-Drop-Bloecken. Kein Code noetig - einfach Bloecke zusammenstecken.",
+        "features": ["Block-Editor wie Scratch", "Drag & Drop Bloecke", "Live-Vorschau", "Code-Export"]
+      },
       "freeform": {
         "title": "Freier Modus",
         "subtitle": "Fortgeschritten",

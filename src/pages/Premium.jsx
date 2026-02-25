@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
-import { Check, X, Crown, GraduationCap, Sparkles } from 'lucide-react'
+import { Check, X, Crown, GraduationCap, Sparkles, Palette, BarChart3, Lock } from 'lucide-react'
+import { isPremium } from '../utils/premiumChecks'
+import ThemeSelector from '../components/premium/ThemeSelector'
+import DetailedStats from '../components/premium/DetailedStats'
 
 function PricingCard({ tier, isCurrentTier, isYearly, t }) {
   const Icon = tier.icon
@@ -80,11 +83,30 @@ function PricingCard({ tier, isCurrentTier, isYearly, t }) {
   )
 }
 
+// Tab button component
+function TabBtn({ active, onClick, icon: Icon, children }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer
+        ${active
+          ? 'bg-accent text-white shadow-sm'
+          : 'text-text-secondary hover:text-text-primary hover:bg-bg-card'
+        }`}
+    >
+      {Icon && <Icon className="w-4 h-4" />}
+      {children}
+    </button>
+  )
+}
+
 export default function Premium() {
   const { t } = useTranslation()
   const { user } = useAuth()
   const currentTier = user?.premiumTier || 'free'
   const [isYearly, setIsYearly] = useState(false)
+  const [activeTab, setActiveTab] = useState('plans')
+  const userIsPremium = isPremium(user)
 
   const PREMIUM_TIERS = [
     {
@@ -189,80 +211,143 @@ export default function Premium() {
         <meta property="og:description" content={t('premium.subtitle')} />
       </Helmet>
 
-      <div className="text-center mb-10">
+      <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-3">{t('premium.headline')}</h1>
-        <p className="text-text-secondary max-w-2xl mx-auto mb-6">
+        <p className="text-text-secondary max-w-2xl mx-auto">
           {t('premium.subtitle')}
         </p>
-
-        {/* Monthly / Yearly Toggle */}
-        <div className="inline-flex items-center bg-bg-card rounded-full p-1 border border-gray-700">
-          <button
-            onClick={() => setIsYearly(false)}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer ${
-              !isYearly ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {t('premium.monthly')}
-          </button>
-          <button
-            onClick={() => setIsYearly(true)}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer flex items-center gap-2 ${
-              isYearly ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {t('premium.yearly')}
-            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-              isYearly ? 'bg-white/20 text-white' : 'bg-success/20 text-success'
-            }`}>
-              {t('premium.savePercent', { percent: 20 })}
-            </span>
-          </button>
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
-        {PREMIUM_TIERS.map(tier => (
-          <PricingCard
-            key={tier.id}
-            tier={tier}
-            isCurrentTier={currentTier === tier.id}
-            isYearly={isYearly}
-            t={t}
-          />
-        ))}
+      {/* Premium section tabs */}
+      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-8 overflow-x-auto">
+        <TabBtn active={activeTab === 'plans'} onClick={() => setActiveTab('plans')} icon={Crown}>
+          Abo-Plaene
+        </TabBtn>
+        <TabBtn active={activeTab === 'themes'} onClick={() => setActiveTab('themes')} icon={Palette}>
+          Themes & Rahmen
+        </TabBtn>
+        <TabBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={BarChart3}>
+          Detaillierte Statistiken
+        </TabBtn>
       </div>
 
-      <div className="mt-12 bg-bg-card rounded-xl p-6 border border-gray-700">
-        <h2 className="text-xl font-semibold mb-4 text-center">{t('premium.faq.title')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.cancelQ')}</h3>
-            <p className="text-sm text-text-secondary">{t('premium.faq.cancelA')}</p>
+      {/* Plans tab */}
+      {activeTab === 'plans' && (
+        <>
+          <div className="text-center mb-6">
+            {/* Monthly / Yearly Toggle */}
+            <div className="inline-flex items-center bg-bg-card rounded-full p-1 border border-gray-700">
+              <button
+                onClick={() => setIsYearly(false)}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer ${
+                  !isYearly ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {t('premium.monthly')}
+              </button>
+              <button
+                onClick={() => setIsYearly(true)}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer flex items-center gap-2 ${
+                  isYearly ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {t('premium.yearly')}
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  isYearly ? 'bg-white/20 text-white' : 'bg-success/20 text-success'
+                }`}>
+                  {t('premium.savePercent', { percent: 20 })}
+                </span>
+              </button>
+            </div>
           </div>
-          <div>
-            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.gamesQ')}</h3>
-            <p className="text-sm text-text-secondary">{t('premium.faq.gamesA')}</p>
-          </div>
-          <div>
-            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.upgradeQ')}</h3>
-            <p className="text-sm text-text-secondary">{t('premium.faq.upgradeA')}</p>
-          </div>
-          <div>
-            <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.studentQ')}</h3>
-            <p className="text-sm text-text-secondary">{t('premium.faq.studentA')}</p>
-          </div>
-        </div>
-      </div>
 
-      <div className="mt-8 bg-warning/10 border border-warning/30 rounded-lg p-4 text-center">
-        <p className="text-warning font-medium">
-          {t('premium.paymentSoon')}
-        </p>
-        <p className="text-sm text-text-muted mt-1">
-          {t('premium.paymentNote')}
-        </p>
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
+            {PREMIUM_TIERS.map(tier => (
+              <PricingCard
+                key={tier.id}
+                tier={tier}
+                isCurrentTier={currentTier === tier.id}
+                isYearly={isYearly}
+                t={t}
+              />
+            ))}
+          </div>
+
+          <div className="mt-12 bg-bg-card rounded-xl p-6 border border-gray-700">
+            <h2 className="text-xl font-semibold mb-4 text-center">{t('premium.faq.title')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.cancelQ')}</h3>
+                <p className="text-sm text-text-secondary">{t('premium.faq.cancelA')}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.gamesQ')}</h3>
+                <p className="text-sm text-text-secondary">{t('premium.faq.gamesA')}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.upgradeQ')}</h3>
+                <p className="text-sm text-text-secondary">{t('premium.faq.upgradeA')}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.studentQ')}</h3>
+                <p className="text-sm text-text-secondary">{t('premium.faq.studentA')}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-warning/10 border border-warning/30 rounded-lg p-4 text-center">
+            <p className="text-warning font-medium">
+              {t('premium.paymentSoon')}
+            </p>
+            <p className="text-sm text-text-muted mt-1">
+              {t('premium.paymentNote')}
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* Themes tab */}
+      {activeTab === 'themes' && (
+        <>
+          {!userIsPremium && (
+            <div className="bg-warning/10 border border-warning/30 rounded-xl p-5 mb-6 flex items-center gap-4">
+              <Lock className="w-6 h-6 text-warning flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-warning">Premium erforderlich</p>
+                <p className="text-sm text-text-secondary">
+                  Themes und animierte Rahmen sind exklusiv fuer Premium-Mitglieder verfuegbar.
+                  Upgrade jetzt um Zugang zu erhalten!
+                </p>
+              </div>
+            </div>
+          )}
+          <ThemeSelector />
+        </>
+      )}
+
+      {/* Stats tab */}
+      {activeTab === 'stats' && (
+        <>
+          {!userIsPremium ? (
+            <div className="text-center py-16">
+              <Lock className="w-12 h-12 text-text-muted mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-text-primary mb-2">Premium-Statistiken</h2>
+              <p className="text-text-secondary mb-6 max-w-md mx-auto">
+                Detaillierte Lernstatistiken mit Staerken-Analyse, Streak-Kalender, Faecher-Verteilung und
+                Verbesserungs-Trends sind exklusiv fuer Premium-Mitglieder.
+              </p>
+              <button
+                onClick={() => setActiveTab('plans')}
+                className="bg-accent hover:bg-accent-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer"
+              >
+                Jetzt Premium werden
+              </button>
+            </div>
+          ) : (
+            <DetailedStats />
+          )}
+        </>
+      )}
     </div>
   )
 }

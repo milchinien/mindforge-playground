@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Layers, Code, FileArchive } from 'lucide-react'
+import { Layers, Code, FileArchive, Puzzle } from 'lucide-react'
 
 export default function ModeSelector({ onSelect }) {
   const { t } = useTranslation()
@@ -14,6 +14,16 @@ export default function ModeSelector({ onSelect }) {
       features: t('create.modes.template.features', { returnObjects: true }),
       color: 'from-orange-500 to-amber-600',
       recommended: true,
+    },
+    {
+      id: 'visual',
+      icon: Puzzle,
+      title: t('create.modes.visual.title'),
+      subtitle: t('create.modes.visual.subtitle'),
+      description: t('create.modes.visual.description'),
+      features: t('create.modes.visual.features', { returnObjects: true }),
+      color: 'from-emerald-500 to-teal-600',
+      isNew: true,
     },
     {
       id: 'freeform',
@@ -42,7 +52,7 @@ export default function ModeSelector({ onSelect }) {
         <p className="text-text-secondary">{t('create.modes.subtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {modes.map((mode) => {
           const Icon = mode.icon
           return (
@@ -59,6 +69,9 @@ export default function ModeSelector({ onSelect }) {
                 <h2 className="text-xl font-bold text-text-primary">{mode.title}</h2>
                 {mode.recommended && (
                   <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full font-medium">{t('create.modes.template.recommended')}</span>
+                )}
+                {mode.isNew && (
+                  <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Neu</span>
                 )}
               </div>
               <p className="text-text-muted text-xs mb-3">{mode.subtitle}</p>

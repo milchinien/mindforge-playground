@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, Settings2, Rocket, Monitor, GripHorizontal } from 'lucide-react'
+import { ArrowLeft, Settings2, Rocket, Monitor, GripHorizontal, Users, Image, Wand2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { usePublishedGames } from '../../hooks/usePublishedGames'
@@ -10,6 +10,9 @@ import MonacoWrapper from './MonacoWrapper'
 import LivePreview from './LivePreview'
 import MetadataPanel from './MetadataPanel'
 import AIChatPanel from './AIChatPanel'
+import CollaborationPanel from './CollaborationPanel'
+import AssetLibrary from './AssetLibrary'
+import ForgeCodeGenerator from './ForgeCodeGenerator'
 
 export default function CodeEditorLayout({ onBack }) {
   const { user } = useAuth()
@@ -34,6 +37,9 @@ export default function CodeEditorLayout({ onBack }) {
     visibility: 'public',
   })
   const [isMobile, setIsMobile] = useState(false)
+  const [showCollab, setShowCollab] = useState(false)
+  const [showAssets, setShowAssets] = useState(false)
+  const [showForgeGenerator, setShowForgeGenerator] = useState(false)
 
   // Resizable AI panel
   const [aiPanelHeight, setAiPanelHeight] = useState(280)
@@ -169,6 +175,30 @@ export default function CodeEditorLayout({ onBack }) {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setShowForgeGenerator(true)}
+            className="flex items-center gap-1.5 bg-accent/20 text-accent hover:bg-accent/30 px-3 py-1.5 rounded text-sm transition-colors cursor-pointer"
+            title="KI Code-Generator"
+          >
+            <Wand2 size={14} />
+            KI Generator
+          </button>
+          <button
+            onClick={() => setShowAssets(!showAssets)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors cursor-pointer ${showAssets ? 'bg-accent/20 text-accent' : 'bg-[#2a2a2a] text-gray-400 hover:text-gray-200'}`}
+            title="Asset Library"
+          >
+            <Image size={14} />
+            Assets
+          </button>
+          <button
+            onClick={() => setShowCollab(!showCollab)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors cursor-pointer ${showCollab ? 'bg-accent/20 text-accent' : 'bg-[#2a2a2a] text-gray-400 hover:text-gray-200'}`}
+            title="Zusammenarbeit"
+          >
+            <Users size={14} />
+            Team
+          </button>
+          <button
             onClick={() => setShowMetadata(true)}
             className="flex items-center gap-1.5 bg-[#2a2a2a] text-gray-400 hover:text-gray-200 px-3 py-1.5 rounded text-sm transition-colors cursor-pointer"
           >
@@ -222,9 +252,18 @@ export default function CodeEditorLayout({ onBack }) {
         <AIChatPanel onApplyCode={handleApplyCode} codeContext={code} />
       </div>
 
+      {/* Side Panels */}
+      <CollaborationPanel isOpen={showCollab} onClose={() => setShowCollab(false)} />
+      <AssetLibrary isOpen={showAssets} onClose={() => setShowAssets(false)} onInsertCode={handleApplyCode} />
+
       {/* Metadata Panel */}
       {showMetadata && (
         <MetadataPanel metadata={metadata} onChange={handleMetadataChange} onClose={() => setShowMetadata(false)} />
+      )}
+
+      {/* Forge KI Code Generator */}
+      {showForgeGenerator && (
+        <ForgeCodeGenerator onApplyCode={handleApplyCode} onClose={() => setShowForgeGenerator(false)} />
       )}
     </div>
   )

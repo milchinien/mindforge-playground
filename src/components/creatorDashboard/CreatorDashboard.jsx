@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Gamepad2, FileText, Globe, Eye, Play, Heart, Coins, Edit3, Trash2, EyeOff, Clock } from 'lucide-react'
+import { Gamepad2, FileText, Globe, Eye, Play, Heart, Coins, Edit3, Trash2, EyeOff, Clock, TrendingUp } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useGameDrafts } from '../../hooks/useGameDrafts'
 import { mockGames, removePublishedGame } from '../../data/mockGames'
@@ -9,6 +9,7 @@ import { formatNumber } from '../../utils/formatters'
 import ConfirmDialog from '../common/ConfirmDialog'
 import GameStats from './GameStats'
 import VersionHistory from './VersionHistory'
+import RevenuePanel from './RevenuePanel'
 
 export default function CreatorDashboard() {
   const { t } = useTranslation()
@@ -120,6 +121,15 @@ export default function CreatorDashboard() {
         >
           <Globe size={16} />
           {t('create.dashboard.publishedTab')} ({myPublished.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('revenue')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+            activeTab === 'revenue' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          <TrendingUp size={16} />
+          Einnahmen
         </button>
       </div>
 
@@ -239,6 +249,10 @@ export default function CreatorDashboard() {
             </div>
           )}
         </div>
+      )}
+
+      {activeTab === 'revenue' && (
+        <RevenuePanel />
       )}
 
       {/* Stats Modal */}

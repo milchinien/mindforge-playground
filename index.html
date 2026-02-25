@@ -3,9 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="MindForge - Die Lernspiel-Plattform. Entdecke tausende Lernspiele oder erstelle deine eigenen!" />
-    <meta name="theme-color" content="#111827" />
+    <meta name="theme-color" content="#6c5ce7" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="MindForge" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MindForge" />
     <meta property="og:title" content="MindForge - Wo Lernen zum Spiel wird" />
@@ -24,5 +32,20 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => {
+              console.log('[SW] Registered:', reg.scope);
+            })
+            .catch((err) => {
+              console.warn('[SW] Registration failed:', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

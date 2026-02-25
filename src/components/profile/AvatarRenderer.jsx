@@ -7,6 +7,7 @@ import renderAccessory from './avatar/AvatarAccessory'
 import renderHat from './avatar/AvatarHat'
 import renderFrame from './avatar/AvatarFrame'
 import { renderEffect, injectStyles } from './avatar/AvatarEffects'
+import AvatarConfetti from './AvatarConfetti'
 
 let avatarCounter = 0
 
@@ -17,6 +18,7 @@ export default function AvatarRenderer({
   hat = 'none', clothing = 'tshirt', clothingColor = '#374151', eyeColor = '#6B3A2A',
   bodyType = 'normal',
   size = 200, username, animated = false,
+  celebration = false, wave = false,
   equippedFrame, equippedEffect, equippedBackground, equippedHairColor, equippedAccessory,
 }) {
   if (animated) injectStyles()
@@ -37,31 +39,45 @@ export default function AvatarRenderer({
     )
   }
 
+  const animationClass = celebration
+    ? 'avatar-animate-celebrate'
+    : wave
+      ? 'avatar-animate-wave'
+      : animated
+        ? 'avatar-animate-idle'
+        : ''
+
   return (
-    <svg width={size} height={size} viewBox="0 0 200 200">
-      {renderBackground(finalBg, uid)}
+    <div
+      className={animationClass}
+      style={{ display: 'inline-block', lineHeight: 0, position: 'relative' }}
+    >
+      <svg width={size} height={size} viewBox="0 0 200 200">
+        {renderBackground(finalBg, uid)}
 
-      <defs>
-        <clipPath id={`clip-${uid}`}>
-          <circle cx="100" cy="100" r="98" />
-        </clipPath>
-      </defs>
+        <defs>
+          <clipPath id={`clip-${uid}`}>
+            <circle cx="100" cy="100" r="98" />
+          </clipPath>
+        </defs>
 
-      <g clipPath={`url(#clip-${uid})`}>
-        {renderEffect(equippedEffect)}
-        {renderHairBack(hairStyle, finalHairColor)}
-        {renderBody(skinColor || '#F5D6B8', clothing, clothingColor, uid, bodyType)}
-        {renderHead(skinColor, uid)}
-        {renderEyebrows(eyebrows)}
-        {renderEyes(eyeType || 'round', eyeColor, animated)}
-        {renderNose()}
-        {renderMouth(mouth)}
-        {renderHairFront(hairStyle || 'short', finalHairColor, uid)}
-        {renderAccessory(finalAccessory)}
-        {renderHat(hat)}
-      </g>
+        <g clipPath={`url(#clip-${uid})`}>
+          {renderEffect(equippedEffect)}
+          {renderHairBack(hairStyle, finalHairColor)}
+          {renderBody(skinColor || '#F5D6B8', clothing, clothingColor, uid, bodyType)}
+          {renderHead(skinColor, uid)}
+          {renderEyebrows(eyebrows)}
+          {renderEyes(eyeType || 'round', eyeColor, animated)}
+          {renderNose()}
+          {renderMouth(mouth)}
+          {renderHairFront(hairStyle || 'short', finalHairColor, uid)}
+          {renderAccessory(finalAccessory)}
+          {renderHat(hat)}
+        </g>
 
-      {renderFrame(equippedFrame, uid)}
-    </svg>
+        {celebration && <AvatarConfetti size={200} />}
+        {renderFrame(equippedFrame, uid)}
+      </svg>
+    </div>
   )
 }

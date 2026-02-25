@@ -369,6 +369,7 @@ function ZipUploadMode({ onBack }) {
 }
 
 const CodeEditorLayout = lazy(() => import('../components/codeEditor/CodeEditorLayout'))
+const VisualBuilder = lazy(() => import('../components/gameBuilder/VisualBuilder'))
 
 export default function Create() {
   const { user } = useAuth()
@@ -389,6 +390,14 @@ export default function Create() {
     return (
       <Suspense fallback={<div className="text-center py-20 text-text-muted">{t('create.loadingEditor')}</div>}>
         <CodeEditorLayout onBack={handleBack} />
+      </Suspense>
+    )
+  }
+
+  if (mode === 'visual') {
+    return (
+      <Suspense fallback={<div className="text-center py-20 text-text-muted">{t('create.loadingEditor')}</div>}>
+        <VisualBuilder onBack={handleBack} />
       </Suspense>
     )
   }

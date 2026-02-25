@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import FeaturedCarousel from '../components/game/FeaturedCarousel'
 import GameRow from '../components/game/GameRow'
 import FriendsPreview from '../components/home/FriendsPreview'
+import DailyLoginBonus from '../components/common/DailyLoginBonus'
 import { getFeaturedGames, getPopularGames, getGameById, mockGames } from '../data/mockGames'
 import { mockFriends } from '../data/mockFriends'
 
@@ -83,7 +84,7 @@ function HomeGuest() {
 
 export default function Home() {
   const { t } = useTranslation()
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
 
   if (!user) {
     return <HomeGuest />
@@ -93,6 +94,12 @@ export default function Home() {
   const recommended = getRandomGames(8)
   const featured = getFeaturedGames()
 
+  const handleXPGain = (xp) => {
+    if (user && updateUser) {
+      updateUser({ xp: (user.xp || 0) + xp })
+    }
+  }
+
   return (
     <div className="space-y-8 py-4">
       <Helmet>
@@ -101,6 +108,10 @@ export default function Home() {
         <meta property="og:title" content="MindForge" />
         <meta property="og:description" content={t('home.subtitle')} />
       </Helmet>
+
+      {/* Daily Login Bonus Popup */}
+      <DailyLoginBonus onXPGain={handleXPGain} />
+
       {/* Greeting */}
       <h1 className="text-2xl font-bold">
         <Trans

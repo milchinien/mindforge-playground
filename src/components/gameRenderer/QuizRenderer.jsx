@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { CheckCircle, XCircle } from 'lucide-react'
 import { getThemeById } from '../../data/gameThemes'
 import ResultScreen from './ResultScreen'
 
@@ -137,12 +138,32 @@ export default function QuizRenderer({ game, onBack, onRestart }) {
             </span>
           )}
         </div>
-        {settings.timeLimit > 0 && (
-          <span className={`text-sm font-mono font-bold ${timeLeft <= 5 ? 'animate-pulse' : ''}`}
-            style={{ color: timeLeft <= 5 ? theme.colors.incorrect : theme.colors.textSecondary }}>
-            {timeLeft}s
-          </span>
-        )}
+        {settings.timeLimit > 0 && (() => {
+          const pct = (timeLeft / settings.timeLimit) * 100
+          const isUrgent = timeLeft <= 5
+          const timerColor = pct > 50
+            ? '#10b981'
+            : pct > 25
+              ? '#f59e0b'
+              : '#ef4444'
+
+          return (
+            <div className="flex items-center gap-2">
+              <div className="w-24 h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: theme.colors.border }}>
+                <div
+                  className={`h-full rounded-full transition-all duration-1000 ease-linear ${isUrgent ? 'animate-pulse' : ''}`}
+                  style={{ width: `${pct}%`, backgroundColor: timerColor }}
+                />
+              </div>
+              <span
+                className={`text-sm font-mono font-bold min-w-[2.5rem] text-right ${isUrgent ? 'animate-pulse scale-110' : ''}`}
+                style={{ color: timerColor, transition: 'color 0.3s' }}
+              >
+                {timeLeft}s
+              </span>
+            </div>
+          )
+        })()}
       </div>
 
       {/* Progress Bar */}
@@ -193,7 +214,11 @@ export default function QuizRenderer({ game, onBack, onRestart }) {
                   color: (isSelected && !showFeedback) || showCorrect || showIncorrect ? '#fff' : theme.colors.text,
                 }}
               >
-                <span className="font-medium">{option.id.toUpperCase()}) {option.text}</span>
+                <span className="font-medium flex items-center gap-2">
+                  {showCorrect && <CheckCircle size={18} className="flex-shrink-0" />}
+                  {showIncorrect && <XCircle size={18} className="flex-shrink-0" />}
+                  {option.id.toUpperCase()}) {option.text}
+                </span>
               </button>
             )
           })}

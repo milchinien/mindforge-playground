@@ -5,7 +5,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/common/ProtectedRoute'
-import LoadingSpinner from './components/common/LoadingSpinner'
+import { PageLoader } from './components/common/LoadingSpinner'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import { useTranslation } from 'react-i18next'
 
@@ -32,15 +32,15 @@ const Friends = lazy(() => import('./pages/Friends'))
 const Leaderboards = lazy(() => import('./pages/Leaderboards'))
 const MultiplayerQuiz = lazy(() => import('./pages/MultiplayerQuiz'))
 const SocialFeed = lazy(() => import('./pages/SocialFeed'))
+const Quests = lazy(() => import('./pages/Quests'))
+const Chat = lazy(() => import('./pages/Chat'))
+const Groups = lazy(() => import('./pages/Groups'))
+const Seasons = lazy(() => import('./pages/Seasons'))
+const TemplateMarketplace = lazy(() => import('./pages/TemplateMarketplace'))
 const CreatorDashboard = lazy(() => import('./components/creatorDashboard/CreatorDashboard'))
+const GiftMindCoins = lazy(() => import('./pages/GiftMindCoins'))
 
-function PageLoader() {
-  return (
-    <div className="flex items-center justify-center py-20">
-      <LoadingSpinner size="lg" />
-    </div>
-  )
-}
+// PageLoader is imported from LoadingSpinner component
 
 function Placeholder({ title }) {
   const { t } = useTranslation()
@@ -79,8 +79,11 @@ function App() {
                       <Route path="/leaderboards" element={<Leaderboards />} />
                       <Route path="/quiz" element={<MultiplayerQuiz />} />
                       <Route path="/feed" element={<SocialFeed />} />
+                      <Route path="/quests" element={<Quests />} />
+                      <Route path="/seasons" element={<Seasons />} />
                       <Route path="/search" element={<Search />} />
                       <Route path="/game/:id" element={<GameDetail />} />
+                      <Route path="/templates" element={<TemplateMarketplace />} />
                       <Route path="/premium" element={<Premium />} />
 
                       {/* Profile - accessible without login to view others */}
@@ -89,10 +92,13 @@ function App() {
                       {/* Protected routes */}
                       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                       <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+                      <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                      <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
                       <Route path="/avatar" element={<ProtectedRoute><Avatar /></ProtectedRoute>} />
                       <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
                       <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
                       <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
+                      <Route path="/gift" element={<ProtectedRoute><GiftMindCoins /></ProtectedRoute>} />
 
                       {/* Premium-only */}
                       <Route path="/create" element={<ProtectedRoute requirePremium><Create /></ProtectedRoute>} />

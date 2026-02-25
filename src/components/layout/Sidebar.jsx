@@ -1,5 +1,5 @@
 import { NavLink, Link } from 'react-router-dom'
-import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn, Gamepad2, Swords, Rss, BarChart3 } from 'lucide-react'
+import { Home, User, Users, Palette, Backpack, Settings, Calendar, Trophy, ChevronLeft, ChevronRight, Diamond, X, LogIn, Gamepad2, Swords, Rss, BarChart3, Star, Clock, Pin, PinOff, MessageCircle, Shield, Scroll, Gift } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { useUIStore } from '../../stores/uiStore'
@@ -11,14 +11,19 @@ const navItems = [
   { to: '/profile/', icon: User, labelKey: 'nav.profile', needsUsername: true },
   { to: '/events', icon: Calendar, labelKey: 'nav.events', public: true },
   { to: '/leaderboards', icon: BarChart3, labelKey: 'nav.leaderboards', public: true },
+  { to: '/seasons', icon: Shield, labelKey: 'Seasons', public: true },
+  { to: '/quests', icon: Scroll, labelKey: 'Quests', public: true },
   { to: '/quiz', icon: Swords, labelKey: 'nav.quizArena', public: true },
   { to: '/feed', icon: Rss, labelKey: 'nav.activityFeed', public: true },
+  { to: '/chat', icon: MessageCircle, labelKey: 'Chat' },
+  { to: '/groups', icon: Users, labelKey: 'Gruppen' },
   { to: '/my-games', icon: Gamepad2, labelKey: 'nav.myGames', premiumOnly: true },
   { to: '/achievements', icon: Trophy, labelKey: 'nav.achievements' },
   { to: '/friends', icon: Users, labelKey: 'nav.friends' },
   { to: '/avatar', icon: Palette, labelKey: 'nav.avatar' },
   { to: '/inventory', icon: Backpack, labelKey: 'nav.inventory' },
   { to: '/shop', icon: (props) => <MindCoinIcon size={28} className="shrink-0" />, labelKey: 'nav.shop' },
+  { to: '/gift', icon: Gift, labelKey: 'Verschenken' },
   { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
 ]
 
@@ -27,6 +32,9 @@ export default function Sidebar({ isOpen, onClose }) {
   const { t } = useTranslation()
   const collapsed = useUIStore((s) => s.sidebarCollapsed)
   const toggleSidebar = useUIStore((s) => s.toggleSidebar)
+  const favorites = useUIStore((s) => s.favorites)
+  const recentPages = useUIStore((s) => s.recentPages)
+  const removeFavorite = useUIStore((s) => s.removeFavorite)
 
   const sidebarWidth = collapsed ? 'w-16' : 'w-60'
 
@@ -41,7 +49,7 @@ export default function Sidebar({ isOpen, onClose }) {
         aria-label="Sidebar navigation"
         className={`
           fixed top-16 bottom-0 left-0 z-40 bg-bg-secondary border-r border-gray-700
-          flex flex-col transition-all duration-200 overflow-hidden
+          flex flex-col transition-all duration-200 overflow-y-auto overflow-x-hidden
           ${sidebarWidth}
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
@@ -105,19 +113,75 @@ export default function Sidebar({ isOpen, onClose }) {
           )}
         </div>
 
+        {/* Favorites Section */}
+        {!collapsed && favorites.length > 0 && (
+          <div className="px-3 mb-2">
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-1">
+              <Star className="w-3 h-3" /> Favoriten
+            </p>
+            <div className="space-y-0.5">
+              {favorites.map((fav) => (
+                <div key={fav.path} className="flex items-center group">
+                  <NavLink
+                    to={fav.path}
+                    onClick={onClose}
+                    className={({ isActive }) => `
+                      flex-1 text-xs px-2 py-1.5 rounded transition-colors truncate
+                      ${isActive ? 'text-accent bg-accent/10' : 'text-text-secondary hover:text-text-primary hover:bg-bg-card'}
+                    `}
+                  >
+                    {fav.label}
+                  </NavLink>
+                  <button
+                    onClick={() => removeFavorite(fav.path)}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-text-muted hover:text-red-400 transition-all"
+                    aria-label={`Remove ${fav.label} from favorites`}
+                  >
+                    <PinOff className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recently Visited Section */}
+        {!collapsed && recentPages.length > 0 && (
+          <div className="px-3 mb-2 pb-2 border-b border-gray-700">
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-1">
+              <Clock className="w-3 h-3" /> Zuletzt besucht
+            </p>
+            <div className="space-y-0.5">
+              {recentPages.slice(0, 4).map((page) => (
+                <NavLink
+                  key={page.path}
+                  to={page.path}
+                  onClick={onClose}
+                  className={({ isActive }) => `
+                    block text-xs px-2 py-1.5 rounded transition-colors truncate
+                    ${isActive ? 'text-accent bg-accent/10' : 'text-text-secondary hover:text-text-primary hover:bg-bg-card'}
+                  `}
+                >
+                  {page.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Nav items */}
         <nav className="flex-1 flex flex-col gap-1 px-2" aria-label="Main menu">
           {navItems.map((item) => {
             // Only hide premium items for logged-in non-premium users
             if (item.premiumOnly && user && !user.isPremium) return null
 
-            // Determine link target: auth-required items → /login when not logged in
+            // Determine link target: auth-required items -> /login when not logged in
             const needsAuth = !item.public && !user
             const to = item.needsUsername
               ? (user ? `/profile/${user.username}` : '/login')
               : needsAuth ? '/login' : item.to
             const Icon = item.icon
-            const label = t(item.labelKey)
+            const label = item.labelKey.includes('.') ? t(item.labelKey) : item.labelKey
 
             if (item.disabled) {
               return (

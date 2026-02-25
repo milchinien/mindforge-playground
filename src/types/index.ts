@@ -424,4 +424,7 @@ export interface AvatarRendererProps {
   size?: number
   username?: string
   className?: string
+  animated?: boolean
+  celebration?: boolean
+  wave?: boolean
 }

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Edit3, Crown, Globe, Twitter, ChevronDown, Lock, Check } from 'lucide-react'
+import ShareButtons from '../common/ShareButtons'
 import { formatNumber } from '../../utils/formatters'
 import { ALL_ACHIEVEMENTS, MOCK_USER_PROGRESS } from '../../data/achievementDefinitions'
 import AvatarRenderer from './AvatarRenderer'
@@ -268,7 +269,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-4 flex justify-center sm:justify-start">
+          <div className="mt-4 flex items-center gap-3 justify-center sm:justify-start">
             {isOwnProfile ? (
               <button
                 onClick={onEditClick}
@@ -284,6 +285,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
                 onFollowChange={onFollowChange}
               />
             )}
+            <ShareButtons title={`${user.username} auf MindForge`} compact />
           </div>
         </div>
       </div>

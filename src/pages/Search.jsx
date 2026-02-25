@@ -2,17 +2,19 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Search as SearchIcon, SlidersHorizontal, Eye, Heart, ThumbsDown, Play } from 'lucide-react'
+import { Search as SearchIcon, SlidersHorizontal, Eye, Heart, ThumbsDown, Play, User, Trophy, Calendar, Gamepad2 } from 'lucide-react'
 import { mockGames } from '../data/mockGames'
+import { mockUsers } from '../data/mockUsers'
+import { ALL_ACHIEVEMENTS } from '../data/achievementDefinitions'
+import { MOCK_EVENTS } from '../data/mockEvents'
 import { formatNumber } from '../utils/formatters'
 import { getSubjectConfig } from '../data/subjectConfig'
 import TagList from '../components/game/TagList'
 
-// Search algorithm
+// Search algorithms
 function searchGames(query, games) {
   if (!query || query.trim() === '') return []
   const searchTerm = query.toLowerCase().trim()
-
   return games
     .map(game => {
       let score = 0
@@ -27,6 +29,33 @@ function searchGames(query, games) {
     })
     .filter(game => game.relevanceScore > 0)
     .sort((a, b) => b.relevanceScore - a.relevanceScore)
+}
+
+function searchUsers(query, users) {
+  if (!query || query.trim() === '') return []
+  const searchTerm = query.toLowerCase().trim()
+  return users.filter(u =>
+    u.username.toLowerCase().includes(searchTerm) ||
+    (u.bio && u.bio.toLowerCase().includes(searchTerm))
+  )
+}
+
+function searchAchievements(query, achievements) {
+  if (!query || query.trim() === '') return []
+  const searchTerm = query.toLowerCase().trim()
+  return achievements.filter(a =>
+    a.name.toLowerCase().includes(searchTerm) ||
+    a.description.toLowerCase().includes(searchTerm)
+  )
+}
+
+function searchEvents(query, events) {
+  if (!query || query.trim() === '') return []
+  const searchTerm = query.toLowerCase().trim()
+  return events.filter(e =>
+    e.title.toLowerCase().includes(searchTerm) ||
+    e.description.toLowerCase().includes(searchTerm)
+  )
 }
 
 function searchByTag(tag, games) {
@@ -50,7 +79,14 @@ function sortGames(games, sortBy) {
   }
 }
 
-function SearchResultItem({ game, t }) {
+const TABS = [
+  { id: 'games', label: 'Spiele', icon: Gamepad2 },
+  { id: 'users', label: 'User', icon: User },
+  { id: 'achievements', label: 'Achievements', icon: Trophy },
+  { id: 'events', label: 'Events', icon: Calendar },
+]
+
+function GameResultItem({ game, t }) {
   const navigate = useNavigate()
   const config = getSubjectConfig(game.subject)
 
@@ -59,7 +95,6 @@ function SearchResultItem({ game, t }) {
       onClick={() => navigate(`/game/${game.id}`)}
       className="flex gap-4 p-4 bg-bg-secondary hover:bg-bg-card rounded-xl transition-colors duration-200 cursor-pointer"
     >
-      {/* Thumbnail */}
       <div className={`hidden sm:flex w-48 h-28 flex-shrink-0 rounded-lg bg-gradient-to-br ${config.gradient} items-center justify-center overflow-hidden relative`}>
         {game.thumbnail ? (
           <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover" />
@@ -72,8 +107,6 @@ function SearchResultItem({ game, t }) {
           </>
         )}
       </div>
-
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-2">
           <h3 className="text-lg font-bold text-text-primary line-clamp-1">{game.title}</h3>
@@ -83,24 +116,14 @@ function SearchResultItem({ game, t }) {
             </span>
           )}
         </div>
-
         <p className="text-text-muted text-sm mt-0.5">
           {t('game.by')}{' '}
-          <Link
-            to={`/profile/${game.creator}`}
-            onClick={(e) => e.stopPropagation()}
-            className="text-accent hover:underline"
-          >
+          <Link to={`/profile/${game.creator}`} onClick={(e) => e.stopPropagation()} className="text-accent hover:underline">
             {game.creator}
           </Link>
         </p>
-
         <p className="text-text-secondary text-sm mt-1 line-clamp-2">{game.description}</p>
-
-        <div className="mt-2">
-          <TagList tags={game.tags} maxTags={5} size="sm" />
-        </div>
-
+        <div className="mt-2"><TagList tags={game.tags} maxTags={5} size="sm" /></div>
         <div className="flex items-center gap-4 mt-2 text-text-muted text-xs">
           <span className="flex items-center gap-1"><Heart size={12} /> {formatNumber(game.likes)}</span>
           <span className="flex items-center gap-1"><ThumbsDown size={12} /> {formatNumber(game.dislikes)}</span>
@@ -109,6 +132,61 @@ function SearchResultItem({ game, t }) {
         </div>
       </div>
     </div>
+  )
+}
+
+function UserResultItem({ user }) {
+  return (
+    <Link to={`/profile/${user.username}`} className="flex items-center gap-4 p-4 bg-bg-secondary hover:bg-bg-card rounded-xl transition-colors">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+        {user.username.charAt(0).toUpperCase()}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-text-primary">{user.username}</h3>
+        {user.activeTitle && <p className="text-xs text-accent">{user.activeTitle}</p>}
+        {user.bio && <p className="text-sm text-text-secondary mt-1 line-clamp-1">{user.bio}</p>}
+      </div>
+      <div className="text-right text-xs text-text-muted">
+        {user.isPremium && <span className="bg-accent/20 text-accent px-2 py-0.5 rounded-full text-xs">Premium</span>}
+      </div>
+    </Link>
+  )
+}
+
+function AchievementResultItem({ achievement }) {
+  return (
+    <div className="flex items-center gap-4 p-4 bg-bg-secondary rounded-xl">
+      <span className="text-3xl">{achievement.icon}</span>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-text-primary">{achievement.name}</h3>
+        <p className="text-sm text-text-secondary mt-0.5">{achievement.description}</p>
+        <p className="text-xs text-accent mt-1">Belohnung: Titel "{achievement.reward.value}"</p>
+      </div>
+      <span className="text-xs bg-bg-card text-text-muted px-2 py-1 rounded-full capitalize">{achievement.category}</span>
+    </div>
+  )
+}
+
+function EventResultItem({ event }) {
+  const statusColors = {
+    active: 'bg-green-500/20 text-green-400',
+    upcoming: 'bg-blue-500/20 text-blue-400',
+    ended: 'bg-gray-500/20 text-gray-400',
+  }
+  return (
+    <Link to="/events" className="flex items-center gap-4 p-4 bg-bg-secondary hover:bg-bg-card rounded-xl transition-colors">
+      <div className="w-12 h-12 rounded-lg bg-accent/20 flex items-center justify-center">
+        <Calendar className="w-6 h-6 text-accent" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-text-primary">{event.title}</h3>
+        <p className="text-sm text-text-secondary mt-0.5 line-clamp-1">{event.description}</p>
+        <p className="text-xs text-text-muted mt-1">{event.participants} Teilnehmer</p>
+      </div>
+      <span className={`text-xs px-2 py-1 rounded-full ${statusColors[event.status] || statusColors.ended}`}>
+        {event.status === 'active' ? 'Aktiv' : event.status === 'upcoming' ? 'Bald' : 'Beendet'}
+      </span>
+    </Link>
   )
 }
 
@@ -121,7 +199,8 @@ export default function Search() {
 
   const [localQuery, setLocalQuery] = useState(query)
   const [sortBy, setSortBy] = useState(sortParam)
-  const [results, setResults] = useState([])
+  const [activeTab, setActiveTab] = useState('games')
+  const [results, setResults] = useState({ games: [], users: [], achievements: [], events: [] })
 
   const SORT_OPTIONS = [
     { value: 'relevance', label: t('search.sortRelevance') },
@@ -135,14 +214,17 @@ export default function Search() {
   }, [query])
 
   useEffect(() => {
-    let searchResults = []
     if (query) {
-      searchResults = searchGames(query, mockGames)
+      const gameResults = sortGames(searchGames(query, mockGames), sortBy)
+      const userResults = searchUsers(query, mockUsers)
+      const achievementResults = searchAchievements(query, ALL_ACHIEVEMENTS)
+      const eventResults = searchEvents(query, MOCK_EVENTS)
+      setResults({ games: gameResults, users: userResults, achievements: achievementResults, events: eventResults })
     } else if (tag) {
-      searchResults = searchByTag(tag, mockGames)
+      setResults({ games: sortGames(searchByTag(tag, mockGames), sortBy), users: [], achievements: [], events: [] })
+    } else {
+      setResults({ games: [], users: [], achievements: [], events: [] })
     }
-    searchResults = sortGames(searchResults, sortBy)
-    setResults(searchResults)
   }, [query, tag, sortBy])
 
   const handleLocalSearch = (e) => {
@@ -158,13 +240,15 @@ export default function Search() {
     setSearchParams(params)
   }
 
+  const totalResults = results.games.length + results.users.length + results.achievements.length + results.events.length
+
+  const currentResults = results[activeTab] || []
+
   return (
     <div className="py-4 max-w-4xl mx-auto">
       <Helmet>
-        <title>Search | MindForge</title>
-        <meta name="description" content="Search for learning games on MindForge." />
-        <meta property="og:title" content="Search | MindForge" />
-        <meta property="og:description" content="Search for learning games on MindForge." />
+        <title>Suche | MindForge</title>
+        <meta name="description" content="Suche nach Lernspielen, Usern, Achievements und Events auf MindForge." />
       </Helmet>
 
       {/* Header */}
@@ -172,7 +256,7 @@ export default function Search() {
         {query && <h1 className="text-2xl font-bold">{t('search.resultsFor', { query })}</h1>}
         {tag && !query && <h1 className="text-2xl font-bold">{t('search.gamesWithTag', { tag })}</h1>}
         {!query && !tag && <h1 className="text-2xl font-bold">{t('search.title')}</h1>}
-        <p className="text-text-secondary mt-1">{t('search.resultsFound', { count: results.length })}</p>
+        <p className="text-text-secondary mt-1">{totalResults} Ergebnisse gefunden</p>
       </div>
 
       {/* Search input */}
@@ -188,33 +272,62 @@ export default function Search() {
         />
       </div>
 
-      {/* Filter & Sort */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <div className="flex items-center gap-2 flex-wrap">
-          <SlidersHorizontal size={16} className="text-text-muted hidden sm:block" />
-          <span className="text-sm bg-accent/20 text-accent px-3 py-1 rounded-full font-medium">{t('search.games')}</span>
-          <span className="text-sm bg-bg-card text-text-muted px-3 py-1 rounded-full cursor-not-allowed hidden sm:inline" title={t('common.comingSoon')}>{t('search.creators')}</span>
-          <span className="text-sm bg-bg-card text-text-muted px-3 py-1 rounded-full cursor-not-allowed hidden sm:inline" title={t('common.comingSoon')}>{t('search.assets')}</span>
-        </div>
+      {/* Category Tabs */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto">
+        {TABS.map(tab => {
+          const count = results[tab.id]?.length || 0
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-accent/20 text-accent'
+                  : 'bg-bg-card text-text-secondary hover:text-text-primary hover:bg-bg-hover'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {tab.label}
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                activeTab === tab.id ? 'bg-accent/30' : 'bg-bg-hover'
+              }`}>
+                {count}
+              </span>
+            </button>
+          )
+        })}
 
-        <div className="ml-auto">
-          <select
-            value={sortBy}
-            onChange={(e) => handleSortChange(e.target.value)}
-            className="!w-auto !py-1.5 !px-3 !text-sm"
-          >
-            {SORT_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
+        {/* Sort - only for games */}
+        {activeTab === 'games' && (
+          <div className="ml-auto">
+            <select
+              value={sortBy}
+              onChange={(e) => handleSortChange(e.target.value)}
+              className="!w-auto !py-1.5 !px-3 !text-sm"
+            >
+              {SORT_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Results */}
-      {results.length > 0 ? (
+      {currentResults.length > 0 ? (
         <div className="space-y-3">
-          {results.map(game => (
-            <SearchResultItem key={game.id} game={game} t={t} />
+          {activeTab === 'games' && currentResults.map(game => (
+            <GameResultItem key={game.id} game={game} t={t} />
+          ))}
+          {activeTab === 'users' && currentResults.map(user => (
+            <UserResultItem key={user.uid} user={user} />
+          ))}
+          {activeTab === 'achievements' && currentResults.map(achievement => (
+            <AchievementResultItem key={achievement.id} achievement={achievement} />
+          ))}
+          {activeTab === 'events' && currentResults.map(event => (
+            <EventResultItem key={event.id} event={event} />
           ))}
         </div>
       ) : (query || tag) ? (
@@ -222,12 +335,8 @@ export default function Search() {
           <div className="text-6xl mb-4">&#128269;</div>
           <h2 className="text-xl font-bold mb-2">{t('search.noResults')}</h2>
           <p className="text-text-secondary mb-6">
-            {query
-              ? t('search.noResultsForQuery', { query })
-              : t('search.noResultsForTag', { tag })}
-          </p>
-          <p className="text-text-muted mb-6">
-            {t('search.tryOther')}
+            Keine {TABS.find(t => t.id === activeTab)?.label} gefunden
+            {query ? ` fuer "${query}"` : ` mit Tag "${tag}"`}
           </p>
           <Link to="/browse" className="bg-accent hover:bg-accent-dark px-6 py-3 rounded-lg font-semibold inline-block text-white transition-colors">
             {t('search.toMindbrowser')}
@@ -237,9 +346,7 @@ export default function Search() {
         <div className="text-center py-16">
           <div className="text-6xl mb-4">&#128269;</div>
           <h2 className="text-xl font-bold mb-2">{t('search.whatAreYouLooking')}</h2>
-          <p className="text-text-secondary">
-            {t('search.enterSearchTerm')}
-          </p>
+          <p className="text-text-secondary">{t('search.enterSearchTerm')}</p>
         </div>
       )}
     </div>

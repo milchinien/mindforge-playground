@@ -564,6 +564,12 @@
         "features": ["No code needed", "Quiz editor with drag & drop", "5 design themes", "Instantly playable"],
         "recommended": "Recommended"
       },
+      "visual": {
+        "title": "Visual Builder",
+        "subtitle": "Scratch-like",
+        "description": "Build games with drag-and-drop blocks. No code needed - just snap blocks together.",
+        "features": ["Block editor like Scratch", "Drag & drop blocks", "Live preview", "Code export"]
+      },
       "freeform": {
         "title": "Free Mode",
         "subtitle": "Advanced",

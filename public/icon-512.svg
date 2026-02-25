@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="76.8" fill="#1a1a2e"/>
+  <rect x="40.96" y="40.96" width="430.08" height="430.08" rx="61.44" fill="#6c5ce7" opacity="0.15"/>
+  <text x="50%" y="52%" font-family="Arial,sans-serif" font-size="179.2" font-weight="bold" fill="#f97316" text-anchor="middle" dominant-baseline="middle">MF</text>
+  <text x="50%" y="78%" font-family="Arial,sans-serif" font-size="46.08" fill="#9ca3af" text-anchor="middle" dominant-baseline="middle">MindForge</text>
+</svg>

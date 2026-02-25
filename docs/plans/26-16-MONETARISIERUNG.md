@@ -5,7 +5,7 @@
 
 ---
 
-## Aktueller Stand
+## Aktueller Stand (nicht mehr)
 - 3 Tiers: Free, Creator (9,99€), Teacher (14,99€)
 - MindCoins: 6 Kaufstufen (4,99€ – 99,99€)
 - Discount-Codes implementiert

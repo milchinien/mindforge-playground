@@ -1,4 +1,5 @@
 import { useEffect, useRef, useId } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import FocusTrap from 'focus-trap-react'
 import { X } from 'lucide-react'
 
@@ -28,36 +29,49 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
     }
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-      role="presentation"
-    >
-      <div className="fixed inset-0 bg-black/60" aria-hidden="true" />
-      <FocusTrap focusTrapOptions={{ allowOutsideClick: true, escapeDeactivates: false }}>
+    <AnimatePresence>
+      {isOpen && (
         <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          className={`relative bg-bg-secondary rounded-xl shadow-xl w-full ${widths[maxWidth]} animate-in`}
-          onClick={(e) => e.stopPropagation()}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+          role="presentation"
         >
-          <div className="flex items-center justify-between p-4 border-b border-gray-700">
-            <h2 id={titleId} className="text-lg font-semibold">{title}</h2>
-            <button
-              onClick={onClose}
-              aria-label="Dialog schliessen"
-              className="text-text-muted hover:text-text-primary transition-colors"
+          <motion.div
+            className="fixed inset-0 bg-black/60"
+            aria-hidden="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          />
+          <FocusTrap focusTrapOptions={{ allowOutsideClick: true, escapeDeactivates: false }}>
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
+              className={`relative bg-bg-secondary rounded-xl shadow-xl w-full ${widths[maxWidth]}`}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="p-4">{children}</div>
+              <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                <h2 id={titleId} className="text-lg font-semibold">{title}</h2>
+                <button
+                  onClick={onClose}
+                  aria-label="Dialog schliessen"
+                  className="text-text-muted hover:text-text-primary transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-4">{children}</div>
+            </motion.div>
+          </FocusTrap>
         </div>
-      </FocusTrap>
-    </div>
+      )}
+    </AnimatePresence>
   )
 }

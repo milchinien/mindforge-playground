@@ -973,3 +973,229 @@ Forge ist stolz auf sein Werk! Brauchst du noch mehr? Ich kann dir weitere Eleme
 Beschreib den Fehler genauer und Forge findet die Loesung! 🔧`,
   },
 ]
+
+// ============= BUG DETECTION PATTERNS =============
+export const BUG_PATTERNS = [
+  { pattern: /onclick\s*=\s*["']/i, severity: 'warning', message: 'Inline onclick gefunden. Besser: addEventListener() verwenden fuer sauberen Code.' },
+  { pattern: /document\.write\s*\(/i, severity: 'error', message: 'document.write() kann die ganze Seite ueberschreiben! Nutze stattdessen innerHTML oder createElement().' },
+  { pattern: /eval\s*\(/i, severity: 'error', message: 'eval() ist ein Sicherheitsrisiko! Vermeide es und nutze sichere Alternativen.' },
+  { pattern: /var\s+\w/i, severity: 'info', message: 'Tipp: Nutze "let" oder "const" statt "var" fuer besseres Scoping.' },
+  { pattern: /==(?!=)/g, severity: 'warning', message: 'Lockerer Vergleich (==) gefunden. Nutze === fuer strenge Typ-Pruefung.' },
+  { pattern: /setTimeout\s*\(\s*["']/i, severity: 'warning', message: 'String in setTimeout gefunden. Nutze eine Funktion statt eines Strings.' },
+  { pattern: /innerHTML\s*=.*<script/i, severity: 'error', message: 'Script-Tag in innerHTML ist ein XSS-Risiko! Nutze textContent oder sanitize den Input.' },
+  { pattern: /\.style\.\w+\s*=(?!.*px|%|em|rem|vh|vw|s|ms)/i, severity: 'info', message: 'Tipp: CSS-Eigenschaften brauchen oft Einheiten (px, %, em, rem).' },
+  { pattern: /for\s*\(.*\.length/g, severity: 'info', message: 'Tipp: Speichere .length in einer Variable fuer bessere Performance bei grossen Listen.' },
+  { pattern: /console\.log/g, severity: 'info', message: 'console.log gefunden. Vergiss nicht, Debug-Ausgaben vor dem Veroeffentlichen zu entfernen!' },
+]
+
+export function detectBugs(code) {
+  const issues = []
+  for (const bp of BUG_PATTERNS) {
+    if (bp.pattern.test(code)) {
+      issues.push({ severity: bp.severity, message: bp.message })
+    }
+    bp.pattern.lastIndex = 0 // Reset regex
+  }
+  return issues
+}
+
+// ============= DESIGN SUGGESTIONS =============
+export const DESIGN_SUGGESTIONS = {
+  quiz: {
+    colors: 'Verwende Gruen (#22c55e) fuer richtige und Rot (#ef4444) fuer falsche Antworten. Akzentfarbe fuer Buttons.',
+    layout: 'Zentriertes Layout (max-width: 600px). Frage oben, Antworten als vertikale Liste, Fortschrittsbalken.',
+    animations: 'Sanftes Einblenden der Fragen. Shake-Animation bei falscher Antwort. Konfetti bei 100%.',
+    fonts: 'Grosse, lesbare Schrift fuer Fragen (1.2rem+). Buttons mindestens 44px Touch-Target.',
+  },
+  memory: {
+    colors: 'Neutrale Kartenrueckseiten. Bunte Vorderseiten. Goldener Rahmen fuer gefundene Paare.',
+    layout: 'Quadratisches Grid (3x3, 4x4, 5x5). Gleichmaessige Abstande. Responsiv.',
+    animations: 'Flip-Animation beim Aufdecken (transform: rotateY). Bounce bei Match. Fade-Out bei Paaren.',
+    fonts: 'Grosse Emojis/Bilder auf den Karten. Zuege-Zaehler gut sichtbar.',
+  },
+  learning: {
+    colors: 'Beruhigende Blautoene (#1e3a8a, #3b82f6). Gruen fuer Fortschritt. Orange fuer Highlights.',
+    layout: 'Schrittweise Progression. Sichtbarer Fortschritt. Klare Abschnitte.',
+    animations: 'Sanfte Uebergaenge. Kein visueller Stress. Celebration bei Abschluss.',
+    fonts: 'Gut lesbar, grosse Zeilenhoehe. Kopierfaehiger Text.',
+  },
+  action: {
+    colors: 'Hoher Kontrast. Neon-Akzente. Dunkler Hintergrund fuer Fokus.',
+    layout: 'Vollbild-Canvas oder Grid. Score immer sichtbar. Controls am unteren Rand fuer Mobile.',
+    animations: 'Schnelle, knackige Animationen. Partikel-Effekte. Screen-Shake bei Kollisionen.',
+    fonts: 'Fette, markante Schrift fuer Score. Pixel-Font optional fuer Retro-Look.',
+  },
+}
+
+export function getDesignSuggestion(gameType) {
+  return DESIGN_SUGGESTIONS[gameType] || DESIGN_SUGGESTIONS.learning
+}
+
+// ============= LEARNING MATERIAL CHECK =============
+export function checkLearningQuality(content) {
+  const feedback = []
+
+  // Check for question clarity
+  if (content.questions) {
+    const shortQuestions = content.questions.filter(q => q.text && q.text.length < 15)
+    if (shortQuestions.length > 0) {
+      feedback.push({ type: 'warning', message: `${shortQuestions.length} Frage(n) sind sehr kurz. Laengere, klarere Fragen helfen beim Lernen.` })
+    }
+
+    // Check for answer variety
+    const singleOptionQuestions = content.questions.filter(q => q.options && q.options.length < 3)
+    if (singleOptionQuestions.length > 0) {
+      feedback.push({ type: 'warning', message: `${singleOptionQuestions.length} Frage(n) haben weniger als 3 Antwortmoeglichkeiten. Mehr Optionen machen es anspruchsvoller.` })
+    }
+
+    // Check for explanations
+    const noExplanation = content.questions.filter(q => !q.explanation)
+    if (noExplanation.length > 0) {
+      feedback.push({ type: 'info', message: `${noExplanation.length} Frage(n) haben keine Erklaerung. Erklaerungen helfen beim Verstaendnis.` })
+    }
+
+    // Minimum questions check
+    if (content.questions.length < 5) {
+      feedback.push({ type: 'warning', message: 'Weniger als 5 Fragen. Empfehlung: Mindestens 5-10 Fragen fuer ein gutes Lernerlebnis.' })
+    }
+
+    if (content.questions.length >= 10) {
+      feedback.push({ type: 'success', message: 'Gute Anzahl an Fragen! Das ergibt ein solides Lernerlebnis.' })
+    }
+  }
+
+  // Check for metadata
+  if (!content.description || content.description.length < 20) {
+    feedback.push({ type: 'info', message: 'Eine ausfuehrlichere Beschreibung hilft Spielern zu verstehen, was sie lernen werden.' })
+  }
+
+  if (!content.subject) {
+    feedback.push({ type: 'warning', message: 'Kein Fach/Thema gewaehlt. Das hilft bei der Kategorisierung und Auffindbarkeit.' })
+  }
+
+  if (content.tags && content.tags.length < 2) {
+    feedback.push({ type: 'info', message: 'Mehr Tags erhoehen die Auffindbarkeit deines Spiels.' })
+  }
+
+  if (feedback.length === 0) {
+    feedback.push({ type: 'success', message: 'Alles sieht gut aus! Dein Lernspiel ist bereit zur Veroeffentlichung.' })
+  }
+
+  return feedback
+}
+
+// ============= CODE GENERATION TEMPLATES =============
+export const FULL_GAME_TEMPLATES = {
+  'quiz-komplett': {
+    name: 'Komplettes Quiz',
+    description: 'Quiz mit Timer, Punkten, Fortschritt und Ergebnis-Screen',
+    html: `<div id="app">
+  <div id="start-screen">
+    <h1>Quiz</h1>
+    <p>Teste dein Wissen!</p>
+    <button onclick="startGame()">Start</button>
+  </div>
+  <div id="game-screen" style="display:none">
+    <div id="header">
+      <span id="progress">1/10</span>
+      <span id="timer">30s</span>
+      <span id="score">0 Punkte</span>
+    </div>
+    <div id="timer-bar"><div id="timer-fill"></div></div>
+    <h2 id="question"></h2>
+    <div id="answers"></div>
+  </div>
+  <div id="result-screen" style="display:none">
+    <h1 id="result-title"></h1>
+    <p id="result-text"></p>
+    <button onclick="startGame()">Nochmal</button>
+  </div>
+</div>`,
+    css: `* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0f172a; color: #f1f5f9; font-family: system-ui; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+#app { width: 100%; max-width: 600px; padding: 2rem; }
+#start-screen, #result-screen { text-align: center; }
+h1 { font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, #f97316, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+button { background: #f97316; color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+button:hover { background: #ea580c; transform: translateY(-2px); }
+#header { display: flex; justify-content: space-between; margin-bottom: 1rem; color: #94a3b8; }
+#timer-bar { height: 4px; background: #334155; border-radius: 2px; margin-bottom: 2rem; overflow: hidden; }
+#timer-fill { height: 100%; background: #f97316; width: 100%; transition: width 1s linear; }
+#question { font-size: 1.3rem; margin-bottom: 1.5rem; line-height: 1.5; }
+#answers { display: flex; flex-direction: column; gap: 0.75rem; }
+#answers button { background: #1e293b; border: 2px solid #334155; text-align: left; }
+#answers button:hover { border-color: #f97316; background: #0f172a; }
+#answers button.correct { border-color: #22c55e; background: #14532d; }
+#answers button.wrong { border-color: #ef4444; background: #7f1d1d; }`,
+    js: `const questions = [
+  { q: "Was ist die Hauptstadt von Deutschland?", options: ["Berlin", "Muenchen", "Hamburg", "Koeln"], correct: 0 },
+  { q: "Welches Element hat das Symbol O?", options: ["Gold", "Silber", "Sauerstoff", "Eisen"], correct: 2 },
+  { q: "Wie viele Planeten hat unser Sonnensystem?", options: ["7", "8", "9", "10"], correct: 1 },
+  { q: "Wer malte die Mona Lisa?", options: ["Picasso", "Da Vinci", "Monet", "Van Gogh"], correct: 1 },
+  { q: "Was ist 7 x 8?", options: ["54", "56", "58", "64"], correct: 1 },
+];
+
+let current = 0, score = 0, timer, timeLeft = 30;
+
+function startGame() {
+  current = 0; score = 0; timeLeft = 30;
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("result-screen").style.display = "none";
+  document.getElementById("game-screen").style.display = "block";
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) return showResult();
+  const q = questions[current];
+  document.getElementById("question").textContent = q.q;
+  document.getElementById("progress").textContent = (current+1) + "/" + questions.length;
+  document.getElementById("score").textContent = score + " Punkte";
+  timeLeft = 30;
+  updateTimer();
+  clearInterval(timer);
+  timer = setInterval(() => { timeLeft--; updateTimer(); if (timeLeft <= 0) { answer(-1); } }, 1000);
+  const container = document.getElementById("answers");
+  container.innerHTML = "";
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => answer(i);
+    container.appendChild(btn);
+  });
+}
+
+function updateTimer() {
+  document.getElementById("timer").textContent = timeLeft + "s";
+  document.getElementById("timer-fill").style.width = (timeLeft/30*100) + "%";
+  document.getElementById("timer-fill").style.background = timeLeft <= 5 ? "#ef4444" : timeLeft <= 10 ? "#f59e0b" : "#f97316";
+}
+
+function answer(i) {
+  clearInterval(timer);
+  const btns = document.querySelectorAll("#answers button");
+  const correct = questions[current].correct;
+  btns[correct].classList.add("correct");
+  if (i === correct) score += 10;
+  else if (i >= 0) btns[i].classList.add("wrong");
+  btns.forEach(b => b.disabled = true);
+  setTimeout(() => { current++; showQuestion(); }, 1200);
+}
+
+function showResult() {
+  document.getElementById("game-screen").style.display = "none";
+  document.getElementById("result-screen").style.display = "block";
+  const pct = Math.round(score / (questions.length * 10) * 100);
+  document.getElementById("result-title").textContent = pct >= 80 ? "Ausgezeichnet!" : pct >= 50 ? "Gut gemacht!" : "Weiter ueben!";
+  document.getElementById("result-text").textContent = score + " von " + (questions.length * 10) + " Punkten (" + pct + "%)";
+}`,
+  },
+}
+
+export function generateGameFromDescription(description) {
+  const desc = description.toLowerCase()
+  if (desc.includes('quiz') || desc.includes('fragen') || desc.includes('wissen')) {
+    return { templateId: 'quiz-komplett', template: FULL_GAME_TEMPLATES['quiz-komplett'] }
+  }
+  return null
+}
