@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation, Trans } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import FeaturedCarousel from '../components/game/FeaturedCarousel'
@@ -48,12 +47,12 @@ function HomeGuest() {
 
   return (
     <div className="space-y-8 py-4">
-      <Helmet>
+      <>
         <title>MindForge - {t('home.subtitle')}</title>
         <meta name="description" content={t('home.subtitle')} />
         <meta property="og:title" content="MindForge" />
         <meta property="og:description" content={t('home.subtitle')} />
-      </Helmet>
+      </>
       {/* Hero Banner */}
       <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-8 sm:p-12 text-center">
         <h1 className="text-3xl sm:text-4xl font-bold mb-4">{t('home.welcome')}</h1>
@@ -102,12 +101,12 @@ export default function Home() {
 
   return (
     <div className="space-y-8 py-4">
-      <Helmet>
+      <>
         <title>MindForge - {t('nav.home')}</title>
         <meta name="description" content={t('home.subtitle')} />
         <meta property="og:title" content="MindForge" />
         <meta property="og:description" content={t('home.subtitle')} />
-      </Helmet>
+      </>
 
       {/* Daily Login Bonus Popup */}
       <DailyLoginBonus onXPGain={handleXPGain} />

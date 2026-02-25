@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
   Shield, Zap, Crown, Trophy, Star, Target, Clock,
@@ -642,13 +641,13 @@ export default function Seasons() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>{`Season ${CURRENT_SEASON.number}: ${CURRENT_SEASON.name} | MindForge`}</title>
         <meta name="description" content={`Season ${CURRENT_SEASON.number} "${CURRENT_SEASON.name}" - ${CURRENT_SEASON.description}`} />
         <meta property="og:title" content={`Season ${CURRENT_SEASON.number}: ${CURRENT_SEASON.name} | MindForge`} />
         <meta property="og:description" content={CURRENT_SEASON.description} />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       {/* Page header */}
       <div className="flex items-center gap-3 mb-8">

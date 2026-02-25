@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { Clock, ChevronRight, Users, Trophy } from 'lucide-react'
 import { useQuestStore } from '../stores/questStore'
 import { QUEST_TABS, RARITY_CONFIG } from '../data/questData'
@@ -307,13 +306,13 @@ export default function Quests() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>Quests & Abzeichen | MindForge</title>
         <meta name="description" content="Taeglich neue Quests, Story-Abenteuer und Abzeichen zum Sammeln auf MindForge." />
         <meta property="og:title" content="Quests & Abzeichen | MindForge" />
         <meta property="og:description" content="Taeglich neue Quests, Story-Abenteuer und Abzeichen zum Sammeln auf MindForge." />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       {/* Header with stats */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">

@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { Send, Smile, Shield, ArrowDown, Search } from 'lucide-react'
 import { useChatStore } from '../stores/chatStore'
 import { chatFriends, quickReactions } from '../data/chatData'
@@ -122,13 +121,13 @@ export default function Chat() {
 
   return (
     <div className="-m-6 -mt-14">
-      <Helmet>
+      <>
         <title>Chat | MindForge</title>
         <meta name="description" content="Chatte mit deinen Freunden auf MindForge" />
         <meta property="og:title" content="Chat | MindForge" />
         <meta property="og:description" content="Chatte mit deinen Freunden auf MindForge" />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       <div className="flex h-[calc(100vh-4rem)]">
         {/* ====== LINKE SIDEBAR: Konversationsliste ====== */}

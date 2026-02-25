@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { ArrowLeft, Check, X, Eye, EyeOff } from 'lucide-react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/common/Button'
@@ -112,11 +111,11 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
-      <Helmet>
+      <>
         <title>{t('auth.createAccount')} | MindForge</title>
         <meta name="description" content="Register for MindForge" />
         <meta property="og:title" content={`${t('auth.createAccount')} | MindForge`} />
-      </Helmet>
+      </>
       <div className="w-full max-w-sm bg-bg-card rounded-xl p-8 shadow-xl relative">
         <Link
           to="/"

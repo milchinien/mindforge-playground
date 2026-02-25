@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { Gift, Send, User, MessageSquare, Clock, Check, ChevronRight, Search, Heart } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import MindCoinIcon from '../components/common/MindCoinIcon'
@@ -196,10 +195,10 @@ export default function GiftMindCoins() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>MindCoins verschenken | MindForge</title>
         <meta name="description" content="Verschenke MindCoins an deine Freunde auf MindForge." />
-      </Helmet>
+      </>
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">

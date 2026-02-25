@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import FeaturedCarousel from '../components/game/FeaturedCarousel'
 import GameRow from '../components/game/GameRow'
@@ -21,12 +20,12 @@ export default function Mindbrowser() {
 
   return (
     <div className="py-4">
-      <Helmet>
+      <>
         <title>Mindbrowser | MindForge</title>
         <meta name="description" content="Browse and discover learning games on MindForge." />
         <meta property="og:title" content="Mindbrowser | MindForge" />
         <meta property="og:description" content="Browse and discover learning games on MindForge." />
-      </Helmet>
+      </>
 
       <FeaturedCarousel games={featured} />
 

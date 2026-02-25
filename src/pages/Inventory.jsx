@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -151,13 +150,13 @@ export default function Inventory() {
 
   return (
     <div className="py-4 max-w-5xl mx-auto">
-      <Helmet>
+      <>
         <title>{t('inventory.title')} | MindForge</title>
         <meta name="description" content={t('inventory.title')} />
         <meta property="og:title" content={`${t('inventory.title')} | MindForge`} />
         <meta property="og:description" content={t('inventory.title')} />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       <h1 className="text-3xl font-bold mb-6">{t('inventory.title')}</h1>
 

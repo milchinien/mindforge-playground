@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import AvatarRenderer from '../components/profile/AvatarRenderer'
@@ -718,12 +717,12 @@ export default function Marketplace() {
 
   return (
     <div className="w-full">
-      <Helmet>
+      <>
         <title>Marketplace | MindForge</title>
         <meta name="description" content="Discover and buy avatar items on the MindForge Marketplace." />
         <meta property="og:title" content="Marketplace | MindForge" />
         <meta property="og:description" content="Discover and buy avatar items on the MindForge Marketplace." />
-      </Helmet>
+      </>
 
       {/* Sub-Header: Description + Balance + Search + Sort */}
       <div className="flex flex-col gap-4 mb-6">

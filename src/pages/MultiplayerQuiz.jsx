@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
@@ -543,12 +542,12 @@ export default function MultiplayerQuiz() {
   if (gameState === 'playing' && gameConfig) {
     return (
       <>
-        <Helmet>
+        <>
           <title>Quiz Arena | MindForge</title>
           <meta name="description" content="Compete against other players in the MindForge Quiz Arena." />
           <meta property="og:title" content="Quiz Arena | MindForge" />
           <meta property="og:description" content="Compete against other players in the MindForge Quiz Arena." />
-        </Helmet>
+        </>
         <LiveQuiz key={JSON.stringify(gameConfig)} config={gameConfig} user={user} onFinish={handleFinish} />
       </>
     )
@@ -556,12 +555,12 @@ export default function MultiplayerQuiz() {
 
   return (
     <>
-      <Helmet>
+      <>
         <title>Quiz Arena | MindForge</title>
         <meta name="description" content="Compete against other players in the MindForge Quiz Arena." />
         <meta property="og:title" content="Quiz Arena | MindForge" />
         <meta property="og:description" content="Compete against other players in the MindForge Quiz Arena." />
-      </Helmet>
+      </>
       <QuizLobby user={user} onStart={handleStart} />
     </>
   )

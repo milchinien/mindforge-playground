@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { getGameById } from '../data/mockGames'
 import { addToRecentlyPlayed } from './Home'
@@ -79,12 +78,12 @@ export default function GamePlayer() {
   if (game.mode === 'template' && game.questions) {
     return (
       <>
-        <Helmet>
+        <>
           <title>Playing | MindForge</title>
           <meta name="description" content={`Playing ${game.title} on MindForge.`} />
           <meta property="og:title" content="Playing | MindForge" />
           <meta property="og:description" content={`Playing ${game.title} on MindForge.`} />
-        </Helmet>
+        </>
         <GameRenderer
           game={game}
           onBack={() => navigate(`/game/${id}`)}
@@ -98,12 +97,12 @@ export default function GamePlayer() {
   if (game.mode === 'freeform' && game.code) {
     return (
       <div className="fixed inset-0 bg-[#111827]">
-        <Helmet>
+        <>
           <title>Playing | MindForge</title>
           <meta name="description" content={`Playing ${game.title} on MindForge.`} />
           <meta property="og:title" content="Playing | MindForge" />
           <meta property="og:description" content={`Playing ${game.title} on MindForge.`} />
-        </Helmet>
+        </>
 
         <CustomCodeRenderer game={game} onBack={() => navigate(`/game/${id}`)} />
 
@@ -131,12 +130,12 @@ export default function GamePlayer() {
   if (!game.gameUrl) {
     return (
       <div className="fixed inset-0 bg-[#111827] flex items-center justify-center">
-        <Helmet>
+        <>
           <title>Playing | MindForge</title>
           <meta name="description" content="Playing a game on MindForge." />
           <meta property="og:title" content="Playing | MindForge" />
           <meta property="og:description" content="Playing a game on MindForge." />
-        </Helmet>
+        </>
         <div className="text-center">
           <h2 className="text-2xl font-bold text-white mb-4">
             {t('game.notAvailable')}
@@ -155,12 +154,12 @@ export default function GamePlayer() {
   // ZIP mode: iframe
   return (
     <div className="fixed inset-0 bg-[#111827]">
-      <Helmet>
+      <>
         <title>Playing | MindForge</title>
         <meta name="description" content={`Playing ${game.title} on MindForge.`} />
         <meta property="og:title" content="Playing | MindForge" />
         <meta property="og:description" content={`Playing ${game.title} on MindForge.`} />
-      </Helmet>
+      </>
 
       <iframe
         key={iframeKey}

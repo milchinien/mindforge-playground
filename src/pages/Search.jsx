@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, SlidersHorizontal, Eye, Heart, ThumbsDown, Play, User, Trophy, Calendar, Gamepad2 } from 'lucide-react'
 import { mockGames } from '../data/mockGames'
@@ -246,10 +245,10 @@ export default function Search() {
 
   return (
     <div className="py-4 max-w-4xl mx-auto">
-      <Helmet>
+      <>
         <title>Suche | MindForge</title>
         <meta name="description" content="Suche nach Lernspielen, Usern, Achievements und Events auf MindForge." />
-      </Helmet>
+      </>
 
       {/* Header */}
       <div className="mb-6">

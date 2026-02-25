@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
   Users, Shield, BookOpen, Compass, Plus, Search, Mail,
@@ -357,13 +356,13 @@ export default function Groups() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>Gruppen | MindForge</title>
         <meta name="description" content="Tritt Lerngruppen, Clans und Klassen bei. Lerne gemeinsam und kaempfe in Clan Wars!" />
         <meta property="og:title" content="Gruppen | MindForge" />
         <meta property="og:description" content="Tritt Lerngruppen, Clans und Klassen bei. Lerne gemeinsam und kaempfe in Clan Wars!" />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       {/* Page header */}
       <div className="flex items-center gap-3 mb-8">

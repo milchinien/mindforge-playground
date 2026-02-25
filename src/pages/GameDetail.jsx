@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Eye, Play, Heart, ThumbsDown, Calendar, MonitorPlay, X } from 'lucide-react'
 import ShareButtons from '../components/common/ShareButtons'
@@ -41,9 +40,9 @@ export default function GameDetail() {
   if (!game) {
     return (
       <div className="text-center py-20">
-        <Helmet>
+        <>
           <title>404 | MindForge</title>
-        </Helmet>
+        </>
         <h1 className="text-6xl font-bold text-text-muted mb-4">404</h1>
         <p className="text-xl text-text-secondary mb-6">
           {t('game.notFound')}
@@ -57,14 +56,14 @@ export default function GameDetail() {
 
   return (
     <div className="py-4">
-      <Helmet>
+      <>
         <title>{game.title} | MindForge</title>
         <meta name="description" content={game.description} />
         <meta property="og:title" content={`${game.title} | MindForge`} />
         <meta property="og:description" content={game.description} />
         <meta property="og:type" content="website" />
         {game.thumbnail && <meta property="og:image" content={game.thumbnail} />}
-      </Helmet>
+      </>
 
       {/* Back Button */}
       <button

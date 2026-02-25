@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { isTeacherPremium } from '../utils/premiumChecks'
@@ -473,12 +472,12 @@ export default function TeacherDashboard() {
   if (!isTeacherPremium(user)) {
     return (
       <div className="max-w-2xl mx-auto p-6 text-center py-20">
-        <Helmet>
+        <>
           <title>Teacher Dashboard | MindForge</title>
           <meta name="description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
           <meta property="og:title" content="Teacher Dashboard | MindForge" />
           <meta property="og:description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
-        </Helmet>
+        </>
         <span className="text-6xl block mb-4">{'\u{1F469}\u200D\u{1F3EB}'}</span>
         <h2 className="text-2xl font-bold text-text-primary mb-4">
           {t('teacher.premiumRequired')}
@@ -512,12 +511,12 @@ export default function TeacherDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>Teacher Dashboard | MindForge</title>
         <meta name="description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
         <meta property="og:title" content="Teacher Dashboard | MindForge" />
         <meta property="og:description" content="Teacher Dashboard for managing classes and assignments on MindForge." />
-      </Helmet>
+      </>
 
       <h1 className="text-3xl font-bold mb-2">{t('teacher.title')}</h1>
       <p className="text-text-muted mb-8">

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/common/Button'
@@ -42,11 +41,11 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
-      <Helmet>
+      <>
         <title>{t('auth.welcomeBack')} | MindForge</title>
         <meta name="description" content="Login to MindForge" />
         <meta property="og:title" content={`${t('auth.welcomeBack')} | MindForge`} />
-      </Helmet>
+      </>
       <div className="w-full max-w-sm bg-bg-card rounded-xl p-8 shadow-xl relative">
         <Link
           to="/"

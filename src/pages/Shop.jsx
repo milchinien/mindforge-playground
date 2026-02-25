@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Coins, Crown, Gift, Sparkles, Receipt, Lock, GraduationCap, Check, X, ExternalLink } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -733,12 +732,12 @@ export default function Shop() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>MindCoins Shop | MindForge</title>
         <meta name="description" content={t('shop.subtitle')} />
         <meta property="og:title" content="MindCoins Shop | MindForge" />
         <meta property="og:description" content={t('shop.subtitle')} />
-      </Helmet>
+      </>
 
       <h1 className="text-3xl font-bold mb-2">{t('shop.title')}</h1>
       <p className="text-text-secondary mb-6">{t('shop.subtitle')}</p>

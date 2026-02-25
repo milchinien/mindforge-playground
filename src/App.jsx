@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { HelmetProvider } from 'react-helmet-async'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import Layout from './components/layout/Layout'
@@ -55,7 +54,6 @@ function Placeholder({ title }) {
 function App() {
   const { t } = useTranslation()
   return (
-    <HelmetProvider>
     <ErrorBoundary>
     <AuthProvider>
       <ToastProvider>
@@ -118,7 +116,6 @@ function App() {
       </ToastProvider>
     </AuthProvider>
     </ErrorBoundary>
-    </HelmetProvider>
   )
 }
 

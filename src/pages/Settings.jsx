@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Sun, Moon, Lock, Trash2, Download, Bell, LogOut, Contrast } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -151,11 +150,11 @@ export default function Settings() {
 
   return (
     <div className="py-4 max-w-2xl mx-auto space-y-6">
-      <Helmet>
+      <>
         <title>{t('settings.title')} | MindForge</title>
         <meta name="description" content={t('settings.title')} />
         <meta property="og:title" content={`${t('settings.title')} | MindForge`} />
-      </Helmet>
+      </>
       <h1 className="text-3xl font-bold">{t('settings.title')}</h1>
 
       {/* Theme */}

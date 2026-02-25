@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import AvatarRenderer from '../components/profile/AvatarRenderer'
@@ -534,12 +533,12 @@ export default function Avatar() {
   // ============= RENDER =============
   return (
     <div className="h-full max-w-[1400px] mx-auto">
-      <Helmet>
+      <>
         <title>Avatar | MindForge</title>
         <meta name="description" content={t('avatar.subtitle')} />
         <meta property="og:title" content="Avatar | MindForge" />
         <meta property="og:description" content={t('avatar.subtitle')} />
-      </Helmet>
+      </>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-5">

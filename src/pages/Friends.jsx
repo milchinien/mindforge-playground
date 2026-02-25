@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { mockFriends, mockFriendRequests } from '../data/mockFriends'
 import FriendCard from '../components/friends/FriendCard'
@@ -105,13 +104,13 @@ export default function Friends() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>{t('friends.title')} | MindForge</title>
         <meta name="description" content={t('friends.title')} />
         <meta property="og:title" content={`${t('friends.title')} | MindForge`} />
         <meta property="og:description" content={t('friends.title')} />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">{t('friends.title')}</h1>

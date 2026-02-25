@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
   Heart,
@@ -182,12 +181,12 @@ export default function SocialFeed() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      <Helmet>
+      <>
         <title>Activity Feed | MindForge</title>
         <meta name="description" content="See what your friends are up to on MindForge." />
         <meta property="og:title" content="Activity Feed | MindForge" />
         <meta property="og:description" content="See what your friends are up to on MindForge." />
-      </Helmet>
+      </>
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Header */}

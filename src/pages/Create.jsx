@@ -1,6 +1,5 @@
 import { useState, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Upload, X, Plus, Image, FileArchive, Tag, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -408,12 +407,12 @@ export default function Create() {
 
   return (
     <>
-      <Helmet>
+      <>
         <title>Create | MindForge</title>
         <meta name="description" content="Create and upload your own learning games on MindForge." />
         <meta property="og:title" content="Create | MindForge" />
         <meta property="og:description" content="Create and upload your own learning games on MindForge." />
-      </Helmet>
+      </>
       <ModeSelector onSelect={setMode} />
     </>
   )

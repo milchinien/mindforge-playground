@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Trophy, Medal, Crown, Star, TrendingUp, Users, Calendar, ChevronDown, Flame, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -215,12 +214,12 @@ export default function Leaderboards() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>Leaderboards | MindForge</title>
         <meta name="description" content="Compare your scores with other players on the MindForge leaderboards." />
         <meta property="og:title" content="Leaderboards | MindForge" />
         <meta property="og:description" content="Compare your scores with other players on the MindForge leaderboards." />
-      </Helmet>
+      </>
 
       {/* Page header */}
       <div className="flex items-center gap-3 mb-8">

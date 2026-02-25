@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserByUsername } from '../data/mockUsers'
@@ -80,9 +79,9 @@ export default function Profile() {
   if (notFound) {
     return (
       <div className="text-center py-20">
-        <Helmet>
+        <>
           <title>{t('profile.userNotFound')} | MindForge</title>
-        </Helmet>
+        </>
         <h1 className="text-6xl font-bold text-text-muted mb-4">404</h1>
         <p className="text-xl text-text-secondary mb-2">{t('profile.userNotFound')}</p>
         <p className="text-text-muted mb-6">{t('profile.userNotFoundDesc', { username })}</p>
@@ -97,9 +96,9 @@ export default function Profile() {
   if (!profileUser) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Helmet>
+        <>
           <title>{username} | MindForge</title>
-        </Helmet>
+        </>
         <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -107,13 +106,13 @@ export default function Profile() {
 
   return (
     <div className="py-4 max-w-5xl mx-auto">
-      <Helmet>
+      <>
         <title>{profileUser.username || username} | MindForge</title>
         <meta name="description" content={`${profileUser.username || username} - MindForge`} />
         <meta property="og:title" content={`${profileUser.username || username} | MindForge`} />
         <meta property="og:description" content={`${profileUser.username || username} - MindForge`} />
         <meta property="og:type" content="profile" />
-      </Helmet>
+      </>
 
       {/* Profile Header */}
       <ProfileHeader

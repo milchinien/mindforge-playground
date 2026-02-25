@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import {
@@ -117,13 +116,13 @@ export default function Achievements() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>{t('achievements.title')} | MindForge</title>
         <meta name="description" content={t('achievements.title')} />
         <meta property="og:title" content={`${t('achievements.title')} | MindForge`} />
         <meta property="og:description" content={t('achievements.title')} />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>

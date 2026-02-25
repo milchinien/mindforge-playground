@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import MindCoinIcon from '../components/common/MindCoinIcon'
 import { MOCK_EVENTS } from '../data/mockEvents'
@@ -156,13 +155,13 @@ export default function Events() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>{t('events.title')} | MindForge</title>
         <meta name="description" content={t('events.title')} />
         <meta property="og:title" content={`${t('events.title')} | MindForge`} />
         <meta property="og:description" content={t('events.title')} />
         <meta property="og:type" content="website" />
-      </Helmet>
+      </>
 
       <h1 className="text-3xl font-bold mb-8">{t('events.title')}</h1>
 

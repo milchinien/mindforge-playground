@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { Search, Star, Download, Eye, ShoppingCart, Filter, Tag } from 'lucide-react'
 import MindCoinIcon from '../components/common/MindCoinIcon'
 
@@ -195,10 +194,10 @@ export default function TemplateMarketplace() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <Helmet>
+      <>
         <title>Template Marketplace | MindForge</title>
         <meta name="description" content="Entdecke und nutze Game-Templates von der MindForge Community." />
-      </Helmet>
+      </>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>

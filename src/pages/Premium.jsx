@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { Check, X, Crown, GraduationCap, Sparkles, Palette, BarChart3, Lock } from 'lucide-react'
@@ -204,12 +203,12 @@ export default function Premium() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <Helmet>
+      <>
         <title>Premium | MindForge</title>
         <meta name="description" content={t('premium.subtitle')} />
         <meta property="og:title" content="Premium | MindForge" />
         <meta property="og:description" content={t('premium.subtitle')} />
-      </Helmet>
+      </>
 
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-3">{t('premium.headline')}</h1>
