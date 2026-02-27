@@ -17,23 +17,7 @@ import {
 } from '../data/seasonData'
 import BattlePassTrack from '../components/seasons/BattlePassTrack'
 import ChallengeCard from '../components/seasons/ChallengeCard'
-
-// ---- Tab button (matching Leaderboards page style) ----
-function TabButton({ active, onClick, children, icon: Icon }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer
-        ${active
-          ? 'bg-bg-card text-accent shadow-sm'
-          : 'text-text-secondary hover:text-text-primary'
-        }`}
-    >
-      {Icon && <Icon className="w-4 h-4" />}
-      {children}
-    </button>
-  )
-}
+import Tabs from '../components/ui/Tabs'
 
 // ---- Rank badge for leaderboard ----
 function RankBadge({ rank }) {
@@ -659,18 +643,7 @@ export default function Seasons() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-8 overflow-x-auto">
-        {TABS.map((tab) => (
-          <TabButton
-            key={tab.id}
-            active={activeTab === tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            icon={tab.icon}
-          >
-            {tab.label}
-          </TabButton>
-        ))}
-      </div>
+      <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-8" />
 
       {/* Tab content */}
       {activeTab === 'overview' && <OverviewTab />}

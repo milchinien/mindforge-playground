@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, SlidersHorizontal, Eye, Heart, ThumbsDown, Play, User, Trophy, Calendar, Gamepad2 } from 'lucide-react'
+import Tabs from '../components/ui/Tabs'
 import { mockGames } from '../data/mockGames'
 import { mockUsers } from '../data/mockUsers'
 import { ALL_ACHIEVEMENTS } from '../data/achievementDefinitions'
@@ -272,34 +273,17 @@ export default function Search() {
       </div>
 
       {/* Category Tabs */}
-      <div className="flex items-center gap-2 mb-6 overflow-x-auto">
-        {TABS.map(tab => {
-          const count = results[tab.id]?.length || 0
-          const Icon = tab.icon
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'bg-accent/20 text-accent'
-                  : 'bg-bg-card text-text-secondary hover:text-text-primary hover:bg-bg-hover'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {tab.label}
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                activeTab === tab.id ? 'bg-accent/30' : 'bg-bg-hover'
-              }`}>
-                {count}
-              </span>
-            </button>
-          )
-        })}
+      <div className="flex items-center gap-4 mb-6">
+        <Tabs
+          tabs={TABS.map(tab => ({ ...tab, count: results[tab.id]?.length || 0 }))}
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          variant="pills"
+        />
 
         {/* Sort - only for games */}
         {activeTab === 'games' && (
-          <div className="ml-auto">
+          <div className="ml-auto flex-shrink-0">
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value)}

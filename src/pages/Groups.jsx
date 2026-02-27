@@ -8,28 +8,7 @@ import { useGroupStore } from '../stores/groupStore'
 import { mockLerngruppen, mockClans, mockKlassen } from '../data/groupData'
 import GroupCard from '../components/groups/GroupCard'
 import ClanWarBanner from '../components/groups/ClanWarBanner'
-
-// --- Tab button (consistent with Leaderboards page) ---
-function TabButton({ active, onClick, children, icon: Icon, count }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer
-        ${active
-          ? 'bg-bg-card text-accent shadow-sm'
-          : 'text-text-secondary hover:text-text-primary'
-        }`}
-    >
-      {Icon && <Icon className="w-4 h-4" />}
-      {children}
-      {typeof count === 'number' && (
-        <span className={`text-xs px-1.5 py-0.5 rounded-full ${active ? 'bg-accent/20 text-accent' : 'bg-bg-hover text-text-muted'}`}>
-          {count}
-        </span>
-      )}
-    </button>
-  )
-}
+import Tabs from '../components/ui/Tabs'
 
 // --- Invite Card ---
 function InviteCard({ invite, onAccept, onDecline }) {
@@ -391,19 +370,7 @@ export default function Groups() {
       )}
 
       {/* Tab navigation */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-6 overflow-x-auto">
-        {TABS.map((tab) => (
-          <TabButton
-            key={tab.id}
-            active={activeTab === tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            icon={tab.icon}
-            count={tab.count}
-          >
-            {tab.label}
-          </TabButton>
-        ))}
-      </div>
+      <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-6" />
 
       {/* Tab content */}
       {activeTab === 'lerngruppen' && renderLerngruppen()}

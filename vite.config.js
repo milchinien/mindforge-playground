@@ -13,6 +13,22 @@ export default defineConfig({
       gzipSize: true,
     }),
   ],
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-dom/client',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'zustand',
+      'zustand/middleware',
+      'react-router-dom',
+      'react-i18next',
+      'i18next',
+      'framer-motion',
+      'lucide-react',
+    ],
+  },
   build: {
     rollupOptions: {
       output: {

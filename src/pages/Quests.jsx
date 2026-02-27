@@ -5,23 +5,7 @@ import { QUEST_TABS, RARITY_CONFIG } from '../data/questData'
 import { useCountdown } from '../hooks/useCountdown'
 import QuestCard from '../components/quests/QuestCard'
 import BadgeGrid from '../components/quests/BadgeGrid'
-
-// --- Tab Button ---
-function TabButton({ tab, isActive, onClick }) {
-  return (
-    <button
-      onClick={() => onClick(tab.id)}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer flex-1
-        ${isActive
-          ? 'bg-bg-card text-accent shadow-sm'
-          : 'text-text-secondary hover:text-text-primary hover:bg-bg-card/50'
-        }`}
-    >
-      <span>{tab.icon}</span>
-      <span className="hidden sm:inline">{tab.label}</span>
-    </button>
-  )
-}
+import Tabs from '../components/ui/Tabs'
 
 // --- Daily Reset Countdown ---
 function DailyCountdown({ resetAt }) {
@@ -331,16 +315,7 @@ export default function Quests() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-8 overflow-x-auto">
-        {QUEST_TABS.map(tab => (
-          <TabButton
-            key={tab.id}
-            tab={tab}
-            isActive={activeTab === tab.id}
-            onClick={setActiveTab}
-          />
-        ))}
-      </div>
+      <Tabs tabs={QUEST_TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-8" />
 
       {/* Tab Content */}
       <div className="min-h-[400px]">

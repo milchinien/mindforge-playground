@@ -4,6 +4,7 @@ import { mockFriends, mockFriendRequests } from '../data/mockFriends'
 import FriendCard from '../components/friends/FriendCard'
 import FriendRequestCard from '../components/friends/FriendRequestCard'
 import AddFriendModal from '../components/friends/AddFriendModal'
+import Tabs from '../components/ui/Tabs'
 
 export default function Friends() {
   const { t } = useTranslation()
@@ -124,28 +125,7 @@ export default function Friends() {
       </div>
 
       {/* Tab-Navigation */}
-      <div className="flex border-b border-gray-700 mb-6">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-3 text-sm font-medium transition-colors relative
-              ${activeTab === tab.id ? 'text-accent' : 'text-text-muted hover:text-text-primary'}`}
-          >
-            {tab.label}
-            <span className={`ml-2 text-xs px-2 py-0.5 rounded-full
-              ${tab.id === 'requests' && tab.count > 0
-                ? 'bg-error/20 text-error'
-                : 'bg-bg-hover'
-              }`}>
-              {tab.count}
-            </span>
-            {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
-            )}
-          </button>
-        ))}
-      </div>
+      <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-6" />
 
       {/* Content basierend auf Tab */}
       {activeTab === 'all' && renderFriendList(friends)}

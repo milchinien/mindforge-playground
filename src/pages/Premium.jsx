@@ -5,6 +5,7 @@ import { Check, X, Crown, GraduationCap, Sparkles, Palette, BarChart3, Lock } fr
 import { isPremium } from '../utils/premiumChecks'
 import ThemeSelector from '../components/premium/ThemeSelector'
 import DetailedStats from '../components/premium/DetailedStats'
+import Tabs from '../components/ui/Tabs'
 
 function PricingCard({ tier, isCurrentTier, isYearly, t }) {
   const Icon = tier.icon
@@ -82,22 +83,11 @@ function PricingCard({ tier, isCurrentTier, isYearly, t }) {
   )
 }
 
-// Tab button component
-function TabBtn({ active, onClick, icon: Icon, children }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer
-        ${active
-          ? 'bg-accent text-white shadow-sm'
-          : 'text-text-secondary hover:text-text-primary hover:bg-bg-card'
-        }`}
-    >
-      {Icon && <Icon className="w-4 h-4" />}
-      {children}
-    </button>
-  )
-}
+const PREMIUM_TABS = [
+  { id: 'plans', label: 'Abo-Plaene', icon: Crown },
+  { id: 'themes', label: 'Themes & Rahmen', icon: Palette },
+  { id: 'stats', label: 'Detaillierte Statistiken', icon: BarChart3 },
+]
 
 export default function Premium() {
   const { t } = useTranslation()
@@ -218,17 +208,7 @@ export default function Premium() {
       </div>
 
       {/* Premium section tabs */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-8 overflow-x-auto">
-        <TabBtn active={activeTab === 'plans'} onClick={() => setActiveTab('plans')} icon={Crown}>
-          Abo-Plaene
-        </TabBtn>
-        <TabBtn active={activeTab === 'themes'} onClick={() => setActiveTab('themes')} icon={Palette}>
-          Themes & Rahmen
-        </TabBtn>
-        <TabBtn active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} icon={BarChart3}>
-          Detaillierte Statistiken
-        </TabBtn>
-      </div>
+      <Tabs tabs={PREMIUM_TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-8" />
 
       {/* Plans tab */}
       {activeTab === 'plans' && (

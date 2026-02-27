@@ -65,7 +65,7 @@ const MONTHLY_EXCLUSIVE_ITEMS = [
   {
     id: 'exc-glow-frame',
     name: 'Gluehender Rahmen',
-    icon: '\u{1F525}',
+    image: '/images/items/glow-frame.svg',
     rarity: 'epic',
     price: 150,
     description: 'Ein leuchtender Rahmen mit Glow-Effekt fuer dein Profil',
@@ -74,7 +74,7 @@ const MONTHLY_EXCLUSIVE_ITEMS = [
   {
     id: 'exc-aurora-bg',
     name: 'Nordlicht-Hintergrund',
-    icon: '\u{1F30C}',
+    image: '/images/items/aurora-bg.svg',
     rarity: 'legendary',
     price: 200,
     description: 'Mystischer Nordlicht-Hintergrund fuer deinen Avatar',
@@ -83,7 +83,7 @@ const MONTHLY_EXCLUSIVE_ITEMS = [
   {
     id: 'exc-crystal-crown',
     name: 'Kristall-Krone',
-    icon: '\u{1F451}',
+    image: '/images/items/crystal-crown.svg',
     rarity: 'legendary',
     price: 300,
     description: 'Eine funkelnde Krone aus reinem Kristall',
@@ -92,7 +92,7 @@ const MONTHLY_EXCLUSIVE_ITEMS = [
   {
     id: 'exc-spring-aura',
     name: 'Fruehlings-Aura',
-    icon: '\u{1F33C}',
+    image: '/images/items/spring-aura.svg',
     rarity: 'epic',
     price: 175,
     description: 'Blumen-Partikel umgeben deinen Avatar',
@@ -101,7 +101,7 @@ const MONTHLY_EXCLUSIVE_ITEMS = [
   {
     id: 'exc-rainbow-trail',
     name: 'Regenbogen-Spur',
-    icon: '\u{1F308}',
+    image: '/images/items/rainbow-trail.svg',
     rarity: 'legendary',
     price: 250,
     description: 'Ein farbenfroher Regenbogen-Effekt',
@@ -110,7 +110,7 @@ const MONTHLY_EXCLUSIVE_ITEMS = [
   {
     id: 'exc-thunder-badge',
     name: 'Donner-Emblem',
-    icon: '\u26A1',
+    image: '/images/items/thunder-badge.svg',
     rarity: 'epic',
     price: 160,
     description: 'Elektrisierendes Emblem fuer dein Profil',
@@ -405,15 +405,6 @@ function MindCoinsSection({ user, premiumDiscount, onPurchase, t }) {
 
   return (
     <div className="space-y-6">
-      {/* Balance */}
-      <div className="bg-bg-card rounded-xl p-4 inline-flex items-center gap-3 border border-gray-700">
-        <MindCoinIcon size={56} />
-        <div>
-          <p className="text-sm text-text-muted">{t('shop.yourBalance')}</p>
-          <p className="text-2xl font-bold text-accent">{(user?.mindCoins || 0).toLocaleString('de-DE')} MindCoins</p>
-        </div>
-      </div>
-
       {premiumDiscount?.percent > 0 && (
         <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 flex items-center gap-3">
           <Crown className="w-5 h-5 text-accent flex-shrink-0" />
@@ -643,15 +634,19 @@ function ExclusiveSection({ user, t }) {
         {monthItems.map(item => {
           const rarity = RARITY_CONFIG[item.rarity]
           return (
-            <div key={item.id} className={`bg-bg-card rounded-xl p-5 border relative ${rarity.border} ${!userIsPremium ? 'opacity-60' : ''}`}>
-              <span className={`absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full ${rarity.bg} ${rarity.color}`}>
+            <div key={item.id} className={`bg-bg-card rounded-lg p-3 border relative ${rarity.border} ${!userIsPremium ? 'opacity-60' : ''}`}>
+              <span className={`absolute top-2 right-2 z-10 text-[10px] font-bold px-2 py-0.5 rounded-full ${rarity.bg} ${rarity.color}`}>
                 {rarity.name}
               </span>
-              <div className="text-center mb-3">
-                <span className="text-4xl">{item.icon}</span>
+              <div className="w-full aspect-[4/3] rounded-md overflow-hidden bg-bg-hover mb-2">
+                {item.image ? (
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-3xl">{item.icon}</div>
+                )}
               </div>
-              <h3 className="font-bold text-text-primary text-center text-sm">{item.name}</h3>
-              <p className="text-xs text-text-muted text-center mt-1 mb-3">{item.description}</p>
+              <h3 className="font-bold text-text-primary text-sm">{item.name}</h3>
+              <p className="text-[11px] text-text-muted mt-0.5 mb-2 line-clamp-2">{item.description}</p>
               <div className="flex items-center justify-center gap-1 mb-3">
                 <MindCoinIcon size={18} />
                 <span className="font-bold text-accent">{item.price} MC</span>
@@ -739,12 +734,23 @@ export default function Shop() {
         <meta property="og:description" content={t('shop.subtitle')} />
       </>
 
-      <h1 className="text-3xl font-bold mb-2">{t('shop.title')}</h1>
-      <p className="text-text-secondary mb-6">{t('shop.subtitle')}</p>
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-1">{t('shop.title')}</h1>
+          <p className="text-text-secondary">{t('shop.subtitle')}</p>
+        </div>
+        <div className="flex items-center gap-2.5 bg-bg-card rounded-lg px-4 py-2.5 border border-gray-700 flex-shrink-0">
+          <MindCoinIcon size={28} />
+          <div>
+            <p className="text-xs text-text-muted leading-none">{t('shop.yourBalance')}</p>
+            <p className="text-lg font-bold text-accent leading-tight">{(user?.mindCoins || 0).toLocaleString('de-DE')} MC</p>
+          </div>
+        </div>
+      </div>
 
       <div className="flex gap-6">
         {/* Sidebar - Desktop */}
-        <nav className="hidden md:flex flex-col w-52 flex-shrink-0 sticky top-20 self-start">
+        <nav className="hidden md:flex flex-col w-52 flex-shrink-0 sticky top-24 self-start">
           <div className="bg-bg-card rounded-xl border border-gray-700 overflow-hidden">
             {SHOP_CATEGORIES.map(cat => {
               const Icon = cat.icon
@@ -763,13 +769,6 @@ export default function Shop() {
                 </button>
               )
             })}
-          </div>
-
-          {/* Balance mini card */}
-          <div className="mt-4 bg-bg-card rounded-xl border border-gray-700 p-3 text-center">
-            <MindCoinIcon size={32} className="mx-auto" />
-            <p className="text-lg font-bold text-accent mt-1">{(user?.mindCoins || 0).toLocaleString('de-DE')}</p>
-            <p className="text-[10px] text-text-muted">MindCoins</p>
           </div>
         </nav>
 

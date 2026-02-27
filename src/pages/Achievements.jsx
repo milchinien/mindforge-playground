@@ -8,6 +8,7 @@ import {
 } from '../data/achievementDefinitions'
 import TitleSelectModal from '../components/achievements/TitleSelectModal'
 import { useAuth } from '../contexts/AuthContext'
+import Tabs from '../components/ui/Tabs'
 
 function getAchievementStatus(achievement, userProgress, unlockedAchievements) {
   if (unlockedAchievements.includes(achievement.id)) {
@@ -146,28 +147,16 @@ export default function Achievements() {
       </div>
 
       {/* Category tabs */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-8 overflow-x-auto">
-        {ACHIEVEMENT_CATEGORIES.map(cat => {
+      <Tabs
+        tabs={ACHIEVEMENT_CATEGORIES.map(cat => {
           const catUnlocked = ALL_ACHIEVEMENTS
-            .filter(a => a.category === cat.id && unlockedAchievements.includes(a.id))
-            .length
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer flex-1
-                ${activeCategory === cat.id
-                  ? 'bg-bg-card text-accent shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary'
-                }`}
-            >
-              <span>{cat.icon}</span>
-              <span className="hidden sm:inline">{cat.name}</span>
-              <span className="text-xs text-text-muted">{catUnlocked}/{cat.count}</span>
-            </button>
-          )
+            .filter(a => a.category === cat.id && unlockedAchievements.includes(a.id)).length
+          return { id: cat.id, label: cat.name, icon: cat.icon, count: catUnlocked }
         })}
-      </div>
+        activeTab={activeCategory}
+        onChange={setActiveCategory}
+        className="mb-8"
+      />
 
       {/* Achievement list */}
       <div className="space-y-3">

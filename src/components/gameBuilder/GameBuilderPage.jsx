@@ -9,6 +9,7 @@ import QuestionEditorTab from './tabs/QuestionEditorTab'
 import DesignTab from './tabs/DesignTab'
 import SettingsTab from './tabs/SettingsTab'
 import PreviewPublishTab from './tabs/PreviewPublishTab'
+import Tabs from '../ui/Tabs'
 
 function createEmptyGame(userId, username) {
   return {
@@ -114,26 +115,7 @@ export default function GameBuilderPage({ editDraftId, onBack }) {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-6 overflow-x-auto">
-        {TABS.map((tab) => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors cursor-pointer flex-1 justify-center ${
-                isActive
-                  ? 'bg-accent text-white'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-bg-card'
-              }`}
-            >
-              <Icon size={16} />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          )
-        })}
-      </div>
+      <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-6" />
 
       {/* Tab Content */}
       <div className="bg-bg-card rounded-xl p-6">

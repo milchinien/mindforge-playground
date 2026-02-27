@@ -10,6 +10,7 @@ import ConfirmDialog from '../common/ConfirmDialog'
 import GameStats from './GameStats'
 import VersionHistory from './VersionHistory'
 import RevenuePanel from './RevenuePanel'
+import Tabs from '../ui/Tabs'
 
 export default function CreatorDashboard() {
   const { t } = useTranslation()
@@ -103,35 +104,16 @@ export default function CreatorDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-6">
-        <button
-          onClick={() => setActiveTab('drafts')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-            activeTab === 'drafts' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
-          }`}
-        >
-          <FileText size={16} />
-          {t('create.dashboard.draftsTab')} ({myDrafts.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('published')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-            activeTab === 'published' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
-          }`}
-        >
-          <Globe size={16} />
-          {t('create.dashboard.publishedTab')} ({myPublished.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('revenue')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-            activeTab === 'revenue' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
-          }`}
-        >
-          <TrendingUp size={16} />
-          Einnahmen
-        </button>
-      </div>
+      <Tabs
+        tabs={[
+          { id: 'drafts', label: t('create.dashboard.draftsTab'), icon: FileText, count: myDrafts.length },
+          { id: 'published', label: t('create.dashboard.publishedTab'), icon: Globe, count: myPublished.length },
+          { id: 'revenue', label: 'Einnahmen', icon: TrendingUp },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        className="mb-6"
+      />
 
       {/* Content */}
       {activeTab === 'drafts' && (

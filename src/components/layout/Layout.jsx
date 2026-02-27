@@ -70,7 +70,7 @@ export default function Layout({ children }) {
           id="main-content"
           role="main"
           tabIndex={-1}
-          className={`flex-1 mt-16 p-6 pb-24 md:pb-6 transition-all duration-200 min-w-0 overflow-x-hidden ${
+          className={`flex-1 mt-16 p-6 pb-24 md:pb-6 transition-all duration-200 min-w-0 overflow-x-clip ${
             collapsed ? 'lg:ml-16' : 'lg:ml-60'
           }`}
         >

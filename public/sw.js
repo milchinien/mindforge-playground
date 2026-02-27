@@ -125,6 +125,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Vite dev deps: always network-first to avoid stale module caches
+  if (url.pathname.includes('node_modules/.vite/') || url.pathname.startsWith('/src/')) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
   // Static assets (JS, CSS, images, fonts): cache-first
   if (isStaticAsset(url.pathname)) {
     event.respondWith(cacheFirst(request));

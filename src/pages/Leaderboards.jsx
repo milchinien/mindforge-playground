@@ -4,6 +4,7 @@ import { Trophy, Medal, Crown, Star, TrendingUp, Users, Calendar, ChevronDown, F
 import { useAuth } from '../contexts/AuthContext'
 import { mockGames } from '../data/mockGames'
 import PremiumBadge from '../components/premium/PremiumBadge'
+import Tabs from '../components/ui/Tabs'
 
 // --- Mock leaderboard data ---
 const MOCK_PLAYERS = [
@@ -137,23 +138,6 @@ function LeaderboardRow({ player, rank, isCurrentUser, t }) {
   )
 }
 
-// --- Tab button ---
-function TabButton({ active, onClick, children, icon: Icon }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer
-        ${active
-          ? 'bg-bg-card text-accent shadow-sm'
-          : 'text-text-secondary hover:text-text-primary'
-        }`}
-    >
-      {Icon && <Icon className="w-4 h-4" />}
-      {children}
-    </button>
-  )
-}
-
 export default function Leaderboards() {
   const { user } = useAuth()
   const { t } = useTranslation()
@@ -276,17 +260,16 @@ export default function Leaderboards() {
       )}
 
       {/* Time range tabs */}
-      <div className="flex gap-1 bg-bg-secondary rounded-xl p-1 mb-6 overflow-x-auto">
-        <TabButton active={timeRange === 'global'} onClick={() => setTimeRange('global')} icon={Trophy}>
-          {t('leaderboards.all')}
-        </TabButton>
-        <TabButton active={timeRange === 'weekly'} onClick={() => setTimeRange('weekly')} icon={Calendar}>
-          {t('leaderboards.thisWeek')}
-        </TabButton>
-        <TabButton active={timeRange === 'monthly'} onClick={() => setTimeRange('monthly')} icon={TrendingUp}>
-          {t('leaderboards.thisMonth')}
-        </TabButton>
-      </div>
+      <Tabs
+        tabs={[
+          { id: 'global', label: t('leaderboards.all'), icon: Trophy },
+          { id: 'weekly', label: t('leaderboards.thisWeek'), icon: Calendar },
+          { id: 'monthly', label: t('leaderboards.thisMonth'), icon: TrendingUp },
+        ]}
+        activeTab={timeRange}
+        onChange={setTimeRange}
+        className="mb-6"
+      />
 
       {/* Game filter dropdown */}
       <div className="relative mb-6">
