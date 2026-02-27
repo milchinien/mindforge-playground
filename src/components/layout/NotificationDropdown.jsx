@@ -3,7 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { timeAgo } from '../../utils/formatters'
-import { MOCK_NOTIFICATIONS, NOTIFICATION_ICONS } from '../../data/mockNotifications'
+import { useNotificationStore } from '../../stores/notificationStore'
+
+const NOTIFICATION_ICONS = {
+  system: '\u2699\uFE0F',
+  follow: '\uD83D\uDC64',
+  friend_request: '\uD83E\uDD1D',
+  achievement: '\uD83C\uDFC6',
+  new_game: '\uD83C\uDFAE',
+  event: '\uD83C\uDF89',
+  quest: '\uD83D\uDCDC',
+  season: '\u2B50',
+}
 
 function NotificationItem({ notification, onClick }) {
   const icon = NOTIFICATION_ICONS[notification.type] || '\uD83D\uDCCC'
@@ -17,8 +28,12 @@ function NotificationItem({ notification, onClick }) {
     >
       <span className="text-xl flex-shrink-0 mt-0.5" aria-hidden="true">{icon}</span>
       <div className="flex-1 min-w-0">
-        <p className={`text-sm leading-relaxed
-          ${!notification.read ? 'text-text-primary font-medium' : 'text-text-secondary'}`}>
+        <p className={`text-sm font-medium leading-relaxed
+          ${!notification.read ? 'text-text-primary' : 'text-text-secondary'}`}>
+          {notification.title}
+        </p>
+        <p className={`text-xs leading-relaxed mt-0.5
+          ${!notification.read ? 'text-text-secondary' : 'text-text-muted'}`}>
           {notification.message}
         </p>
         <p className="text-xs text-text-muted mt-1">
@@ -35,11 +50,12 @@ function NotificationItem({ notification, onClick }) {
 export default function NotificationDropdown() {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS)
   const navigate = useNavigate()
   const dropdownRef = useRef(null)
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const notifications = useNotificationStore((s) => s.notifications)
+  const unreadCount = useNotificationStore((s) => s.notifications.filter((n) => !n.read).length)
+  const { markAsRead, markAllAsRead } = useNotificationStore()
 
   // Close on outside click
   useEffect(() => {
@@ -51,14 +67,6 @@ export default function NotificationDropdown() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  const markAsRead = (id) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-  }
-
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-  }
 
   const handleNotificationClick = (notification) => {
     if (!notification.read) markAsRead(notification.id)

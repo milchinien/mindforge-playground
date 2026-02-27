@@ -6,6 +6,8 @@ import { useAuth } from '../contexts/AuthContext'
 import MindCoinIcon from '../components/common/MindCoinIcon'
 import { getPremiumDiscount, isPremium } from '../utils/premiumChecks'
 import useEscapeKey from '../hooks/useEscapeKey'
+import { useInventoryStore } from '../stores/inventoryStore'
+import { useActivityStore } from '../stores/activityStore'
 
 // ──────────── CONSTANTS ────────────
 
@@ -599,7 +601,7 @@ function SeasonalSection({ user, onPurchase, t }) {
   )
 }
 
-function ExclusiveSection({ user, t }) {
+function ExclusiveSection({ user, onBuyExclusive, t }) {
   const currentMonth = new Date().getMonth() + 1
   const monthItems = MONTHLY_EXCLUSIVE_ITEMS.filter(item => item.availableMonth === currentMonth)
   const userIsPremium = isPremium(user)
@@ -652,7 +654,10 @@ function ExclusiveSection({ user, t }) {
                 <span className="font-bold text-accent">{item.price} MC</span>
               </div>
               {userIsPremium ? (
-                <button className="w-full bg-accent hover:bg-accent-dark text-white py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer">
+                <button
+                  onClick={() => onBuyExclusive(item)}
+                  className="w-full bg-accent hover:bg-accent-dark text-white py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+                >
                   {t('common.buy')}
                 </button>
               ) : (
@@ -704,8 +709,54 @@ export default function Shop() {
       if (!currentShopTitles.some(t => t.title === selectedPkg.rewardTitle)) {
         updates.shopTitles = [...currentShopTitles, { title: selectedPkg.rewardTitle, icon: selectedPkg.rewardTitleIcon, source: selectedPkg.name }]
       }
+      // Add title to inventory
+      useInventoryStore.getState().addItem({
+        id: `shop-title-${selectedPkg.id}`,
+        type: 'title',
+        name: selectedPkg.rewardTitle,
+        description: `Gekauft im Shop: ${selectedPkg.name}`,
+        rarity: 'rare',
+        source: 'shop',
+      })
     }
+
+    // Activity log for all purchases
+    useActivityStore.getState().addActivity({
+      type: 'item_purchased',
+      description: `"${selectedPkg.name}" im Shop gekauft`,
+      metadata: { itemId: selectedPkg.id, price: selectedPkg.priceNum },
+    })
+
     try { await updateUser(updates) } catch {}
+  }
+
+  const handleBuyExclusive = async (item) => {
+    if ((user?.mindCoins || 0) < item.price) return
+
+    const itemType = item.id.includes('frame') ? 'frame'
+      : item.id.includes('bg') ? 'background'
+      : item.id.includes('aura') || item.id.includes('trail') ? 'effect'
+      : 'badge'
+
+    await updateUser({
+      mindCoins: (user?.mindCoins || 0) - item.price,
+      transactions: [...transactions, addTransaction('spend', item.price, `${item.name} gekauft`)],
+    })
+
+    useInventoryStore.getState().addItem({
+      id: `shop-${item.id}`,
+      type: itemType,
+      name: item.name,
+      description: item.description || 'Gekauft im Shop',
+      rarity: item.rarity || 'common',
+      source: 'shop',
+    })
+
+    useActivityStore.getState().addActivity({
+      type: 'item_purchased',
+      description: `"${item.name}" im Shop gekauft`,
+      metadata: { itemId: item.id, price: item.price },
+    })
   }
 
   const renderContent = () => {
@@ -717,7 +768,7 @@ export default function Shop() {
       case 'seasonal':
         return <SeasonalSection user={user} onPurchase={setSelectedPkg} t={t} />
       case 'exclusive':
-        return <ExclusiveSection user={user} t={t} />
+        return <ExclusiveSection user={user} onBuyExclusive={handleBuyExclusive} t={t} />
       case 'transactions':
         return <TransactionHistory transactions={transactions} t={t} />
       default:

@@ -9,6 +9,7 @@ import { getSubjectConfig } from '../data/subjectConfig'
 import TagList from '../components/game/TagList'
 import LikeDislike from '../components/game/LikeDislike'
 import GameReviews from '../components/game/GameReviews'
+import { useGameInteractionStore } from '../stores/gameInteractionStore'
 
 function ThumbnailPlaceholder({ title, subject, className = '' }) {
   const config = getSubjectConfig(subject)
@@ -30,12 +31,14 @@ export default function GameDetail() {
   const navigate = useNavigate()
   const game = getGameById(id)
   const [showPreview, setShowPreview] = useState(false)
+  const recordView = useGameInteractionStore((s) => s.recordView)
+  const stats = useGameInteractionStore((s) => s.globalStats[game?.id]) || { likes: 0, dislikes: 0, views: 0, plays: 0 }
 
   useEffect(() => {
-    if (game) {
-      // TODO: Increment view counter via API
+    if (game?.id) {
+      recordView(game.id)
     }
-  }, [id, game])
+  }, [game?.id, recordView])
 
   if (!game) {
     return (
@@ -175,20 +178,20 @@ export default function GameDetail() {
           <div className="space-y-2 mb-6">
             <div className="flex items-center gap-2 text-text-secondary">
               <Eye size={16} className="text-text-muted" />
-              <span>{formatNumber(game.views)} {t('common.views')}</span>
+              <span>{formatNumber(stats.views)} {t('common.views')}</span>
             </div>
             <div className="flex items-center gap-2 text-text-secondary">
               <Play size={16} className="text-text-muted" />
-              <span>{formatNumber(game.plays)} {t('common.plays')}</span>
+              <span>{formatNumber(stats.plays)} {t('common.plays')}</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2 text-text-secondary">
                 <Heart size={16} className="text-text-muted" />
-                {formatNumber(game.likes)} {t('common.likes')}
+                {formatNumber(stats.likes)} {t('common.likes')}
               </span>
               <span className="flex items-center gap-2 text-text-secondary">
                 <ThumbsDown size={16} className="text-text-muted" />
-                {formatNumber(game.dislikes)} {t('common.dislikes')}
+                {formatNumber(stats.dislikes)} {t('common.dislikes')}
               </span>
             </div>
             <div className="flex items-center gap-2 text-text-secondary">
@@ -217,11 +220,7 @@ export default function GameDetail() {
           </div>
 
           {/* Like / Dislike */}
-          <LikeDislike
-            gameId={game.id}
-            initialLikes={game.likes}
-            initialDislikes={game.dislikes}
-          />
+          <LikeDislike gameId={game.id} />
 
           {/* Share */}
           <div className="mt-4 pt-4 border-t border-bg-hover">

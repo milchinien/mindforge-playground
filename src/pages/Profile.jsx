@@ -8,6 +8,10 @@ import ProfileHeader from '../components/profile/ProfileHeader'
 import ProfileTabs from '../components/profile/ProfileTabs'
 import GameCard from '../components/game/GameCard'
 import Modal from '../components/common/Modal'
+import { useSocialStore } from '../stores/socialStore'
+import { useActivityStore } from '../stores/activityStore'
+import { useAchievementStore } from '../stores/achievementStore'
+import { timeAgo } from '../utils/formatters'
 
 export default function Profile() {
   const { t } = useTranslation()
@@ -16,7 +20,9 @@ export default function Profile() {
   const [profileUser, setProfileUser] = useState(null)
   const [activeTab, setActiveTab] = useState('games')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isFollowing, setIsFollowing] = useState(false)
+  const socialFollowing = useSocialStore((s) => s.following)
+  const socialFollowers = useSocialStore((s) => s.followers)
+  const activities = useActivityStore((s) => s.activities).slice(0, 20)
   const [notFound, setNotFound] = useState(false)
 
   // Edit form state
@@ -72,6 +78,16 @@ export default function Profile() {
     setIsEditModalOpen(false)
     if (isOwnProfile) {
       await updateUser(updates)
+
+      useActivityStore.getState().addActivity({
+        type: 'profile_edited',
+        description: 'Profil bearbeitet',
+        metadata: null,
+      })
+
+      if (editBio && editBio.trim().length > 0) {
+        useAchievementStore.getState().setSyncedProgress('profile_complete', 1)
+      }
     }
   }
 
@@ -116,18 +132,10 @@ export default function Profile() {
 
       {/* Profile Header */}
       <ProfileHeader
-        user={profileUser}
+        user={isOwnProfile ? { ...profileUser, followers: socialFollowers.length, following: socialFollowing.length } : profileUser}
         isOwnProfile={isOwnProfile}
         isLoggedIn={!!currentUser}
         onEditClick={handleEditOpen}
-        onFollowChange={(nowFollowing) => {
-          setIsFollowing(nowFollowing)
-          setProfileUser(prev => ({
-            ...prev,
-            followers: Math.max(0, (prev.followers || 0) + (nowFollowing ? 1 : -1))
-          }))
-        }}
-        isFollowing={isFollowing}
         onTitleChange={async (title) => {
           setProfileUser(prev => ({ ...prev, activeTitle: title }))
           await updateUser({ activeTitle: title })
@@ -189,6 +197,44 @@ export default function Profile() {
           </div>
         )}
       </div>
+
+      {/* Activity Feed - only on own profile */}
+      {isOwnProfile && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">{t('profile.recentActivity', 'Letzte Aktivitaeten')}</h3>
+          {activities.length === 0 ? (
+            <div className="bg-bg-card rounded-xl p-6 text-center border border-gray-700">
+              <p className="text-text-muted text-sm">
+                {t('profile.noActivities', 'Noch keine Aktivitaeten. Spiele ein Spiel oder schliesse eine Quest ab!')}
+              </p>
+            </div>
+          ) : (
+            <div className="bg-bg-card rounded-xl border border-gray-700 divide-y divide-gray-700/50">
+              {activities.map((activity) => {
+                const ACTIVITY_ICONS = {
+                  game_played: '\uD83C\uDFAE',
+                  game_liked: '\uD83D\uDC4D',
+                  achievement_unlocked: '\uD83C\uDFC6',
+                  quest_completed: '\uD83D\uDCDC',
+                  item_purchased: '\uD83D\uDED2',
+                  reward_claimed: '\uD83C\uDF81',
+                  friend_added: '\uD83E\uDD1D',
+                  followed_user: '\uD83D\uDC64',
+                  profile_edited: '\u270F\uFE0F',
+                  game_created: '\uD83D\uDD28',
+                }
+                return (
+                  <div key={activity.id} className="flex items-center gap-3 px-4 py-3">
+                    <span className="text-lg flex-shrink-0">{ACTIVITY_ICONS[activity.type] || '\uD83D\uDCCC'}</span>
+                    <p className="text-sm text-text-secondary flex-1">{activity.description}</p>
+                    <span className="text-xs text-text-muted flex-shrink-0">{timeAgo(activity.createdAt)}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Edit Profile Modal */}
       <Modal

@@ -7,6 +7,9 @@ import {
   COMMUNITY_QUESTS,
   BADGE_DEFINITIONS,
 } from '../data/questData'
+import { useInventoryStore } from './inventoryStore'
+import { useNotificationStore } from './notificationStore'
+import { useActivityStore } from './activityStore'
 
 // Helper: get next midnight timestamp
 function getNextMidnight() {
@@ -126,6 +129,47 @@ export const useQuestStore = create(
           }
 
           return {}
+        })
+
+        // Cross-store side effects
+        const state = get()
+        const quest =
+          state.dailyQuests.find(q => q.id === questId) ||
+          state.weeklyQuests.find(q => q.id === questId) ||
+          state.storyProgress?.chapters?.find(c => c.id === questId) ||
+          state.communityQuests.find(q => q.id === questId)
+
+        if (!quest) return
+
+        // Cosmetic reward to inventory
+        if (quest.cosmeticReward) {
+          const rewardType = quest.cosmeticReward.toLowerCase().includes('rahmen') ? 'frame'
+            : quest.cosmeticReward.toLowerCase().includes('titel') ? 'title'
+            : 'badge'
+
+          useInventoryStore.getState()?.addItem?.({
+            id: `quest-reward-${questId}`,
+            type: rewardType,
+            name: quest.cosmeticReward,
+            description: `Belohnung fuer Quest: ${quest.title}`,
+            rarity: 'rare',
+            source: 'quest',
+          })
+        }
+
+        // Notification
+        useNotificationStore.getState()?.addNotification?.({
+          type: 'quest',
+          title: 'Quest abgeschlossen!',
+          message: `Du hast "${quest.title}" abgeschlossen${quest.xpReward ? ` und ${quest.xpReward} XP erhalten` : ''}!`,
+          link: '/quests',
+        })
+
+        // Activity log
+        useActivityStore.getState()?.addActivity?.({
+          type: 'quest_completed',
+          description: `Quest "${quest.title}" abgeschlossen`,
+          metadata: { questId, xpReward: quest.xpReward || 0 },
         })
       },
 

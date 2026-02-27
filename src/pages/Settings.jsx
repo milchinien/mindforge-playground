@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Sun, Moon, Lock, Trash2, Download, Bell, LogOut, Contrast } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useThemeStore, useIsDark, useIsHighContrast } from '../stores/themeStore'
+import { useNotificationStore } from '../stores/notificationStore'
 import Modal from '../components/common/Modal'
 
 function ToggleSwitch({ checked, onChange }) {
@@ -34,12 +35,8 @@ export default function Settings() {
   const isHighContrast = useIsHighContrast()
   const navigate = useNavigate()
 
-  const [notifications, setNotifications] = useState({
-    achievements: true,
-    follows: true,
-    events: true,
-    system: true,
-  })
+  const notifSettings = useNotificationStore((s) => s.settings)
+  const updateNotifSettings = useNotificationStore((s) => s.updateSettings)
 
   const [language, setLanguage] = useState(i18n.language || 'de')
 
@@ -137,7 +134,7 @@ export default function Settings() {
     const exportData = {
       exportDate: new Date().toISOString(),
       profile: user,
-      settings: { theme, language, notifications },
+      settings: { theme, language, notifications: notifSettings },
     }
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -262,6 +259,8 @@ export default function Settings() {
             { key: 'follows', label: t('settings.notifFollows'), desc: t('settings.notifFollowsDesc') },
             { key: 'events', label: t('settings.notifEvents'), desc: t('settings.notifEventsDesc') },
             { key: 'system', label: t('settings.notifSystem'), desc: t('settings.notifSystemDesc') },
+            { key: 'quests', label: t('settings.notifQuests', 'Quest-Benachrichtigungen'), desc: t('settings.notifQuestsDesc', 'Benachrichtigungen bei Quest-Abschluss') },
+            { key: 'season', label: t('settings.notifSeason', 'Season-Benachrichtigungen'), desc: t('settings.notifSeasonDesc', 'Benachrichtigungen zu Season-Belohnungen') },
           ].map(({ key, label, desc }) => (
             <div key={key} className="flex items-center justify-between">
               <div>
@@ -269,8 +268,8 @@ export default function Settings() {
                 <p className="text-sm text-text-muted">{desc}</p>
               </div>
               <ToggleSwitch
-                checked={notifications[key]}
-                onChange={(checked) => setNotifications(prev => ({ ...prev, [key]: checked }))}
+                checked={notifSettings[key] ?? true}
+                onChange={(checked) => updateNotifSettings(key, checked)}
               />
             </div>
           ))}

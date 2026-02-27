@@ -5,8 +5,9 @@ import FeaturedCarousel from '../components/game/FeaturedCarousel'
 import GameRow from '../components/game/GameRow'
 import FriendsPreview from '../components/home/FriendsPreview'
 import DailyLoginBonus from '../components/common/DailyLoginBonus'
-import { getFeaturedGames, getPopularGames, getGameById, mockGames } from '../data/mockGames'
-import { mockFriends } from '../data/mockFriends'
+import { getFeaturedGames, getGameById, mockGames } from '../data/mockGames'
+import { useGameInteractionStore } from '../stores/gameInteractionStore'
+import { useSocialStore } from '../stores/socialStore'
 
 const RECENTLY_PLAYED_KEY = 'mindforge_recently_played'
 const MAX_RECENT_GAMES = 10
@@ -43,7 +44,12 @@ function getRandomGames(count) {
 function HomeGuest() {
   const { t } = useTranslation()
   const featured = getFeaturedGames()
-  const popular = getPopularGames()
+  const globalStats = useGameInteractionStore((s) => s.globalStats)
+  const popular = [...mockGames].sort((a, b) => {
+    const sA = globalStats[a.id] || { likes: 0 }
+    const sB = globalStats[b.id] || { likes: 0 }
+    return sB.likes - sA.likes
+  }).slice(0, 8)
 
   return (
     <div className="space-y-8 py-4">
@@ -121,7 +127,7 @@ export default function Home() {
       </h1>
 
       {/* Friends Preview */}
-      <FriendsPreview friends={mockFriends} />
+      <FriendsPreview />
 
       {/* Recently Played */}
       {recentlyPlayed.length > 0 && (

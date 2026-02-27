@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import AvatarRenderer from '../profile/AvatarRenderer'
+import { useSocialStore } from '../../stores/socialStore'
 
-export default function FriendsPreview({ friends, maxDisplay = 5 }) {
+export default function FriendsPreview({ maxDisplay = 5 }) {
+  const friends = useSocialStore((s) => s.friends)
   // Online friends first, then offline
   const sorted = [...friends].sort((a, b) => b.isOnline - a.isOnline)
   const visible = sorted.slice(0, maxDisplay)

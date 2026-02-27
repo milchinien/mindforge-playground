@@ -5,6 +5,7 @@ import { Heart, Play, Layers, Code, FileArchive } from 'lucide-react'
 import { formatNumber } from '../../utils/formatters'
 import { getSubjectConfig } from '../../data/subjectConfig'
 import TagList from './TagList'
+import { useGameInteractionStore } from '../../stores/gameInteractionStore'
 
 function ThumbnailPlaceholder({ title, subject }) {
   const config = getSubjectConfig(subject)
@@ -26,6 +27,7 @@ function ThumbnailPlaceholder({ title, subject }) {
 export default memo(function GameCard({ game }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const stats = useGameInteractionStore((s) => s.globalStats[game.id]) || { likes: 0, plays: 0 }
 
   return (
     <div
@@ -85,11 +87,11 @@ export default memo(function GameCard({ game }) {
         <div className="flex items-center gap-3 mt-2 text-text-secondary text-xs">
           <span className="flex items-center gap-1">
             <Heart size={12} />
-            {formatNumber(game.likes)}
+            {formatNumber(stats.likes)}
           </span>
           <span className="flex items-center gap-1">
             <Play size={12} />
-            {formatNumber(game.plays)}
+            {formatNumber(stats.plays)}
           </span>
         </div>
       </div>

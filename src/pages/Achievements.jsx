@@ -1,49 +1,29 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import {
   ALL_ACHIEVEMENTS,
   ACHIEVEMENT_CATEGORIES,
-  MOCK_USER_PROGRESS,
 } from '../data/achievementDefinitions'
 import TitleSelectModal from '../components/achievements/TitleSelectModal'
-import { useAuth } from '../contexts/AuthContext'
 import Tabs from '../components/ui/Tabs'
+import { useAchievementStore } from '../stores/achievementStore'
+import { useInventoryStore } from '../stores/inventoryStore'
 
-function getAchievementStatus(achievement, userProgress, unlockedAchievements) {
-  if (unlockedAchievements.includes(achievement.id)) {
+function getAchievementStatus(achievement, progress, isUnlocked) {
+  if (isUnlocked(achievement.id)) {
     return { status: 'unlocked', current: achievement.requirement.value, percent: 100 }
   }
 
   const req = achievement.requirement
   let current = 0
 
-  switch (req.type) {
-    case 'games_played': current = userProgress.games_played || 0; break
-    case 'games_completed': current = userProgress.games_completed || 0; break
-    case 'daily_streak': current = userProgress.daily_streak || 0; break
-    case 'likes_given': current = userProgress.likes_given || 0; break
-    case 'total_playtime_minutes': current = userProgress.total_playtime_minutes || 0; break
-    case 'following_count': current = userProgress.following_count || 0; break
-    case 'followers_count': current = userProgress.followers_count || 0; break
-    case 'friends_count': current = userProgress.friends_count || 0; break
-    case 'avatar_customized': current = userProgress.avatar_customized || 0; break
-    case 'profile_complete': current = userProgress.profile_complete || 0; break
-    case 'events_participated': current = userProgress.events_participated || 0; break
-    case 'events_completed': current = userProgress.events_completed || 0; break
-    case 'games_created': current = userProgress.games_created || 0; break
-    case 'total_likes_received': current = userProgress.total_likes_received || 0; break
-    case 'total_plays_received': current = userProgress.total_plays_received || 0; break
-    case 'assets_sold': current = userProgress.assets_sold || 0; break
-    case 'is_premium': current = userProgress.is_premium || 0; break
-    case 'game_approval_rate': current = userProgress.game_approval_rate || 0; break
-    case 'category_games_completed':
-      current = userProgress.category_games_completed?.[req.category] || 0; break
-    case 'category_perfect_scores':
-      current = userProgress.category_perfect_scores?.[req.category] || 0; break
-    case 'unique_categories_played':
-      current = userProgress.unique_categories_played || 0; break
-    default: current = 0
+  if (req.type === 'category_games_completed') {
+    current = progress.category_games_completed?.[req.category] || 0
+  } else if (req.type === 'category_perfect_scores') {
+    current = progress.category_perfect_scores?.[req.category] || 0
+  } else {
+    current = progress[req.type] || 0
   }
 
   const percent = Math.min(100, Math.round((current / req.value) * 100))
@@ -103,17 +83,33 @@ function AchievementCard({ achievement, status, current, percent }) {
 
 export default function Achievements() {
   const { t } = useTranslation()
-  const { user } = useAuth()
   const [activeCategory, setActiveCategory] = useState('player')
-  const [userProgress] = useState(MOCK_USER_PROGRESS)
-  const [unlockedAchievements] = useState(user?.unlockedAchievements || ['first-steps', 'first-like', 'avatar-creator'])
-  const [activeTitle, setActiveTitle] = useState('Anfaenger')
   const [showTitleModal, setShowTitleModal] = useState(false)
+
+  const progress = useAchievementStore((s) => s.progress)
+  const unlockedMap = useAchievementStore((s) => s.unlockedAchievements)
+  const isUnlocked = (id) => id in unlockedMap
+
+  const items = useInventoryStore((s) => s.items)
+  const equipItem = useInventoryStore((s) => s.equipItem)
+  const unequipItem = useInventoryStore((s) => s.unequipItem)
+  const equippedTitle = useMemo(() => items.find((i) => i.type === 'title' && i.equipped)?.name || null, [items])
+  const titleItems = useMemo(() => items.filter((i) => i.type === 'title'), [items])
 
   const filteredAchievements = ALL_ACHIEVEMENTS.filter(a => a.category === activeCategory)
 
-  const totalUnlocked = unlockedAchievements.length
+  const totalUnlocked = Object.keys(unlockedMap).length
   const totalAchievements = ALL_ACHIEVEMENTS.length
+
+  const handleTitleSelect = (titleName) => {
+    if (titleName === null) {
+      titleItems.forEach((item) => { if (item.equipped) unequipItem(item.id) })
+    } else {
+      const item = titleItems.find((i) => i.name === titleName)
+      if (item) equipItem(item.id)
+    }
+    setShowTitleModal(false)
+  }
 
   return (
     <div className="p-6">
@@ -140,7 +136,7 @@ export default function Achievements() {
         >
           <span className="text-sm text-text-muted">{t('achievements.activeTitle')}</span>
           <span className="text-sm font-semibold text-accent">
-            {activeTitle ? `"${activeTitle}"` : t('achievements.noTitle')}
+            {equippedTitle ? `"${equippedTitle}"` : t('achievements.noTitle')}
           </span>
           <ChevronDown className="w-4 h-4 text-text-muted" />
         </button>
@@ -150,7 +146,7 @@ export default function Achievements() {
       <Tabs
         tabs={ACHIEVEMENT_CATEGORIES.map(cat => {
           const catUnlocked = ALL_ACHIEVEMENTS
-            .filter(a => a.category === cat.id && unlockedAchievements.includes(a.id)).length
+            .filter(a => a.category === cat.id && isUnlocked(a.id)).length
           return { id: cat.id, label: cat.name, icon: cat.icon, count: catUnlocked }
         })}
         activeTab={activeCategory}
@@ -161,7 +157,7 @@ export default function Achievements() {
       {/* Achievement list */}
       <div className="space-y-3">
         {filteredAchievements.map(achievement => {
-          const { status, current, percent } = getAchievementStatus(achievement, userProgress, unlockedAchievements)
+          const { status, current, percent } = getAchievementStatus(achievement, progress, isUnlocked)
           return (
             <AchievementCard
               key={achievement.id}
@@ -188,13 +184,8 @@ export default function Achievements() {
       <TitleSelectModal
         isOpen={showTitleModal}
         onClose={() => setShowTitleModal(false)}
-        unlockedAchievements={unlockedAchievements}
-        activeTitle={activeTitle}
-        shopTitles={user?.shopTitles || []}
-        onSelect={(title) => {
-          setActiveTitle(title)
-          setShowTitleModal(false)
-        }}
+        activeTitle={equippedTitle}
+        onSelect={handleTitleSelect}
       />
     </div>
   )

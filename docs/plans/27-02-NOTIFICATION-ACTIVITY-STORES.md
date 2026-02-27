@@ -49,7 +49,9 @@ addNotification({ type, title, message, link = null })
   //    'quest' → 'quests'
   //    'season' → 'season'
   //    'system' → 'system'
-  //    'new_game' → 'system'
+  //    'new_game' → 'events'
+  //    'event' → 'events'
+  //    (Fallback: wenn kein Mapping existiert → 'system')
   // 2. Wenn settings[mappedCategory] === false → return (stumm)
   // 3. Neue Notification erstellen:
   //    { id: `notif-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, type, title, message, link, read: false, createdAt: new Date().toISOString() }
@@ -105,7 +107,7 @@ persist(
   // Array von:
   // {
   //   id: string,                    // `act-${Date.now()}-${Math.random().toString(36).slice(2,7)}`
-  //   type: string,                  // 'game_played' | 'game_liked' | 'achievement_unlocked' | 'quest_completed' | 'item_purchased' | 'friend_added' | 'followed_user' | 'profile_edited' | 'game_created'
+  //   type: string,                  // 'game_played' | 'game_liked' | 'achievement_unlocked' | 'quest_completed' | 'item_purchased' | 'reward_claimed' | 'friend_added' | 'followed_user' | 'profile_edited' | 'game_created'
   //   description: string,           // z.B. "Mathe-Meister gespielt"
   //   metadata: object | null,       // z.B. { gameId: "game-001", gameName: "Mathe-Meister" }
   //   createdAt: string              // new Date().toISOString()

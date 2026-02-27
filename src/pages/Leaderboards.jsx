@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { mockGames } from '../data/mockGames'
 import PremiumBadge from '../components/premium/PremiumBadge'
 import Tabs from '../components/ui/Tabs'
+import { useAchievementStore } from '../stores/achievementStore'
+import { useSeasonStore } from '../stores/seasonStore'
 
 // --- Mock leaderboard data ---
 const MOCK_PLAYERS = [
@@ -51,8 +53,7 @@ const MONTHLY_PLAYERS = [
   { id: 'user-112', username: 'SprachProfi', xp: 5500, level: 18, gamesPlayed: 34, streak: 12 },
 ]
 
-// Current user mock entry (always injected into lists)
-const CURRENT_USER_STATS = { xp: 8450, level: 12, gamesPlayed: 56, streak: 4 }
+// CURRENT_USER_STATS is now derived from stores (see component body)
 
 function xpForLevel(level) {
   return level * 1000
@@ -145,6 +146,17 @@ export default function Leaderboards() {
   const [selectedGame, setSelectedGame] = useState('')
   const [showGameDropdown, setShowGameDropdown] = useState(false)
 
+  // Real user stats from stores
+  const progress = useAchievementStore((s) => s.progress)
+  const seasonXP = useSeasonStore((s) => s.seasonXP)
+
+  const currentUserStats = useMemo(() => ({
+    xp: seasonXP,
+    level: Math.floor(seasonXP / 1000) + 1,
+    gamesPlayed: progress.games_played,
+    streak: progress.daily_streak,
+  }), [seasonXP, progress.games_played, progress.daily_streak])
+
   const currentUsername = user?.username || 'Spieler'
   const currentUid = user?.uid || 'current-user'
 
@@ -176,20 +188,20 @@ export default function Leaderboards() {
       const currentPlayer = {
         id: currentUid,
         username: currentUsername,
-        ...CURRENT_USER_STATS,
-        xp: selectedGame ? Math.round(CURRENT_USER_STATS.xp * 0.3) : CURRENT_USER_STATS.xp,
-        gamesPlayed: selectedGame ? Math.round(CURRENT_USER_STATS.gamesPlayed * 0.3) : CURRENT_USER_STATS.gamesPlayed,
+        ...currentUserStats,
+        xp: selectedGame ? Math.round(currentUserStats.xp * 0.3) : currentUserStats.xp,
+        gamesPlayed: selectedGame ? Math.round(currentUserStats.gamesPlayed * 0.3) : currentUserStats.gamesPlayed,
       }
       list = [...list, currentPlayer].sort((a, b) => b.xp - a.xp)
     }
 
     return list
-  }, [basePlayers, selectedGame, currentUid, currentUsername])
+  }, [basePlayers, selectedGame, currentUid, currentUsername, currentUserStats])
 
   // Current user stats for the header card
   const currentUserRank = players.findIndex(p => p.id === currentUid) + 1
-  const currentXp = CURRENT_USER_STATS.xp
-  const currentLevel = CURRENT_USER_STATS.level
+  const currentXp = currentUserStats.xp
+  const currentLevel = currentUserStats.level
   const xpInLevel = currentXp - (currentLevel - 1) * 1000
   const xpNeeded = xpForLevel(currentLevel)
   const xpPercent = Math.min(100, Math.round((xpInLevel / xpNeeded) * 100))
@@ -230,7 +242,7 @@ export default function Leaderboards() {
                   </span>
                   <span>{t('common.rank', { rank: currentUserRank })}</span>
                   <span className="flex items-center gap-1">
-                    <Flame className="w-4 h-4 text-orange-400" /> {CURRENT_USER_STATS.streak} {t('common.days')}
+                    <Flame className="w-4 h-4 text-orange-400" /> {currentUserStats.streak} {t('common.days')}
                   </span>
                 </div>
               </div>
@@ -238,7 +250,7 @@ export default function Leaderboards() {
 
             <div className="text-right flex-shrink-0">
               <p className="text-2xl font-bold text-accent">{currentXp.toLocaleString('de-DE')} XP</p>
-              <p className="text-xs text-text-muted">{CURRENT_USER_STATS.gamesPlayed} {t('leaderboards.gamesPlayed')}</p>
+              <p className="text-xs text-text-muted">{currentUserStats.gamesPlayed} {t('leaderboards.gamesPlayed')}</p>
             </div>
           </div>
 

@@ -5,6 +5,8 @@ import { getGameById } from '../data/mockGames'
 import { addToRecentlyPlayed } from './Home'
 import GameRenderer from '../components/gameRenderer/GameRenderer'
 import CustomCodeRenderer from '../components/gameRenderer/CustomCodeRenderer'
+import { useGameInteractionStore } from '../stores/gameInteractionStore'
+import { useAchievementStore } from '../stores/achievementStore'
 
 function EscHint({ t }) {
   const [visible, setVisible] = useState(true)
@@ -48,8 +50,14 @@ export default function GamePlayer() {
   // Play counter + recently played
   useEffect(() => {
     if (game) {
-      // TODO: Increment play counter via API
+      useGameInteractionStore.getState().recordPlay(game.id)
       addToRecentlyPlayed(game.id)
+      // Achievement tracking
+      useAchievementStore.getState().incrementProgress('games_played')
+      if (game.subject) {
+        useAchievementStore.getState().trackCategoryPlayed(game.subject)
+        useAchievementStore.getState().incrementCategoryProgress(game.subject, 'category_games_completed')
+      }
     }
   }, [game])
 

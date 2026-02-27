@@ -1,77 +1,24 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Edit3, Crown, Globe, Twitter, ChevronDown, Lock, Check } from 'lucide-react'
 import ShareButtons from '../common/ShareButtons'
 import { formatNumber } from '../../utils/formatters'
-import { ALL_ACHIEVEMENTS, MOCK_USER_PROGRESS } from '../../data/achievementDefinitions'
 import AvatarRenderer from './AvatarRenderer'
-import FollowButton from './FollowButton'
+import { useSocialStore } from '../../stores/socialStore'
+import { useInventoryStore } from '../../stores/inventoryStore'
 
-const SHOP_TITLE_OFFERS = [
-  { title: 'Schneekoenig', icon: '\u2744\uFE0F', source: 'Winter-Paket', hint: 'Winter-Paket im Shop kaufen' },
-  { title: 'Amors Liebling', icon: '\u2764\uFE0F', source: 'Valentins-Paket', hint: 'Valentins-Paket im Shop kaufen' },
-]
+function TitleDropdown({ activeTitle, onSelect, onClose, t }) {
+  const items = useInventoryStore((s) => s.items)
+  const titleItems = useMemo(() => items.filter((i) => i.type === 'title'), [items])
 
-function isAchievementUnlocked(achievement, progress) {
-  const req = achievement.requirement
-  switch (req.type) {
-    case 'games_played': return (progress.games_played || 0) >= req.value
-    case 'games_completed': return (progress.games_completed || 0) >= req.value
-    case 'daily_streak': return (progress.daily_streak || 0) >= req.value
-    case 'likes_given': return (progress.likes_given || 0) >= req.value
-    case 'total_playtime_minutes': return (progress.total_playtime_minutes || 0) >= req.value
-    case 'following_count': return (progress.following_count || 0) >= req.value
-    case 'followers_count': return (progress.followers_count || 0) >= req.value
-    case 'friends_count': return (progress.friends_count || 0) >= req.value
-    case 'avatar_customized': return (progress.avatar_customized || 0) >= req.value
-    case 'profile_complete': return (progress.profile_complete || 0) >= req.value
-    case 'events_participated': return (progress.events_participated || 0) >= req.value
-    case 'events_completed': return (progress.events_completed || 0) >= req.value
-    case 'games_created': return (progress.games_created || 0) >= req.value
-    case 'total_likes_received': return (progress.total_likes_received || 0) >= req.value
-    case 'total_plays_received': return (progress.total_plays_received || 0) >= req.value
-    case 'assets_sold': return (progress.assets_sold || 0) >= req.value
-    case 'is_premium': return (progress.is_premium || 0) >= req.value
-    case 'game_approval_rate': return (progress.game_approval_rate || 0) >= req.value
-    case 'category_games_completed': {
-      const cat = progress.category_games_completed || {}
-      return (cat[req.category] || 0) >= req.value
-    }
-    case 'category_perfect_scores': {
-      const cat = progress.category_perfect_scores || {}
-      return (cat[req.category] || 0) >= req.value
-    }
-    default: return false
-  }
-}
-
-function TitleDropdown({ user, activeTitle, onSelect, onClose, t }) {
-  const progress = MOCK_USER_PROGRESS
-
-  const achievementTitles = ALL_ACHIEVEMENTS
-    .filter(a => a.reward.type === 'title')
-    .map(a => ({
-      title: a.reward.value,
-      icon: a.icon,
-      source: a.name,
-      unlocked: isAchievementUnlocked(a, progress),
-      hint: a.description,
-    }))
-
-  const ownedShopTitleNames = (user.shopTitles || []).map(st => st.title)
-  const shopTitles = SHOP_TITLE_OFFERS.map(st => ({
-    ...st,
-    unlocked: ownedShopTitleNames.includes(st.title),
+  const unlockedTitles = titleItems.map((item) => ({
+    title: item.name,
+    icon: item.source === 'achievement' ? '\uD83C\uDFC6' : item.source === 'shop' ? '\uD83D\uDED2' : '\u2B50',
+    source: item.description || item.source,
+    id: item.id,
   }))
 
-  const unlockedTitles = [
-    ...achievementTitles.filter(item => item.unlocked),
-    ...shopTitles.filter(item => item.unlocked),
-  ]
-  const lockedTitles = [
-    ...achievementTitles.filter(item => !item.unlocked),
-    ...shopTitles.filter(item => !item.unlocked),
-  ]
+  const lockedTitles = [] // All titles the user has are unlocked by definition
 
   return (
     <div className="absolute top-full left-0 sm:left-auto sm:right-auto mt-2 w-[300px] bg-bg-secondary border border-gray-700 rounded-xl shadow-2xl shadow-black/40 z-50 overflow-hidden">
@@ -151,7 +98,46 @@ function TitleDropdown({ user, activeTitle, onSelect, onClose, t }) {
   )
 }
 
-export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollowChange, isFollowing, isLoggedIn = false, onTitleChange }) {
+function FollowButtonStore({ targetUserId, isLoggedIn }) {
+  const isFollowing = useSocialStore((s) => s.following.includes(targetUserId))
+  const { followUser, unfollowUser } = useSocialStore()
+  const [isHovering, setIsHovering] = useState(false)
+
+  if (!isLoggedIn) return null
+
+  const handleClick = () => {
+    if (isFollowing) {
+      unfollowUser(targetUserId)
+    } else {
+      followUser(targetUserId)
+    }
+  }
+
+  const getStyle = () => {
+    if (isFollowing && isHovering) return 'bg-error/20 text-error border border-error/30'
+    if (isFollowing) return 'bg-bg-hover text-text-primary border border-gray-600'
+    return 'bg-accent hover:bg-accent-dark text-white'
+  }
+
+  const getText = () => {
+    if (isFollowing && isHovering) return 'Entfolgen'
+    if (isFollowing) return 'Folgst du \u2713'
+    return 'Folgen'
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      className={`px-5 py-2 rounded-lg font-medium text-sm transition-all min-w-[120px] cursor-pointer ${getStyle()}`}
+    >
+      {getText()}
+    </button>
+  )
+}
+
+export default function ProfileHeader({ user, isOwnProfile, onEditClick, isLoggedIn = false, onTitleChange }) {
   const { t } = useTranslation()
   const [titleOpen, setTitleOpen] = useState(false)
   const dropdownRef = useRef(null)
@@ -218,7 +204,6 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
                 </button>
                 {titleOpen && (
                   <TitleDropdown
-                    user={user}
                     activeTitle={user.activeTitle}
                     onSelect={onTitleChange}
                     onClose={() => setTitleOpen(false)}
@@ -279,11 +264,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, onFollo
                 <span>{t('profile.editProfile')}</span>
               </button>
             ) : (
-              <FollowButton
-                targetUserId={user.uid}
-                initialFollowing={isFollowing}
-                onFollowChange={onFollowChange}
-              />
+              <FollowButtonStore targetUserId={user.uid} isLoggedIn={isLoggedIn} />
             )}
             <ShareButtons title={`${user.username} auf MindForge`} compact />
           </div>

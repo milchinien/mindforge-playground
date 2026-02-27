@@ -1,12 +1,14 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import { PageLoader } from './components/common/LoadingSpinner'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import { useTranslation } from 'react-i18next'
+import { useAchievementStore } from './stores/achievementStore'
+import { useSocialStore } from './stores/socialStore'
 
 // Lazy-loaded pages for code splitting
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -41,6 +43,59 @@ const GiftMindCoins = lazy(() => import('./pages/GiftMindCoins'))
 
 // PageLoader is imported from LoadingSpinner component
 
+const RESET_VERSION = 'v27-data-persistence'
+const STORE_KEYS_TO_CLEAR = [
+  'mindforge-game-interactions',
+  'mindforge-achievements',
+  'mindforge-inventory',
+  'mindforge-social',
+  'mindforge-notifications',
+  'mindforge-activity',
+  'mindforge-quests',
+  'mindforge-season',
+]
+
+function AppInitializer() {
+  const { user, updateUser } = useAuth()
+
+  // One-time reset for data persistence migration
+  useEffect(() => {
+    if (!user) return
+    if (localStorage.getItem('mindforge-reset-version') === RESET_VERSION) return
+
+    updateUser({
+      followers: 0,
+      following: 0,
+      totalPlays: 0,
+      gamesCreated: 0,
+      mindCoins: 0,
+      activeTitle: null,
+      xp: 0,
+    })
+
+    STORE_KEYS_TO_CLEAR.forEach(key => localStorage.removeItem(key))
+    localStorage.setItem('mindforge-reset-version', RESET_VERSION)
+    window.location.reload()
+  }, [user])
+
+  // Daily streak check on login
+  useEffect(() => {
+    if (!user) return
+    useAchievementStore.getState().checkDailyStreak()
+  }, [user])
+
+  // Simulate friend online status changes periodically
+  useEffect(() => {
+    if (!user) return
+    const interval = setInterval(() => {
+      useSocialStore.getState().simulateOnlineStatus()
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [user])
+
+  return null
+}
+
 function Placeholder({ title }) {
   const { t } = useTranslation()
   return (
@@ -56,6 +111,7 @@ function App() {
   return (
     <ErrorBoundary>
     <AuthProvider>
+      <AppInitializer />
       <ToastProvider>
         <Router>
           <Suspense fallback={<PageLoader />}>

@@ -77,7 +77,7 @@ Der inventoryStore ist die NEUE Wahrheitsquelle für "was besitze ich".
 - MOCK_PLAYERS: 10 hardcoded Spieler mit festen XP/Level/Stats
 - WEEKLY_PLAYERS: 10 weitere hardcoded Spieler
 - MONTHLY_PLAYERS: 10 weitere hardcoded Spieler
-- CURRENT_USER_STATS: hardcoded { xp: 8450, level: 12, gamesPlayed: 87, streak: 4 }
+- CURRENT_USER_STATS: hardcoded { xp: 8450, level: 12, gamesPlayed: 56, streak: 4 }
 - Aktueller User wird in die Liste eingefügt und nach XP sortiert
 ```
 
@@ -102,7 +102,7 @@ Der inventoryStore ist die NEUE Wahrheitsquelle für "was besitze ich".
      streak: progress.daily_streak,
    }
 
-3. MOCK_PLAYERS, WEEKLY_PLAYERS, MONTHLY_PLAYERS:
+3. MOCK_PLAYERS (und ggf. weitere Zeitraum-Listen):
    BEIBEHALTEN als Vergleichs-Spieler.
    Diese repräsentieren "andere Spieler auf der Plattform".
 

@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CURRENT_SEASON, BATTLE_PASS_TIERS, WEEKLY_CHALLENGES } from '../data/seasonData'
+import { useInventoryStore } from './inventoryStore'
+import { useNotificationStore } from './notificationStore'
+import { useActivityStore } from './activityStore'
 
 // Calculate current week number based on season start
 function getCurrentWeek() {
@@ -95,6 +98,46 @@ export const useSeasonStore = create(
           newClaimed.add(key)
           return { claimedRewards: newClaimed }
         })
+
+        // Cross-store side effects
+        const tierData = BATTLE_PASS_TIERS.find(t => t.tier === tier)
+        if (!tierData) return
+
+        const reward = tierData[track]
+        if (!reward) return
+
+        const typeMapping = {
+          'xp-booster': 'effect',
+          'badge': 'badge',
+          'avatar-item': 'avatar-item',
+          'title': 'title',
+          'avatar-frame': 'frame',
+          'profile-banner': 'background',
+          'profile-effect': 'effect',
+        }
+        const inventoryType = typeMapping[reward.type] || 'badge'
+
+        useInventoryStore.getState()?.addItem?.({
+          id: `season-${CURRENT_SEASON.id}-tier${tier}-${track}`,
+          type: inventoryType,
+          name: reward.name,
+          description: reward.description || `Season ${CURRENT_SEASON.number} Tier ${tier} Belohnung`,
+          rarity: reward.rarity || 'common',
+          source: 'season',
+        })
+
+        useNotificationStore.getState()?.addNotification?.({
+          type: 'season',
+          title: 'Season-Belohnung!',
+          message: `Du hast "${reward.name}" fuer Tier ${tier} erhalten!`,
+          link: '/seasons',
+        })
+
+        useActivityStore.getState()?.addActivity?.({
+          type: 'reward_claimed',
+          description: `Season-Belohnung "${reward.name}" erhalten (Tier ${tier})`,
+          metadata: { tier, track, rewardName: reward.name },
+        })
       },
 
       isRewardClaimed: (tier, track) => {
@@ -124,6 +167,13 @@ export const useSeasonStore = create(
           },
           seasonXP: state.seasonXP + xpAmount,
         }))
+
+        useNotificationStore.getState()?.addNotification?.({
+          type: 'season',
+          title: 'Challenge-Belohnung!',
+          message: `Du hast ${xpAmount} XP fuer eine Challenge erhalten!`,
+          link: '/seasons',
+        })
       },
 
       updateChallengeProgress: (challengeId, current, target) => {

@@ -214,9 +214,8 @@ AKTUELL:
 
 NEU:
   1. Import: useGameInteractionStore
-  2. const stats = useGameInteractionStore(s => s.getGameStats(game.id))
-     ODER: const getGameStats = useGameInteractionStore(s => s.getGameStats)
-           const stats = getGameStats(game.id)
+  2. Stats aus Store lesen (NICHT getGameStats als Selektor — das ist eine Funktion mit get(), kein Selektor):
+     const stats = useGameInteractionStore(s => s.globalStats[game.id]) || { likes: 0, dislikes: 0, views: 0, plays: 0, avgRating: 0, ratingCount: 0 }
   3. Ersetzen:
      game.likes → stats.likes
      game.plays → stats.plays
@@ -224,7 +223,7 @@ NEU:
 
 ACHTUNG: GameCard wird in Listen gerendert (viele Instanzen).
   → Performance: useGameInteractionStore mit Selektor nutzen, nicht den ganzen Store abonnieren
-  → Empfehlung: const stats = useGameInteractionStore(s => s.globalStats[game.id]) || { likes: 0, ... }
+  → Die obige Lösung mit s.globalStats[game.id] ist korrekt und performant
 ```
 
 ---
@@ -233,18 +232,27 @@ ACHTUNG: GameCard wird in Listen gerendert (viele Instanzen).
 
 ```
 AKTUELL:
-  - getTrendingGames() aus mockGames → sortiert nach game.plays
-  - getPopularGames() aus mockGames → sortiert nach game.likes
   - getFeaturedGames() aus mockGames → filtert nach game.featured
+  - getPopularGames() aus mockGames → sortiert nach game.likes
+  - Home.jsx zeigt Featured-Carousel + Popular-Games + empfohlene Spiele
+  - HINWEIS: Es gibt KEINE getTrendingGames()-Funktion im Code
 
 NEU:
   1. Import: useGameInteractionStore
   2. Featured bleibt unverändert (featured ist ein Metadatum, kein User-Stat)
-  3. Trending sortieren nach globalStats[game.id].plays statt game.plays:
-     const getGameStats = useGameInteractionStore(s => s.getGameStats)
-     const trending = [...mockGames].sort((a, b) => getGameStats(b.id).plays - getGameStats(a.id).plays).slice(0, 8)
-  4. Popular sortieren nach globalStats[game.id].likes:
-     const popular = [...mockGames].sort((a, b) => getGameStats(b.id).likes - getGameStats(a.id).likes).slice(0, 8)
+  3. Popular sortieren nach globalStats statt statischen game-Feldern:
+     const globalStats = useGameInteractionStore(s => s.globalStats)
+     const popular = [...mockGames].sort((a, b) => {
+       const statsA = globalStats[a.id] || { likes: 0 }
+       const statsB = globalStats[b.id] || { likes: 0 }
+       return statsB.likes - statsA.likes
+     }).slice(0, 8)
+  4. Optional — Trending-Sektion (NEU) nach Plays sortiert hinzufügen:
+     const trending = [...mockGames].sort((a, b) => {
+       const statsA = globalStats[a.id] || { plays: 0 }
+       const statsB = globalStats[b.id] || { plays: 0 }
+       return statsB.plays - statsA.plays
+     }).slice(0, 8)
 ```
 
 ---

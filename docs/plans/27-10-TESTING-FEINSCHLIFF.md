@@ -1,9 +1,17 @@
-# Step 10: Testing & Feinschliff
+# Step 10: Testing & Feinschliff ✅ Fertig
 
 ## Ziel
 
 Alle Features durchgehend testen, Edge-Cases abfangen und sicherstellen dass nichts crasht.
 Playwright-Tests für die wichtigsten Flows. Manueller Smoke-Test aller Pages.
+
+## Ergebnis
+
+- 11/11 Playwright-Tests bestanden (9 Feature-Tests + 2 Smoke-Tests)
+- Edge-Cases: Alle cross-store `getState()`-Aufrufe mit optionalem Chaining abgesichert
+- Fix: `require()` → ESM `import` in App.jsx und socialStore.js (Vite-Kompatibilitaet)
+- Fix: Unstabile `filter()`-Selektoren in TitleSelectModal und ProfileHeader durch `useMemo` ersetzt (verhindert infinite re-render loops)
+- Fix: Cross-store Seiteneffekte im achievementStore via `setTimeout` deferred (verhindert kaskadierende Re-Renders)
 
 ---
 
@@ -65,7 +73,12 @@ Testfälle:
 - Headless Modus (kein Browser-Fenster)
 - Dev-Server muss laufen auf localhost:5173 oder 5174
 - Vor jedem Test: localStorage leeren für sauberen Zustand
-- Login mit DevAccount (devauth)
+- Login: über die /login Seite mit einem Test-Account einloggen
+  (E-Mail + Passwort im Formular eingeben und absenden)
+  Falls Firebase DevAuth/Emulator konfiguriert ist, diesen nutzen.
+  Ansonsten: einen echten Test-Account verwenden oder die Tests so gestalten,
+  dass sie nur öffentliche Seiten testen (Home, Browse, GameDetail)
+  und für geschützte Seiten den Login-Flow durchlaufen.
 ```
 
 ---

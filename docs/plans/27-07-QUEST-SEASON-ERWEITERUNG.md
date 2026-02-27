@@ -133,10 +133,21 @@ claimReward: (tier, track) => {
   const reward = tierData[track]  // tierData.free oder tierData.premium
   if (!reward) return
 
-  // 2. Item ins Inventar
+  // 2. Item ins Inventar (reward.type aus seasonData muss auf inventoryStore-Types gemappt werden)
+  const typeMapping = {
+    'xp-booster': 'effect',
+    'badge': 'badge',
+    'avatar-item': 'avatar-item',
+    'title': 'title',
+    'avatar-frame': 'frame',
+    'profile-banner': 'background',
+    'profile-effect': 'effect',
+  }
+  const inventoryType = typeMapping[reward.type] || 'badge'
+
   useInventoryStore.getState().addItem({
     id: `season-${CURRENT_SEASON.id}-tier${tier}-${track}`,
-    type: reward.type || 'badge',       // type aus seasonData: 'badge', 'title', 'avatar-item', 'avatar-frame', 'profile-banner', 'profile-effect', 'xp-booster'
+    type: inventoryType,
     name: reward.name,
     description: reward.description || `Season ${CURRENT_SEASON.number} Tier ${tier} Belohnung`,
     rarity: reward.rarity || 'common',
@@ -153,7 +164,7 @@ claimReward: (tier, track) => {
 
   // 4. Activity Log
   useActivityStore.getState().addActivity({
-    type: 'item_purchased',  // Wiederverwendung des Typs, passt konzeptionell
+    type: 'reward_claimed',
     description: `Season-Belohnung "${reward.name}" erhalten (Tier ${tier})`,
     metadata: { tier, track, rewardName: reward.name },
   })
@@ -192,28 +203,19 @@ claimChallengeReward: (challengeId, xpAmount) => {
 
 ## 7.3 Hinweis: Reward-Type-Mapping für Season
 
-```
-In seasonData.js haben Rewards folgende Types:
-  'xp-booster'       → inventoryStore type: 'effect'
-  'badge'            → inventoryStore type: 'badge'
-  'avatar-item'      → inventoryStore type: 'avatar-item'
-  'title'            → inventoryStore type: 'title'
-  'avatar-frame'     → inventoryStore type: 'frame'
-  'profile-banner'   → inventoryStore type: 'background'
-  'profile-effect'   → inventoryStore type: 'effect'
+Das Type-Mapping ist jetzt direkt im `claimReward`-Code in 7.2 integriert.
+Referenz der seasonData-Types und ihre Zuordnung zu inventoryStore-Types:
 
-Mapping im Code:
-  const typeMapping = {
-    'xp-booster': 'effect',
-    'badge': 'badge',
-    'avatar-item': 'avatar-item',
-    'title': 'title',
-    'avatar-frame': 'frame',
-    'profile-banner': 'background',
-    'profile-effect': 'effect',
-  }
-  const inventoryType = typeMapping[reward.type] || 'badge'
-```
+| seasonData Type | inventoryStore Type |
+|----------------|-------------------|
+| `'xp-booster'` | `'effect'` |
+| `'badge'` | `'badge'` |
+| `'avatar-item'` | `'avatar-item'` |
+| `'title'` | `'title'` |
+| `'avatar-frame'` | `'frame'` |
+| `'profile-banner'` | `'background'` |
+| `'profile-effect'` | `'effect'` |
+| unbekannt/fehlt | `'badge'` (Fallback) |
 
 ---
 

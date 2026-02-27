@@ -45,16 +45,16 @@ Alle 25 urspruenglichen Plaene wurden erfolgreich implementiert. Die einzelnen P
 | Step | Datei | Inhalt | Status |
 |------|-------|--------|--------|
 | 0 | [27-00-UEBERSICHT.md](27-00-UEBERSICHT.md) | Gesamtuebersicht, Abhaengigkeiten, Regeln | — |
-| 1 | [27-01-VORBEREITUNG.md](27-01-VORBEREITUNG.md) | Profil-Reset, localStorage Cleanup | Offen |
-| 2 | [27-02-NOTIFICATION-ACTIVITY-STORES.md](27-02-NOTIFICATION-ACTIVITY-STORES.md) | notificationStore + activityStore | Offen |
-| 3 | [27-03-INVENTORY-STORE.md](27-03-INVENTORY-STORE.md) | inventoryStore mit Kategorie-System | Offen |
-| 4 | [27-04-GAME-INTERACTION-STORE.md](27-04-GAME-INTERACTION-STORE.md) | gameInteractionStore + GameDetail/GameCard/Home | Offen |
-| 5 | [27-05-SOCIAL-STORE.md](27-05-SOCIAL-STORE.md) | socialStore + Friends/Profile | Offen |
-| 6 | [27-06-ACHIEVEMENT-STORE.md](27-06-ACHIEVEMENT-STORE.md) | achievementStore + Achievements-Page | Offen |
-| 7 | [27-07-QUEST-SEASON-ERWEITERUNG.md](27-07-QUEST-SEASON-ERWEITERUNG.md) | questStore + seasonStore erweitern | Offen |
-| 8 | [27-08-SHOP-LEADERBOARD-SETTINGS.md](27-08-SHOP-LEADERBOARD-SETTINGS.md) | Shop/Leaderboard/Settings Integration | Offen |
-| 9 | [27-09-NOTIFICATION-DROPDOWN-ACTIVITY-UI.md](27-09-NOTIFICATION-DROPDOWN-ACTIVITY-UI.md) | NotificationDropdown + Inventory + Activity Feed | Offen |
-| 10 | [27-10-TESTING-FEINSCHLIFF.md](27-10-TESTING-FEINSCHLIFF.md) | Playwright-Tests, Edge-Cases, Smoke-Test | Offen |
+| 1 | [27-01-VORBEREITUNG.md](27-01-VORBEREITUNG.md) | Profil-Reset, localStorage Cleanup | ✅ Fertig |
+| 2 | [27-02-NOTIFICATION-ACTIVITY-STORES.md](27-02-NOTIFICATION-ACTIVITY-STORES.md) | notificationStore + activityStore | ✅ Fertig |
+| 3 | [27-03-INVENTORY-STORE.md](27-03-INVENTORY-STORE.md) | inventoryStore mit Kategorie-System | ✅ Fertig |
+| 4 | [27-04-GAME-INTERACTION-STORE.md](27-04-GAME-INTERACTION-STORE.md) | gameInteractionStore + GameDetail/GameCard/Home | ✅ Fertig |
+| 5 | [27-05-SOCIAL-STORE.md](27-05-SOCIAL-STORE.md) | socialStore + Friends/Profile | ✅ Fertig |
+| 6 | [27-06-ACHIEVEMENT-STORE.md](27-06-ACHIEVEMENT-STORE.md) | achievementStore + Achievements-Page | ✅ Fertig |
+| 7 | [27-07-QUEST-SEASON-ERWEITERUNG.md](27-07-QUEST-SEASON-ERWEITERUNG.md) | questStore + seasonStore erweitern | ✅ Fertig |
+| 8 | [27-08-SHOP-LEADERBOARD-SETTINGS.md](27-08-SHOP-LEADERBOARD-SETTINGS.md) | Shop/Leaderboard/Settings Integration | ✅ Fertig |
+| 9 | [27-09-NOTIFICATION-DROPDOWN-ACTIVITY-UI.md](27-09-NOTIFICATION-DROPDOWN-ACTIVITY-UI.md) | NotificationDropdown + Inventory + Activity Feed | ✅ Fertig |
+| 10 | [27-10-TESTING-FEINSCHLIFF.md](27-10-TESTING-FEINSCHLIFF.md) | Playwright-Tests, Edge-Cases, Smoke-Test | ✅ Fertig |
 
 ### 6 Neue Stores
 

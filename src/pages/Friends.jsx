@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { mockFriends, mockFriendRequests } from '../data/mockFriends'
+import { useSocialStore } from '../stores/socialStore'
 import FriendCard from '../components/friends/FriendCard'
 import FriendRequestCard from '../components/friends/FriendRequestCard'
 import AddFriendModal from '../components/friends/AddFriendModal'
@@ -9,8 +9,9 @@ import Tabs from '../components/ui/Tabs'
 export default function Friends() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('all')
-  const [friends, setFriends] = useState(mockFriends)
-  const [requests, setRequests] = useState(mockFriendRequests)
+  const friends = useSocialStore((s) => s.friends)
+  const requests = useSocialStore((s) => s.friendRequests)
+  const { acceptFriendRequest, declineFriendRequest, removeFriend, sendFriendRequest } = useSocialStore()
   const [showAddFriendModal, setShowAddFriendModal] = useState(false)
 
   const onlineFriends = friends.filter(f => f.isOnline)
@@ -23,31 +24,16 @@ export default function Friends() {
     { id: 'requests', label: t('friends.requests'),  count: requests.length },
   ]
 
-  const handleAcceptRequest = async (friendshipId) => {
-    const request = requests.find(r => r.friendshipId === friendshipId)
-    if (request) {
-      // Anfrage aus Liste entfernen und als Freund hinzufuegen
-      setRequests(prev => prev.filter(r => r.friendshipId !== friendshipId))
-      setFriends(prev => [...prev, {
-        id: request.id || `friend-${request.uid}`,
-        friendshipId,
-        uid: request.uid,
-        username: request.username,
-        displayName: request.displayName,
-        avatar: request.avatar,
-        isOnline: false,
-        activity: null,
-        lastOnline: new Date(),
-      }])
-    }
+  const handleAcceptRequest = (requestId) => {
+    acceptFriendRequest(requestId)
   }
 
-  const handleDeclineRequest = async (friendshipId) => {
-    setRequests(prev => prev.filter(r => r.friendshipId !== friendshipId))
+  const handleDeclineRequest = (requestId) => {
+    declineFriendRequest(requestId)
   }
 
-  const handleSendRequest = (userId) => {
-    // MVP: Nur visuelles Feedback (kein echter API-Call)
+  const handleSendRequest = (userId, username, avatar) => {
+    sendFriendRequest(userId, username, avatar)
   }
 
   const renderFriendList = (friendList) => {

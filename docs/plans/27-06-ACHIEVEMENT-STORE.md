@@ -109,9 +109,19 @@ checkAchievements(changedField = null)
   //
   // 3. Für jedes Achievement in ALL_ACHIEVEMENTS:
   //    a) if (unlockedAchievements[achievement.id]) continue  // schon freigeschaltet
-  //    b) if (changedField !== null && achievement.requirement.type !== changedField) continue
-  //       // Optimierung: nur relevante Achievements prüfen
-  //       // AUSNAHME: category-Types und unique_categories müssen auch bei null geprüft werden
+  //    b) Optimierung: nur Achievements prüfen deren requirement.type zum changedField passt
+  //       if (changedField !== null) {
+  //         const reqType = achievement.requirement.type
+  //         // Direkt passendes Feld → prüfen
+  //         // Nicht passendes Feld → überspringen, AUSSER:
+  //         //   - reqType ist 'category_games_completed' oder 'category_perfect_scores'
+  //         //     (diese sollen auch bei changedField='unique_categories_played' geprüft werden)
+  //         if (reqType !== changedField
+  //             && !(changedField === 'unique_categories_played' && reqType.startsWith('category_'))
+  //             && !(changedField.startsWith('category_') && reqType === changedField)) {
+  //           continue
+  //         }
+  //       }
   //    c) Achievement-Check je nach requirement.type:
   //
   //       Einfache Types (direkter Vergleich):

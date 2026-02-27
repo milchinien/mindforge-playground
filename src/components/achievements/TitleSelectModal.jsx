@@ -1,29 +1,20 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ALL_ACHIEVEMENTS } from '../../data/achievementDefinitions'
+import { useInventoryStore } from '../../stores/inventoryStore'
 import Modal from '../common/Modal'
 
-export default function TitleSelectModal({ isOpen, onClose, unlockedAchievements, activeTitle, onSelect, shopTitles = [] }) {
+export default function TitleSelectModal({ isOpen, onClose, activeTitle, onSelect }) {
   const { t } = useTranslation()
+  const items = useInventoryStore((s) => s.items)
+  const titleItems = useMemo(() => items.filter((i) => i.type === 'title'), [items])
 
-  const achievementTitles = ALL_ACHIEVEMENTS
-    .filter(a => a.reward.type === 'title')
-    .map(a => ({
-      id: a.id,
-      source: a.name,
-      title: a.reward.value,
-      icon: a.icon,
-      type: 'achievement',
-    }))
-
-  const formattedShopTitles = shopTitles.map(st => ({
-    id: `shop-${st.title}`,
-    source: st.source,
-    title: st.title,
-    icon: st.icon,
-    type: 'shop',
+  const allTitles = titleItems.map((item) => ({
+    id: item.id,
+    source: item.description || item.source,
+    title: item.name,
+    icon: item.source === 'achievement' ? '\uD83C\uDFC6' : item.source === 'shop' ? '\uD83D\uDED2' : '\u2B50',
+    type: item.source,
   }))
-
-  const allTitles = [...achievementTitles, ...formattedShopTitles]
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('achievements.selectTitle')}>

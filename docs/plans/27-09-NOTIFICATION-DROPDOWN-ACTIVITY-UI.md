@@ -31,7 +31,9 @@ Die letzten UI-Komponenten auf die neuen Stores umstellen:
    ENTFERNEN: const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS)
    HINZUFÜGEN:
      const notifications = useNotificationStore(s => s.notifications)
-     const unreadCount = useNotificationStore(s => s.getUnreadCount())
+     // WICHTIG: getUnreadCount() ist eine Funktion mit get() — nicht als Selektor nutzen
+     // Stattdessen unreadCount direkt berechnen:
+     const unreadCount = useNotificationStore(s => s.notifications.filter(n => !n.read).length)
      const { markAsRead, markAllAsRead, deleteNotification } = useNotificationStore()
 
 3. Unread-Badge im Bell-Icon:
@@ -54,6 +56,7 @@ Die letzten UI-Komponenten auf die neuen Stores umstellen:
      friend_request: '🤝',
      achievement: '🏆',
      new_game: '🎮',
+     event: '🎉',
      quest: '📜',
      season: '⭐',
    }
@@ -176,7 +179,9 @@ Die letzten UI-Komponenten auf die neuen Stores umstellen:
    import { useActivityStore } from '../stores/activityStore'
 
 2. Activity-Daten holen (NUR auf eigenem Profil):
-   const activities = useActivityStore(s => s.getRecentActivities(20))
+   // WICHTIG: getRecentActivities ist eine Funktion die get() intern nutzt.
+   // Nicht als Zustand-Selektor verwenden! Stattdessen activities direkt lesen:
+   const activities = useActivityStore(s => s.activities).slice(0, 20)
 
 3. Neuer Bereich UNTER den bestehenden Tabs (nicht als Tab, sondern als eigene Sektion):
 
@@ -206,6 +211,7 @@ Die letzten UI-Komponenten auf die neuen Stores umstellen:
      achievement_unlocked: '🏆',
      quest_completed: '📜',
      item_purchased: '🛒',
+     reward_claimed: '🎁',
      friend_added: '🤝',
      followed_user: '👤',
      profile_edited: '✏️',
