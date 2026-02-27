@@ -1,53 +1,83 @@
 # MindForge - Implementierungs-Tracker
 
-## Status: ALLE PLAENE IMPLEMENTIERT
+## Abgeschlossene Plaene (01-25)
 
-Alle 25 Implementierungsplaene wurden erfolgreich abgeschlossen. Die einzelnen Plan-Dateien wurden entfernt, da sie nicht mehr benoetigt werden.
+Alle 25 urspruenglichen Plaene wurden erfolgreich implementiert. Die einzelnen Plan-Dateien wurden entfernt.
 
----
-
-## Abgeschlossene Plaene
-
-| Plan | Feature | Status |
-|------|---------|--------|
-| 01-PROJECT-SETUP | Projekt-Setup (Vite, React, Tailwind, Firebase) | Implementiert |
-| 02-LAYOUT-NAVIGATION | Navbar, Sidebar, Layout | Implementiert |
-| 03-AUTHENTICATION | Login, Registrierung, Auth Context | Implementiert |
-| 04-MINDBROWSER | Spiele durchsuchen | Implementiert |
-| 05-HOME-PAGE | Personalisierte Startseite | Implementiert |
-| 06-GAME-DETAIL | Spiel-Detailseite | Implementiert |
-| 07-GAME-PLAYER | Spiel abspielen (Fullscreen) | Implementiert |
-| 08-PROFILE-PAGE | Profil-Seite | Implementiert |
-| 09-SEARCH | Suchfunktion | Implementiert |
-| 10-LIKE-DISLIKE | Bewertungssystem | Implementiert |
-| 11-CREATE-UPLOAD | Spiele erstellen & hochladen | Implementiert |
-| 12-AVATAR-CUSTOMIZATION | Avatar-Editor (Roblox-Style) | Implementiert |
-| 13-SETTINGS | Einstellungen (Theme, Sprache, Account) | Implementiert |
-| 14-INVENTORY | Inventar-System | Implementiert |
-| 15-FOLLOW-SYSTEM | Creators folgen | Implementiert |
-| 16-NOTIFICATIONS | Benachrichtigungen | Implementiert |
-| 17-EVENTS | Events & Challenges | Implementiert |
-| 18-ACHIEVEMENTS | 60+ Achievements & Titel | Implementiert |
-| 19-MARKETPLACE | Asset-Marketplace mit Bewertungen | Implementiert |
-| 20-MINDCOINS-PREMIUM | MindCoins & Premium-System | Implementiert |
-| 21-TEACHER-DASHBOARD | Lehrer-Dashboard | Implementiert |
-| 22-FRIENDS-SYSTEM | Freunde-System | Implementiert |
-| 23-COMMON-COMPONENTS | Button, Modal, Toast, Spinner etc. | Implementiert |
-| 24-FORGE-KI-UPGRADE | Forge KI-Persoenlichkeit + Preview Cards | Implementiert |
-| 25-AVATAR-SHOP-IMPROVEMENTS | Rating-System, Presets, Transaktionen, Rabattcodes | Implementiert |
+| Plan | Feature |
+|------|---------|
+| 01-PROJECT-SETUP | Projekt-Setup (Vite, React, Tailwind, Firebase) |
+| 02-LAYOUT-NAVIGATION | Navbar, Sidebar, Layout |
+| 03-AUTHENTICATION | Login, Registrierung, Auth Context |
+| 04-MINDBROWSER | Spiele durchsuchen |
+| 05-HOME-PAGE | Personalisierte Startseite |
+| 06-GAME-DETAIL | Spiel-Detailseite |
+| 07-GAME-PLAYER | Spiel abspielen (Fullscreen) |
+| 08-PROFILE-PAGE | Profil-Seite |
+| 09-SEARCH | Suchfunktion |
+| 10-LIKE-DISLIKE | Bewertungssystem |
+| 11-CREATE-UPLOAD | Spiele erstellen & hochladen |
+| 12-AVATAR-CUSTOMIZATION | Avatar-Editor (Roblox-Style) |
+| 13-SETTINGS | Einstellungen (Theme, Sprache, Account) |
+| 14-INVENTORY | Inventar-System |
+| 15-FOLLOW-SYSTEM | Creators folgen |
+| 16-NOTIFICATIONS | Benachrichtigungen |
+| 17-EVENTS | Events & Challenges |
+| 18-ACHIEVEMENTS | 60+ Achievements & Titel |
+| 19-MARKETPLACE | Asset-Marketplace mit Bewertungen |
+| 20-MINDCOINS-PREMIUM | MindCoins & Premium-System |
+| 21-TEACHER-DASHBOARD | Lehrer-Dashboard |
+| 22-FRIENDS-SYSTEM | Freunde-System |
+| 23-COMMON-COMPONENTS | Button, Modal, Toast, Spinner etc. |
+| 24-FORGE-KI-UPGRADE | Forge KI-Persoenlichkeit + Preview Cards |
+| 25-AVATAR-SHOP-IMPROVEMENTS | Rating-System, Presets, Transaktionen, Rabattcodes |
 
 ---
 
-## Implementierungsreihenfolge (abgeschlossen)
+## Aktuell: Plan 27 — Echte Datenpersistenz
+
+**Ziel:** Alle Features mit echten, persistenten Speichermechanismen. Keine Mock-Daten mehr fuer User-State. User startet bei 0 und baut sich alles selbst auf.
+
+**Referenz:** [27-DATA-PERSISTENCE.md](27-DATA-PERSISTENCE.md)
+
+### Steps
+
+| Step | Datei | Inhalt | Status |
+|------|-------|--------|--------|
+| 0 | [27-00-UEBERSICHT.md](27-00-UEBERSICHT.md) | Gesamtuebersicht, Abhaengigkeiten, Regeln | — |
+| 1 | [27-01-VORBEREITUNG.md](27-01-VORBEREITUNG.md) | Profil-Reset, localStorage Cleanup | Offen |
+| 2 | [27-02-NOTIFICATION-ACTIVITY-STORES.md](27-02-NOTIFICATION-ACTIVITY-STORES.md) | notificationStore + activityStore | Offen |
+| 3 | [27-03-INVENTORY-STORE.md](27-03-INVENTORY-STORE.md) | inventoryStore mit Kategorie-System | Offen |
+| 4 | [27-04-GAME-INTERACTION-STORE.md](27-04-GAME-INTERACTION-STORE.md) | gameInteractionStore + GameDetail/GameCard/Home | Offen |
+| 5 | [27-05-SOCIAL-STORE.md](27-05-SOCIAL-STORE.md) | socialStore + Friends/Profile | Offen |
+| 6 | [27-06-ACHIEVEMENT-STORE.md](27-06-ACHIEVEMENT-STORE.md) | achievementStore + Achievements-Page | Offen |
+| 7 | [27-07-QUEST-SEASON-ERWEITERUNG.md](27-07-QUEST-SEASON-ERWEITERUNG.md) | questStore + seasonStore erweitern | Offen |
+| 8 | [27-08-SHOP-LEADERBOARD-SETTINGS.md](27-08-SHOP-LEADERBOARD-SETTINGS.md) | Shop/Leaderboard/Settings Integration | Offen |
+| 9 | [27-09-NOTIFICATION-DROPDOWN-ACTIVITY-UI.md](27-09-NOTIFICATION-DROPDOWN-ACTIVITY-UI.md) | NotificationDropdown + Inventory + Activity Feed | Offen |
+| 10 | [27-10-TESTING-FEINSCHLIFF.md](27-10-TESTING-FEINSCHLIFF.md) | Playwright-Tests, Edge-Cases, Smoke-Test | Offen |
+
+### 6 Neue Stores
+
+| Store | localStorage-Key | Step |
+|-------|-----------------|------|
+| `notificationStore.js` | `mindforge-notifications` | 2 |
+| `activityStore.js` | `mindforge-activity` | 2 |
+| `inventoryStore.js` | `mindforge-inventory` | 3 |
+| `gameInteractionStore.js` | `mindforge-game-interactions` | 4 |
+| `socialStore.js` | `mindforge-social` | 5 |
+| `achievementStore.js` | `mindforge-achievements` | 6 |
+
+### Abhaengigkeitsbaum
 
 ```
-Phase 1: Foundation          01 > 02 > 23 > 03
-Phase 2: Kern-Features       04 > 06 > 07
-Phase 3: Navigation          05 > 09
-Phase 4: User-Features       08 > 10 > 15
-Phase 5: Premium & Creator   20 > 11
-Phase 6: Personalisierung    12 > 13 > 14
-Phase 7: Gamification        17 > 18 > 16
-Phase 8: Spaete Features     19 > 21 > 22
-Extras:                      24 (Forge KI) > 25 (Avatar-Shop)
+Step 1 (Reset)
+Step 2 (Notification + Activity)        ← keine Abhaengigkeiten
+Step 3 (Inventory)                      ← keine Abhaengigkeiten
+Step 4 (Game Interactions)              ← keine Abhaengigkeiten
+Step 5 (Social)                         ← braucht Step 2
+Step 6 (Achievements)                   ← braucht Step 2 + 3
+Step 7 (Quest/Season Erweiterung)       ← braucht Step 2 + 3
+Step 8 (Shop/Leaderboard/Settings)      ← braucht Step 3 + 4 + 5 + 6
+Step 9 (UI-Integration)                 ← braucht alles
+Step 10 (Tests)                         ← braucht alles
 ```
