@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Trophy, Medal, Crown, Star, TrendingUp, Users, Calendar, ChevronDown, Flame, Zap } from 'lucide-react'
+import { Trophy, Medal, Crown, TrendingUp, Users, Calendar, ChevronDown, Flame } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { mockGames } from '../data/mockGames'
 import PremiumBadge from '../components/premium/PremiumBadge'
@@ -198,14 +198,6 @@ export default function Leaderboards() {
     return list
   }, [basePlayers, selectedGame, currentUid, currentUsername, currentUserStats])
 
-  // Current user stats for the header card
-  const currentUserRank = players.findIndex(p => p.id === currentUid) + 1
-  const currentXp = currentUserStats.xp
-  const currentLevel = currentUserStats.level
-  const xpInLevel = currentXp - (currentLevel - 1) * 1000
-  const xpNeeded = xpForLevel(currentLevel)
-  const xpPercent = Math.min(100, Math.round((xpInLevel / xpNeeded) * 100))
-
   const selectedGameData = mockGames.find(g => g.id === selectedGame)
 
   return (
@@ -216,60 +208,6 @@ export default function Leaderboards() {
         <meta property="og:title" content="Leaderboards | MindForge" />
         <meta property="og:description" content="Compare your scores with other players on the MindForge leaderboards." />
       </>
-
-      {/* Page header */}
-      <div className="flex items-center gap-3 mb-8">
-        <Trophy className="w-8 h-8 text-accent" />
-        <div>
-          <h1 className="text-3xl font-bold">{t('leaderboards.title')}</h1>
-          <p className="text-text-secondary">{t('leaderboards.subtitle')}</p>
-        </div>
-      </div>
-
-      {/* Current user XP card */}
-      {user && (
-        <div className="bg-bg-card rounded-xl p-5 border border-accent/30 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                <Star className="w-7 h-7 text-accent" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-bold text-lg text-text-primary truncate">{currentUsername}</p>
-                <div className="flex items-center gap-3 text-sm text-text-secondary">
-                  <span className="flex items-center gap-1">
-                    <Zap className="w-4 h-4 text-accent" /> Level {currentLevel}
-                  </span>
-                  <span>{t('common.rank', { rank: currentUserRank })}</span>
-                  <span className="flex items-center gap-1">
-                    <Flame className="w-4 h-4 text-orange-400" /> {currentUserStats.streak} {t('common.days')}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-right flex-shrink-0">
-              <p className="text-2xl font-bold text-accent">{currentXp.toLocaleString('de-DE')} XP</p>
-              <p className="text-xs text-text-muted">{currentUserStats.gamesPlayed} {t('leaderboards.gamesPlayed')}</p>
-            </div>
-          </div>
-
-          {/* XP progress bar */}
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-text-muted mb-1.5">
-              <span>Level {currentLevel}</span>
-              <span>{xpInLevel.toLocaleString('de-DE')} / {xpNeeded.toLocaleString('de-DE')} XP</span>
-              <span>Level {currentLevel + 1}</span>
-            </div>
-            <div className="w-full bg-bg-hover rounded-full h-3">
-              <div
-                className="bg-accent h-3 rounded-full transition-all duration-700"
-                style={{ width: `${xpPercent}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Time range tabs */}
       <Tabs
@@ -320,55 +258,7 @@ export default function Leaderboards() {
         )}
       </div>
 
-      {/* Game info banner */}
-      {selectedGameData && (
-        <div className="flex items-center gap-3 bg-bg-secondary rounded-lg px-4 py-3 mb-6 border border-gray-700">
-          <Trophy className="w-5 h-5 text-accent flex-shrink-0" />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-text-primary truncate">{selectedGameData.title}</p>
-            <p className="text-xs text-text-muted">
-              Top-Spieler nach XP - {t('leaderboards.playCount', { count: selectedGameData.plays.toLocaleString('de-DE') })}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Top 3 podium */}
-      {players.length >= 3 && (
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {[1, 0, 2].map(idx => {
-            const p = players[idx]
-            const rank = idx + 1
-            const isMe = p.id === currentUid
-            const colors = [
-              'border-yellow-500/40 bg-yellow-500/5',
-              'border-gray-400/30 bg-gray-400/5',
-              'border-amber-600/30 bg-amber-600/5',
-            ]
-            const labels = [t('leaderboards.gold'), t('leaderboards.silver'), t('leaderboards.bronze')]
-            const iconColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600']
-
-            return (
-              <div
-                key={p.id}
-                className={`rounded-xl p-4 border text-center transition-all ${colors[idx]} ${idx === 0 ? 'sm:-mt-4' : ''}`}
-              >
-                <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${idx === 0 ? 'bg-yellow-500/20 animate-pulse' : idx === 1 ? 'bg-gray-400/20' : 'bg-amber-600/20'}`}>
-                  {rank === 1 ? <Crown className={`w-6 h-6 ${iconColors[idx]}`} /> : <Medal className={`w-6 h-6 ${iconColors[idx]}`} />}
-                </div>
-                <p className="text-xs text-text-muted mb-1">{labels[idx]}</p>
-                <p className={`font-bold text-sm truncate ${isMe ? 'text-accent' : 'text-text-primary'}`}>
-                  {p.username}
-                </p>
-                <p className="text-lg font-bold text-text-primary mt-1">{p.xp.toLocaleString('de-DE')}</p>
-                <p className="text-xs text-text-muted">XP</p>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Full ranking list */}
+      {/* Ranking list */}
       <div className="space-y-2">
         {players.map((player, index) => (
           <LeaderboardRow
@@ -379,16 +269,6 @@ export default function Leaderboards() {
             t={t}
           />
         ))}
-      </div>
-
-      {/* Info footer */}
-      <div className="mt-8 bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
-        <p className="text-text-secondary text-sm">
-          {t('leaderboards.updateNote')}
-        </p>
-        <p className="text-text-muted text-xs mt-1">
-          {t('leaderboards.xpNote')}
-        </p>
       </div>
     </div>
   )

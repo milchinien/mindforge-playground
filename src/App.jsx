@@ -11,8 +11,7 @@ import { useAchievementStore } from './stores/achievementStore'
 import { useSocialStore } from './stores/socialStore'
 
 // Lazy-loaded pages for code splitting
-const Login = lazy(() => import('./pages/auth/Login'))
-const Register = lazy(() => import('./pages/auth/Register'))
+const AuthPage = lazy(() => import('./pages/auth/AuthPage'))
 const Home = lazy(() => import('./pages/Home'))
 const Mindbrowser = lazy(() => import('./pages/Mindbrowser'))
 const GameDetail = lazy(() => import('./pages/GameDetail'))
@@ -117,8 +116,8 @@ function App() {
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Auth pages WITHOUT layout */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<AuthPage />} />
+              <Route path="/register" element={<AuthPage />} />
               <Route path="/play/:id" element={<GamePlayer />} />
 
               {/* All other pages WITH layout */}

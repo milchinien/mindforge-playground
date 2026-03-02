@@ -1,16 +1,15 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Shield, Zap, Crown, Trophy, Star, Target, Clock,
-  ChevronRight, Medal, Flame, Swords, BookOpen, Award,
-  Lock, CheckCircle2, Calendar, TrendingUp, Gift,
+  Shield, Zap, Crown, Trophy, Target, Clock,
+  Medal, BookOpen,
+  Lock, CheckCircle2, Calendar,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useCountdown } from '../hooks/useCountdown'
 import { useSeasonStore } from '../stores/seasonStore'
 import {
   CURRENT_SEASON,
-  BATTLE_PASS_TIERS,
   WEEKLY_CHALLENGES,
   SEASON_LEADERBOARD,
   PREMIUM_PASS_PRICE,
@@ -197,53 +196,20 @@ function OverviewTab() {
         )}
       </div>
 
-      {/* Season stats grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-bg-card rounded-xl p-4 border border-gray-700 text-center">
-          <Zap className="w-6 h-6 text-accent mx-auto mb-2" />
-          <p className="text-xl font-bold text-text-primary">{seasonXP.toLocaleString('de-DE')}</p>
-          <p className="text-xs text-text-muted">Season XP</p>
-        </div>
-        <div className="bg-bg-card rounded-xl p-4 border border-gray-700 text-center">
-          <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-2" />
-          <p className="text-xl font-bold text-text-primary">{currentTier}</p>
-          <p className="text-xs text-text-muted">Battle Pass Tier</p>
-        </div>
-        <div className="bg-bg-card rounded-xl p-4 border border-gray-700 text-center">
-          <Target className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-          <p className="text-xl font-bold text-text-primary">{completedChallenges}/{totalChallenges}</p>
-          <p className="text-xs text-text-muted">Challenges</p>
-        </div>
-        <div className="bg-bg-card rounded-xl p-4 border border-gray-700 text-center">
-          <Calendar className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-          <p className="text-xl font-bold text-text-primary">{CURRENT_SEASON.durationDays - daysElapsed}</p>
-          <p className="text-xs text-text-muted">Tage uebrig</p>
-        </div>
-      </div>
-
-      {/* Season description */}
-      <div className="bg-bg-card rounded-xl p-5 border border-gray-700">
-        <h3 className="font-semibold text-text-primary mb-2 flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-accent" />
-          Ueber diese Season
-        </h3>
-        <p className="text-sm text-text-secondary leading-relaxed">
-          {CURRENT_SEASON.description}
-        </p>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Gift className="w-4 h-4 text-accent" />
-            <span>{BATTLE_PASS_TIERS.length} Tiers mit Belohnungen</span>
-          </div>
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Target className="w-4 h-4 text-accent" />
-            <span>{WEEKLY_CHALLENGES.length} Wochen Challenges</span>
-          </div>
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Crown className="w-4 h-4 text-yellow-400" />
-            <span>Exklusive Premium-Belohnungen</span>
-          </div>
-        </div>
+      {/* Compact season stats */}
+      <div className="flex flex-wrap items-center gap-4 text-sm text-text-secondary">
+        <span className="flex items-center gap-1.5">
+          <Zap className="w-4 h-4 text-accent" />
+          {seasonXP.toLocaleString('de-DE')} XP
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Target className="w-4 h-4 text-purple-400" />
+          {completedChallenges}/{totalChallenges} Challenges
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Calendar className="w-4 h-4 text-orange-400" />
+          {CURRENT_SEASON.durationDays - daysElapsed} Tage uebrig
+        </span>
       </div>
     </div>
   )
@@ -283,30 +249,6 @@ function BattlePassTab() {
           </button>
         )}
       </div>
-
-      {/* Premium promo banner (only if not premium) */}
-      {!isPremiumPass && (
-        <div className="bg-gradient-to-r from-yellow-900/20 to-amber-900/20 rounded-xl p-5 border border-yellow-500/30">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
-              <Crown className="w-6 h-6 text-yellow-400" />
-            </div>
-            <div>
-              <h3 className="font-bold text-yellow-400 mb-1">Premium Battle Pass</h3>
-              <p className="text-sm text-text-secondary mb-3">
-                Schalte exklusive Belohnungen frei: Legendaere Avatar-Items, epische Rahmen, Profil-Effekte und mehr!
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['Legendaere Ruestung', 'Animierte Rahmen', 'Partikel-Effekte', 'Exklusive Titel'].map((item) => (
-                  <span key={item} className="text-xs bg-yellow-500/10 text-yellow-400 px-2.5 py-1 rounded-full">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Battle Pass Track */}
       <BattlePassTrack />
@@ -417,15 +359,6 @@ function ChallengesTab() {
         </div>
       )}
 
-      {/* Info note */}
-      <div className="bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
-        <p className="text-text-secondary text-sm">
-          Jede Woche gibt es 5 neue Challenges. Abgeschlossene Challenges koennen nicht wiederholt werden.
-        </p>
-        <p className="text-text-muted text-xs mt-1">
-          Challenge-XP zaehlen direkt als Season-XP fuer deinen Battle Pass.
-        </p>
-      </div>
     </div>
   )
 }
@@ -464,89 +397,8 @@ function LeaderboardTab() {
   const currentUserRank = players.findIndex((p) => p.id === currentUid) + 1
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-          <Trophy className="w-6 h-6 text-accent" />
-          Season {CURRENT_SEASON.number} Rangliste
-        </h2>
-        <p className="text-sm text-text-secondary mt-1">
-          Wer sammelt die meisten Season-XP?
-        </p>
-      </div>
-
-      {/* Current user rank card */}
-      {user && (
-        <div className="bg-bg-card rounded-xl p-5 border border-accent/30">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                <Star className="w-7 h-7 text-accent" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-bold text-lg text-text-primary truncate">{currentUsername}</p>
-                <div className="flex items-center gap-3 text-sm text-text-secondary">
-                  <span className="flex items-center gap-1">
-                    <Shield className="w-4 h-4 text-accent" /> Tier {currentTier}
-                  </span>
-                  <span>Rang {currentUserRank}</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right flex-shrink-0">
-              <p className="text-2xl font-bold text-accent">{seasonXP.toLocaleString('de-DE')} XP</p>
-              <p className="text-xs text-text-muted">Season XP</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Top 3 podium */}
-      {players.length >= 3 && (
-        <div className="grid grid-cols-3 gap-3">
-          {[1, 0, 2].map((idx) => {
-            const p = players[idx]
-            const rank = idx + 1
-            const isMe = p.id === currentUid
-            const colors = [
-              'border-yellow-500/40 bg-yellow-500/5',
-              'border-gray-400/30 bg-gray-400/5',
-              'border-amber-600/30 bg-amber-600/5',
-            ]
-            const iconColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600']
-            const labels = ['Gold', 'Silber', 'Bronze']
-
-            return (
-              <div
-                key={p.id}
-                className={`rounded-xl p-4 border text-center transition-all ${colors[idx]} ${idx === 0 ? 'sm:-mt-4' : ''}`}
-              >
-                <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                  idx === 0 ? 'bg-yellow-500/20 animate-pulse' : idx === 1 ? 'bg-gray-400/20' : 'bg-amber-600/20'
-                }`}>
-                  {rank === 1
-                    ? <Crown className={`w-6 h-6 ${iconColors[idx]}`} />
-                    : <Medal className={`w-6 h-6 ${iconColors[idx]}`} />
-                  }
-                </div>
-                <p className="text-xs text-text-muted mb-1">{labels[idx]}</p>
-                <p className={`font-bold text-sm truncate ${isMe ? 'text-accent' : 'text-text-primary'}`}>
-                  {p.username}
-                </p>
-                <p className="text-lg font-bold text-text-primary mt-1">{p.seasonXP.toLocaleString('de-DE')}</p>
-                <p className="text-xs text-text-muted">Season XP</p>
-                <div className="flex items-center justify-center gap-1 mt-1">
-                  <Shield className="w-3 h-3 text-text-muted" />
-                  <span className="text-xs text-text-muted">Tier {p.tier}</span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Full ranking list */}
+    <div className="space-y-4">
+      {/* Ranking list */}
       <div className="space-y-2">
         {players.map((player, index) => {
           const rank = index + 1
@@ -583,7 +435,6 @@ function LeaderboardTab() {
                     <Shield className="w-3 h-3" /> Tier {player.tier}
                   </span>
                   <span>{player.gamesPlayed} Spiele</span>
-                  <span className="hidden sm:inline">{player.challengesCompleted} Challenges</span>
                 </div>
               </div>
 
@@ -594,16 +445,6 @@ function LeaderboardTab() {
             </div>
           )
         })}
-      </div>
-
-      {/* Info footer */}
-      <div className="bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
-        <p className="text-text-secondary text-sm">
-          Die Season-Rangliste wird alle 15 Minuten aktualisiert.
-        </p>
-        <p className="text-text-muted text-xs mt-1">
-          Am Ende der Season erhalten die Top-Spieler exklusive Belohnungen.
-        </p>
       </div>
     </div>
   )
@@ -632,15 +473,6 @@ export default function Seasons() {
         <meta property="og:description" content={CURRENT_SEASON.description} />
         <meta property="og:type" content="website" />
       </>
-
-      {/* Page header */}
-      <div className="flex items-center gap-3 mb-8">
-        <Shield className="w-8 h-8 text-accent" />
-        <div>
-          <h1 className="text-3xl font-bold">Seasons</h1>
-          <p className="text-text-secondary">Season {CURRENT_SEASON.number}: {CURRENT_SEASON.name}</p>
-        </div>
-      </div>
 
       {/* Tab bar */}
       <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-8" />

@@ -200,13 +200,6 @@ export default function Premium() {
         <meta property="og:description" content={t('premium.subtitle')} />
       </>
 
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-3">{t('premium.headline')}</h1>
-        <p className="text-text-secondary max-w-2xl mx-auto">
-          {t('premium.subtitle')}
-        </p>
-      </div>
-
       {/* Premium section tabs */}
       <Tabs tabs={PREMIUM_TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-8" />
 
@@ -252,36 +245,9 @@ export default function Premium() {
             ))}
           </div>
 
-          <div className="mt-12 bg-bg-card rounded-xl p-6 border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-center">{t('premium.faq.title')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.cancelQ')}</h3>
-                <p className="text-sm text-text-secondary">{t('premium.faq.cancelA')}</p>
-              </div>
-              <div>
-                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.gamesQ')}</h3>
-                <p className="text-sm text-text-secondary">{t('premium.faq.gamesA')}</p>
-              </div>
-              <div>
-                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.upgradeQ')}</h3>
-                <p className="text-sm text-text-secondary">{t('premium.faq.upgradeA')}</p>
-              </div>
-              <div>
-                <h3 className="font-medium text-text-primary mb-1">{t('premium.faq.studentQ')}</h3>
-                <p className="text-sm text-text-secondary">{t('premium.faq.studentA')}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 bg-warning/10 border border-warning/30 rounded-lg p-4 text-center">
-            <p className="text-warning font-medium">
-              {t('premium.paymentSoon')}
-            </p>
-            <p className="text-sm text-text-muted mt-1">
-              {t('premium.paymentNote')}
-            </p>
-          </div>
+          <p className="mt-6 text-center text-sm text-text-muted">
+            {t('premium.paymentSoon')}
+          </p>
         </>
       )}
 

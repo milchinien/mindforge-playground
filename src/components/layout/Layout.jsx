@@ -56,7 +56,7 @@ export default function Layout({ children }) {
   const pageTitle = titleKey ? (titleKey.includes('.') ? t(titleKey) : titleKey) : null
 
   return (
-    <div className="min-h-screen bg-bg-primary overflow-x-hidden">
+    <div className="min-h-screen bg-bg-primary overflow-x-clip">
       {/* Skip to content link for keyboard navigation */}
       <a href="#main-content" className="skip-to-content">
         Skip to content

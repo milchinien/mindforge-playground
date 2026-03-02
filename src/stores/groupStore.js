@@ -14,6 +14,51 @@ export const useGroupStore = create(
       // Clan war state
       activeClanWar: mockClanWar,
 
+      // --- Clan War Actions ---
+
+      // Update a single matchup's scores (live during a duel)
+      updateMatchupScore: (matchupId, scoreA, scoreB) => set((state) => {
+        if (!state.activeClanWar) return state
+        const war = { ...state.activeClanWar }
+        war.matchups = war.matchups.map(m =>
+          m.id === matchupId ? { ...m, scoreA, scoreB, status: 'active' } : m
+        )
+        // Recalculate clan scores from all matchups
+        war.clanA = { ...war.clanA, score: war.matchups.reduce((sum, m) => sum + m.scoreA, 0) }
+        war.clanB = { ...war.clanB, score: war.matchups.reduce((sum, m) => sum + m.scoreB, 0) }
+        return { activeClanWar: war }
+      }),
+
+      // Mark a matchup as completed with final scores
+      completeMatchup: (matchupId, finalScoreA, finalScoreB) => set((state) => {
+        if (!state.activeClanWar) return state
+        const war = { ...state.activeClanWar }
+        war.matchups = war.matchups.map(m =>
+          m.id === matchupId
+            ? { ...m, scoreA: finalScoreA, scoreB: finalScoreB, status: 'completed' }
+            : m
+        )
+        // Recalculate clan scores
+        war.clanA = { ...war.clanA, score: war.matchups.reduce((sum, m) => sum + m.scoreA, 0) }
+        war.clanB = { ...war.clanB, score: war.matchups.reduce((sum, m) => sum + m.scoreB, 0) }
+        // Check if all matchups are done
+        const allDone = war.matchups.every(m => m.status === 'completed')
+        if (allDone) war.status = 'completed'
+        return { activeClanWar: war }
+      }),
+
+      // Start a pending matchup
+      startMatchup: (matchupId) => set((state) => {
+        if (!state.activeClanWar) return state
+        const war = { ...state.activeClanWar }
+        war.matchups = war.matchups.map(m =>
+          m.id === matchupId && m.status === 'pending'
+            ? { ...m, status: 'active' }
+            : m
+        )
+        return { activeClanWar: war }
+      }),
+
       // --- Actions ---
 
       joinGroup: (groupId) => set((state) => {
@@ -96,6 +141,7 @@ export const useGroupStore = create(
         myClans: state.myClans,
         myClasses: state.myClasses,
         groupInvites: state.groupInvites,
+        activeClanWar: state.activeClanWar,
       }),
     }
   )

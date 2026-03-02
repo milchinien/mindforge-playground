@@ -136,19 +136,31 @@ function ClanWarBanner({ war }) {
           </div>
         </div>
 
-        {/* Matchup progress */}
-        <div className="mt-5 pt-4 border-t border-gray-700/50">
-          <div className="flex items-center justify-between text-xs text-text-muted mb-2">
-            <span>Duelle abgeschlossen</span>
-            <span className="font-semibold text-text-primary">{completedMatchups}/{totalMatchups}</span>
-          </div>
-          <div className="w-full bg-bg-hover rounded-full h-2">
-            <div
-              className="h-2 rounded-full bg-accent transition-all"
-              style={{ width: `${totalMatchups > 0 ? Math.round((completedMatchups / totalMatchups) * 100) : 0}%` }}
-            />
-          </div>
-        </div>
+        {/* Battle progress bar */}
+        {(() => {
+          const total = clanA.score + clanB.score
+          const pctA = total > 0 ? Math.round((clanA.score / total) * 100) : 50
+          const pctB = total > 0 ? 100 - pctA : 50
+          return (
+            <div className="mt-5 pt-4 border-t border-gray-700/50">
+              <div className="flex items-center justify-between text-xs font-bold mb-2">
+                <span className="text-orange-400">{pctA}%</span>
+                <span className="text-text-muted">{completedMatchups}/{totalMatchups} Duelle</span>
+                <span className="text-purple-400">{pctB}%</span>
+              </div>
+              <div className="w-full flex h-3 rounded-full overflow-hidden bg-bg-hover">
+                <div
+                  className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-700"
+                  style={{ width: `${pctA}%` }}
+                />
+                <div
+                  className="h-full bg-gradient-to-l from-purple-500 to-purple-400 transition-all duration-700"
+                  style={{ width: `${pctB}%` }}
+                />
+              </div>
+            </div>
+          )
+        })()}
       </div>
     </div>
   )

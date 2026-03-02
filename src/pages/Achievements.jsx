@@ -121,21 +121,16 @@ export default function Achievements() {
         <meta property="og:type" content="website" />
       </>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">{t('achievements.title')}</h1>
-          <p className="text-text-secondary mt-1">
-            {t('achievements.progress', { unlocked: totalUnlocked, total: totalAchievements })}
-          </p>
-        </div>
-
-        {/* Active title selector */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <p className="text-sm text-text-secondary">
+          {t('achievements.progress', { unlocked: totalUnlocked, total: totalAchievements })}
+        </p>
         <button
           onClick={() => setShowTitleModal(true)}
-          className="flex items-center gap-2 bg-bg-card border border-gray-700 hover:border-accent/50 px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
+          className="flex items-center gap-2 bg-bg-card border border-gray-700 hover:border-accent/50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer text-sm"
         >
-          <span className="text-sm text-text-muted">{t('achievements.activeTitle')}</span>
-          <span className="text-sm font-semibold text-accent">
+          <span className="text-text-muted">{t('achievements.activeTitle')}</span>
+          <span className="font-semibold text-accent">
             {equippedTitle ? `"${equippedTitle}"` : t('achievements.noTitle')}
           </span>
           <ChevronDown className="w-4 h-4 text-text-muted" />
@@ -168,16 +163,6 @@ export default function Achievements() {
             />
           )
         })}
-      </div>
-
-      {/* Important note */}
-      <div className="mt-8 bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
-        <p className="text-text-secondary text-sm">
-          {t('achievements.noCoinsNote')}
-        </p>
-        <p className="text-text-muted text-xs mt-1">
-          {t('achievements.designNote')}
-        </p>
       </div>
 
       {/* Title select modal */}

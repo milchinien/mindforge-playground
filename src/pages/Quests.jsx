@@ -106,12 +106,6 @@ function WeeklyTab() {
         ))}
       </div>
 
-      {/* Bonus info */}
-      <div className="mt-6 bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
-        <p className="text-text-secondary text-sm">
-          Woechentliche Quests bieten neben XP auch kosmetische Belohnungen wie Rahmen und Titel.
-        </p>
-      </div>
     </div>
   )
 }
@@ -298,22 +292,6 @@ export default function Quests() {
         <meta property="og:type" content="website" />
       </>
 
-      {/* Header with stats */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary">Quests & Abzeichen</h1>
-          <p className="text-text-secondary mt-1">
-            Erledige Quests, sammle XP und schalte einzigartige Abzeichen frei.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="bg-bg-card border border-gray-700 rounded-lg px-4 py-2 text-center">
-            <p className="text-xs text-text-muted">Abzeichen</p>
-            <p className="text-lg font-bold text-accent">{unlockedBadges.length}</p>
-          </div>
-        </div>
-      </div>
-
       {/* Tab Navigation */}
       <Tabs tabs={QUEST_TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-8" />
 
@@ -326,15 +304,6 @@ export default function Quests() {
         {activeTab === 'badges' && <BadgeGrid />}
       </div>
 
-      {/* Bottom note */}
-      <div className="mt-8 bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
-        <p className="text-text-secondary text-sm">
-          Quests und Abzeichen geben XP und kosmetische Belohnungen -- keine MindCoins.
-        </p>
-        <p className="text-text-muted text-xs mt-1">
-          Bewusste Design-Entscheidung: Fairness fuer alle Spieler.
-        </p>
-      </div>
     </div>
   )
 }

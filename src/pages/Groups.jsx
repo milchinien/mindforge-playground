@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Users, Shield, BookOpen, Compass, Plus, Search, Mail,
-  Check, X, UserPlus, Swords
+  Users, Shield, BookOpen, Compass, Search, Mail,
+  Check, X, Swords
 } from 'lucide-react'
 import { useGroupStore } from '../stores/groupStore'
 import { mockLerngruppen, mockClans, mockKlassen } from '../data/groupData'
@@ -79,24 +79,9 @@ export default function Groups() {
 
   const renderLerngruppen = () => (
     <div>
-      {/* Quick actions */}
-      <div className="flex items-center gap-3 mb-6">
-        <button className="flex items-center gap-2 bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          <Plus className="w-4 h-4" />
-          Lerngruppe erstellen
-        </button>
-        <button className="flex items-center gap-2 bg-bg-card hover:bg-bg-hover border border-gray-700 text-text-primary px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          <UserPlus className="w-4 h-4" />
-          Gruppe beitreten
-        </button>
-      </div>
-
       {/* Invites for Lerngruppen */}
       {groupInvites.filter(i => i.groupType === 'lerngruppe').length > 0 && (
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-            Einladungen
-          </h3>
           <div className="space-y-2">
             {groupInvites
               .filter(i => i.groupType === 'lerngruppe')
@@ -112,31 +97,7 @@ export default function Groups() {
         </div>
       )}
 
-      {/* My Groups Section */}
-      {myGroups.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-            Meine Lerngruppen
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mockLerngruppen
-              .filter(g => myGroups.includes(g.id))
-              .map(group => (
-                <GroupCard
-                  key={group.id}
-                  group={group}
-                  isMember={true}
-                  onLeave={leaveGroup}
-                />
-              ))}
-          </div>
-        </div>
-      )}
-
-      {/* All groups */}
-      <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-        Alle Lerngruppen
-      </h3>
+      {/* All Lerngruppen */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {mockLerngruppen.map(group => (
           <GroupCard
@@ -153,37 +114,16 @@ export default function Groups() {
 
   const renderClans = () => (
     <div>
-      {/* Quick actions */}
-      <div className="flex items-center gap-3 mb-6">
-        <button className="flex items-center gap-2 bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          <Plus className="w-4 h-4" />
-          Clan gruenden
-        </button>
-        <button className="flex items-center gap-2 bg-bg-card hover:bg-bg-hover border border-gray-700 text-text-primary px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          <UserPlus className="w-4 h-4" />
-          Clan beitreten
-        </button>
-      </div>
-
       {/* Clan War Banner */}
       {activeClanWar && activeClanWar.status !== 'completed' && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Swords className="w-4 h-4 text-accent" />
-            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
-              Aktueller Clan War
-            </h3>
-          </div>
           <ClanWarBanner war={activeClanWar} />
         </div>
       )}
 
-      {/* Invites for Clans */}
+      {/* Clan Invites */}
       {groupInvites.filter(i => i.groupType === 'clan').length > 0 && (
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-            Clan-Einladungen
-          </h3>
           <div className="space-y-2">
             {groupInvites
               .filter(i => i.groupType === 'clan')
@@ -199,31 +139,7 @@ export default function Groups() {
         </div>
       )}
 
-      {/* My Clans Section */}
-      {myClans.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-            Meine Clans
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mockClans
-              .filter(c => myClans.includes(c.id))
-              .map(clan => (
-                <GroupCard
-                  key={clan.id}
-                  group={clan}
-                  isMember={true}
-                  onLeave={leaveClan}
-                />
-              ))}
-          </div>
-        </div>
-      )}
-
       {/* All Clans */}
-      <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-        Alle Clans
-      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {mockClans.map(clan => (
           <GroupCard
@@ -240,23 +156,7 @@ export default function Groups() {
 
   const renderKlassen = () => (
     <div>
-      {/* Info banner */}
-      <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 mb-6">
-        <div className="flex items-start gap-3">
-          <BookOpen className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-text-primary mb-1">Klassen fuer Lehrkraefte</p>
-            <p className="text-xs text-text-secondary">
-              Klassen koennen nur von Premium-Lehrkraeften erstellt werden. Schueler treten per Einladungscode bei.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Klassen cards */}
-      <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-        Meine Klassen
-      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {mockKlassen.map(klasse => (
           <GroupCard
@@ -267,13 +167,10 @@ export default function Groups() {
         ))}
       </div>
 
-      {/* No more classes hint */}
       {mockKlassen.length <= 2 && (
-        <div className="text-center py-8 mt-4">
-          <p className="text-text-muted text-sm">
-            Frage deine Lehrkraft nach dem Einladungscode, um einer Klasse beizutreten.
-          </p>
-        </div>
+        <p className="text-text-muted text-sm text-center mt-6">
+          Frage deine Lehrkraft nach dem Einladungscode, um einer Klasse beizutreten.
+        </p>
       )}
     </div>
   )
@@ -343,32 +240,6 @@ export default function Groups() {
         <meta property="og:type" content="website" />
       </>
 
-      {/* Page header */}
-      <div className="flex items-center gap-3 mb-8">
-        <Users className="w-8 h-8 text-accent" />
-        <div>
-          <h1 className="text-3xl font-bold">Gruppen</h1>
-          <p className="text-text-secondary">Lerngruppen, Clans & Klassen</p>
-        </div>
-      </div>
-
-      {/* Pending invites summary */}
-      {groupInvites.length > 0 && (
-        <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 mb-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-            <Mail className="w-5 h-5 text-accent" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-text-primary">
-              {groupInvites.length} offene Einladung{groupInvites.length !== 1 ? 'en' : ''}
-            </p>
-            <p className="text-xs text-text-muted">
-              Du hast unbearbeitete Gruppeneinladungen.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Tab navigation */}
       <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-6" />
 
@@ -377,16 +248,6 @@ export default function Groups() {
       {activeTab === 'clans' && renderClans()}
       {activeTab === 'klassen' && renderKlassen()}
       {activeTab === 'entdecken' && renderEntdecken()}
-
-      {/* Footer info */}
-      <div className="mt-8 bg-bg-card border border-gray-700 rounded-lg p-4 text-center">
-        <p className="text-text-secondary text-sm">
-          Gruppen sind der beste Weg, gemeinsam zu lernen und sich gegenseitig zu motivieren.
-        </p>
-        <p className="text-text-muted text-xs mt-1">
-          Erstelle deine eigene Gruppe oder tritt einer bestehenden bei!
-        </p>
-      </div>
     </div>
   )
 }
