@@ -78,7 +78,7 @@ export default function GameDetail() {
       </button>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-8">
         {/* Left Column: Images */}
         <div className="lg:col-span-3">
           {/* Main Thumbnail */}
@@ -114,7 +114,7 @@ export default function GameDetail() {
                   key={idx}
                   src={src}
                   alt={`Screenshot ${idx + 1}`}
-                  className="w-24 h-16 object-cover rounded-lg flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+                  className="w-24 h-16 object-cover rounded-lg flex-shrink-0 opacity-70 hover:opacity-100 active:opacity-100 transition-opacity cursor-pointer"
                 />
               ))}
             </div>

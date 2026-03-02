@@ -224,7 +224,7 @@ export default function FlashcardEditor({ data: initialData, onChange }) {
                         <span className="text-[10px] text-text-muted">{card.category}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 hover-show transition-opacity">
                       <button
                         onClick={() => moveCard(index, -1)}
                         disabled={index === 0}

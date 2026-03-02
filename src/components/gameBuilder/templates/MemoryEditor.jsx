@@ -198,7 +198,7 @@ export default function MemoryEditor({ data: initialData, onChange }) {
                     </div>
                     <button
                       onClick={() => removePair(pair.id)}
-                      className="text-text-muted hover:text-error transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
+                      className="text-text-muted hover:text-error transition-colors cursor-pointer hover-show"
                     >
                       <X size={14} />
                     </button>

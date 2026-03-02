@@ -332,6 +332,36 @@ button, a, [role="button"], .bottom-nav-item {
   }
 }
 
+/* ============================================
+   Mobile Responsive Utilities
+   ============================================ */
+
+/* Hover-show: Hidden on desktop (visible on group hover), always visible on touch devices */
+@media (hover: hover) {
+  .hover-show {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .group:hover .hover-show {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .hover-show {
+    opacity: 1 !important;
+  }
+}
+
+/* Prevent iOS auto-zoom on input focus (inputs need >= 16px font on iOS) */
+@media (max-width: 767px) {
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="number"], input[type="search"], input[type="tel"],
+  input[type="url"], textarea, select {
+    font-size: 16px !important;
+  }
+}
+
 /* PWA standalone mode adjustments */
 @media (display-mode: standalone) {
   /* Prevent text selection that feels non-native */

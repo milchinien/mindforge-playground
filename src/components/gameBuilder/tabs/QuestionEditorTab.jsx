@@ -40,7 +40,7 @@ function QuestionListItem({ question, index, isActive, onClick, onDelete, onMove
           <span className="text-xs text-text-muted">{question.options.length} Optionen</span>
         </div>
       </div>
-      <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex flex-col gap-0.5 hover-show transition-opacity">
         {!isFirst && (
           <button onClick={(e) => { e.stopPropagation(); onMoveUp() }} className="p-0.5 hover:text-accent cursor-pointer">
             <ChevronUp size={12} />
@@ -54,7 +54,7 @@ function QuestionListItem({ question, index, isActive, onClick, onDelete, onMove
       </div>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete() }}
-        className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 text-text-muted transition-all cursor-pointer"
+        className="hover-show p-1 hover:text-red-400 text-text-muted transition-all cursor-pointer"
       >
         <Trash2 size={14} />
       </button>

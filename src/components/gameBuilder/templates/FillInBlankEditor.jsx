@@ -205,7 +205,7 @@ export default function FillInBlankEditor({ data: initialData, onChange }) {
                     </button>
                     <button
                       onClick={() => removeWord(word.id)}
-                      className="text-text-muted hover:text-error transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
+                      className="text-text-muted hover:text-error transition-colors cursor-pointer hover-show"
                     >
                       <X size={14} />
                     </button>

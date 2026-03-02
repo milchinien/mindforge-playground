@@ -210,7 +210,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   </NavLink>
                   <button
                     onClick={() => removeFavorite(fav.path)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-text-muted hover:text-red-400 transition-all"
+                    className="hover-show p-1 text-text-muted hover:text-red-400 active:text-red-400 transition-all"
                     aria-label={`Remove ${fav.label} from favorites`}
                   >
                     <PinOff className="w-3 h-3" />

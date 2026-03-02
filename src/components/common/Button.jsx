@@ -1,17 +1,17 @@
 import { LoadingSpinner } from './LoadingSpinner'
 
 const variants = {
-  primary: 'bg-accent hover:bg-accent-dark text-white',
-  secondary: 'bg-bg-card hover:bg-bg-hover text-text-primary',
-  outline: 'border border-gray-600 hover:bg-bg-card text-text-primary bg-transparent',
-  danger: 'bg-error hover:bg-red-600 text-white',
-  ghost: 'hover:bg-bg-card text-text-secondary bg-transparent',
+  primary: 'bg-accent hover:bg-accent-dark active:bg-accent-dark text-white',
+  secondary: 'bg-bg-card hover:bg-bg-hover active:bg-bg-hover text-text-primary',
+  outline: 'border border-gray-600 hover:bg-bg-card active:bg-bg-card text-text-primary bg-transparent',
+  danger: 'bg-error hover:bg-red-600 active:bg-red-700 text-white',
+  ghost: 'hover:bg-bg-card active:bg-bg-card text-text-secondary bg-transparent',
 }
 
 const sizes = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg',
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-5 py-2.5 text-base',
+  lg: 'px-7 py-3.5 text-lg',
 }
 
 export default function Button({

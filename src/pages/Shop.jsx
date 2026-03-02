@@ -777,7 +777,7 @@ export default function Shop() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-0 sm:p-2">
       <>
         <title>MindCoins Shop | MindForge</title>
         <meta name="description" content={t('shop.subtitle')} />
@@ -785,12 +785,12 @@ export default function Shop() {
         <meta property="og:description" content={t('shop.subtitle')} />
       </>
 
-      <div className="flex items-start justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold mb-1">{t('shop.title')}</h1>
-          <p className="text-text-secondary">{t('shop.subtitle')}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1">{t('shop.title')}</h1>
+          <p className="text-text-secondary text-sm sm:text-base">{t('shop.subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2.5 bg-bg-card rounded-lg px-4 py-2.5 border border-gray-700 flex-shrink-0">
+        <div className="flex items-center gap-2.5 bg-bg-card rounded-lg px-4 py-2.5 border border-gray-700 w-full sm:w-auto flex-shrink-0">
           <MindCoinIcon size={28} />
           <div>
             <p className="text-xs text-text-muted leading-none">{t('shop.yourBalance')}</p>
@@ -799,7 +799,7 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
         {/* Sidebar - Desktop */}
         <nav className="hidden md:flex flex-col w-52 flex-shrink-0 sticky top-24 self-start">
           <div className="bg-bg-card rounded-xl border border-gray-700 overflow-hidden">
@@ -824,7 +824,7 @@ export default function Shop() {
         </nav>
 
         {/* Mobile tabs */}
-        <div className="md:hidden flex gap-2 overflow-x-auto pb-2 mb-4 w-full -mx-6 px-6">
+        <div className="md:hidden flex gap-2 overflow-x-auto pb-2 mb-4 w-full -mx-3 px-3 sm:-mx-6 sm:px-6">
           {SHOP_CATEGORIES.map(cat => {
             const Icon = cat.icon
             return (

@@ -33,7 +33,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
           onClick={onClose}
           role="presentation"
         >
@@ -50,7 +50,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
               role="dialog"
               aria-modal="true"
               aria-labelledby={titleId}
-              className={`relative bg-bg-secondary rounded-xl shadow-xl w-full ${widths[maxWidth]}`}
+              className={`relative bg-bg-secondary rounded-xl shadow-xl w-full ${widths[maxWidth]} max-h-[90vh] overflow-y-auto`}
               onClick={(e) => e.stopPropagation()}
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

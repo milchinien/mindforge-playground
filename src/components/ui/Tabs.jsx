@@ -19,7 +19,7 @@ export default function Tabs({ tabs, activeTab, onChange, variant = 'underline',
 
   if (variant === 'pills') {
     return (
-      <div className={`flex gap-1.5 overflow-x-auto hide-scrollbar ${className}`}>
+      <div className={`flex gap-1.5 overflow-x-auto hide-scrollbar snap-x ${className}`}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id
           return (
@@ -48,7 +48,7 @@ export default function Tabs({ tabs, activeTab, onChange, variant = 'underline',
   }
 
   return (
-    <div className={`flex gap-1 border-b border-white/10 overflow-x-auto hide-scrollbar ${className}`}>
+    <div className={`flex gap-1 border-b border-white/10 overflow-x-auto hide-scrollbar snap-x ${className}`}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id
         return (

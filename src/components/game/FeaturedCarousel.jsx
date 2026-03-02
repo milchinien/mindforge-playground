@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getSubjectConfig } from '../../data/subjectConfig'
@@ -7,6 +7,7 @@ export default function FeaturedCarousel({ games }) {
   const [current, setCurrent] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const navigate = useNavigate()
+  const touchStartX = useRef(0)
 
   const next = useCallback(() => {
     setCurrent(prev => (prev + 1) % games.length)
@@ -15,6 +16,19 @@ export default function FeaturedCarousel({ games }) {
   const prev = useCallback(() => {
     setCurrent(prev => (prev - 1 + games.length) % games.length)
   }, [games.length])
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+    setIsPaused(true)
+  }
+
+  const handleTouchEnd = (e) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? next() : prev()
+    }
+    setIsPaused(false)
+  }
 
   useEffect(() => {
     if (isPaused || games.length <= 1) return
@@ -30,9 +44,11 @@ export default function FeaturedCarousel({ games }) {
 
   return (
     <div
-      className="relative rounded-2xl overflow-hidden mb-8 h-[250px] sm:h-[350px] lg:h-[400px]"
+      className="relative rounded-xl sm:rounded-2xl overflow-hidden mb-5 sm:mb-8 h-[180px] sm:h-[350px] lg:h-[400px]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Background */}
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} transition-all duration-500`} />
@@ -58,17 +74,17 @@ export default function FeaturedCarousel({ games }) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
       {/* Content */}
-      <div className="relative h-full flex flex-col justify-end p-6 sm:p-8">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+      <div className="relative h-full flex flex-col justify-end p-4 sm:p-8">
+        <h2 className="text-lg sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2 line-clamp-1 sm:line-clamp-none">
           {game.title}
         </h2>
-        <p className="text-white/70 text-sm sm:text-base max-w-xl line-clamp-2 mb-4">
+        <p className="text-white/70 text-xs sm:text-base max-w-xl line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-4">
           {game.description}
         </p>
         <div>
           <button
             onClick={() => navigate(`/game/${game.id}`)}
-            className="bg-accent hover:bg-accent-dark text-white font-bold px-6 py-2.5 rounded-lg transition-colors cursor-pointer"
+            className="bg-accent hover:bg-accent-dark active:bg-accent-dark text-white font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg transition-colors cursor-pointer text-sm sm:text-base"
           >
             Jetzt spielen
           </button>
@@ -80,13 +96,13 @@ export default function FeaturedCarousel({ games }) {
         <>
           <button
             onClick={prev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full transition-colors cursor-pointer"
+            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 active:bg-black/70 text-white p-2.5 sm:p-2 rounded-full transition-colors cursor-pointer"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full transition-colors cursor-pointer"
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 active:bg-black/70 text-white p-2.5 sm:p-2 rounded-full transition-colors cursor-pointer"
           >
             <ChevronRight size={24} />
           </button>

@@ -108,9 +108,9 @@ export default function ChatOverlay() {
       {/* ====== SCHWEBENDER BUTTON ====== */}
       <button
         onClick={overlayMinimized ? restoreOverlay : toggleOverlay}
-        className="fixed bottom-6 right-6 z-50 bg-accent hover:bg-accent-dark text-white
+        className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 bg-accent hover:bg-accent-dark text-white
                    rounded-full w-14 h-14 flex items-center justify-center shadow-xl
-                   transition-all hover:scale-105 cursor-pointer"
+                   transition-all hover:scale-105 active:scale-95 cursor-pointer"
         aria-label="Chat oeffnen"
       >
         <MessageCircle className="w-6 h-6" />
@@ -124,7 +124,7 @@ export default function ChatOverlay() {
 
       {/* ====== MINI-CHAT PANEL ====== */}
       {overlayOpen && !overlayMinimized && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 h-[28rem] bg-bg-secondary rounded-2xl
+        <div className="fixed bottom-36 md:bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-80 h-[60vh] sm:h-[28rem] bg-bg-secondary rounded-2xl
                         shadow-2xl border border-gray-700 flex flex-col overflow-hidden
                         animate-in slide-in-from-bottom-4">
           {/* Panel-Header */}

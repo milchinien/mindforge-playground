@@ -57,11 +57,6 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen bg-bg-primary overflow-x-clip">
-      {/* Skip to content link for keyboard navigation */}
-      <a href="#main-content" className="skip-to-content">
-        Skip to content
-      </a>
-
       <OfflineBanner />
       <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <div className="flex">
@@ -70,13 +65,13 @@ export default function Layout({ children }) {
           id="main-content"
           role="main"
           tabIndex={-1}
-          className={`flex-1 mt-16 p-6 pb-24 md:pb-6 transition-all duration-200 min-w-0 overflow-x-clip ${
+          className={`flex-1 mt-16 p-3 sm:p-6 pb-24 md:pb-6 transition-all duration-200 min-w-0 overflow-x-clip ${
             collapsed ? 'lg:ml-16' : 'lg:ml-60'
           }`}
         >
           <Breadcrumbs />
           {pageTitle && (
-            <h1 className="text-2xl font-bold text-text-primary mb-6 uppercase tracking-wide">{pageTitle}</h1>
+            <h1 className="text-lg sm:text-2xl font-bold text-text-primary mb-3 sm:mb-6 uppercase tracking-wide">{pageTitle}</h1>
           )}
           {children}
         </main>

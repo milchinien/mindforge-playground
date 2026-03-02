@@ -93,7 +93,7 @@ function GameResultItem({ game, t }) {
   return (
     <div
       onClick={() => navigate(`/game/${game.id}`)}
-      className="flex gap-4 p-4 bg-bg-secondary hover:bg-bg-card rounded-xl transition-colors duration-200 cursor-pointer"
+      className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-bg-secondary hover:bg-bg-card active:bg-bg-card rounded-xl transition-colors duration-200 cursor-pointer"
     >
       <div className={`hidden sm:flex w-48 h-28 flex-shrink-0 rounded-lg bg-gradient-to-br ${config.gradient} items-center justify-center overflow-hidden relative`}>
         {game.thumbnail ? (
@@ -252,28 +252,28 @@ export default function Search() {
       </>
 
       {/* Header */}
-      <div className="mb-6">
-        {query && <h1 className="text-2xl font-bold">{t('search.resultsFor', { query })}</h1>}
-        {tag && !query && <h1 className="text-2xl font-bold">{t('search.gamesWithTag', { tag })}</h1>}
-        {!query && !tag && <h1 className="text-2xl font-bold">{t('search.title')}</h1>}
-        <p className="text-text-secondary mt-1">{totalResults} Ergebnisse gefunden</p>
+      <div className="mb-4 sm:mb-6">
+        {query && <h1 className="text-lg sm:text-2xl font-bold">{t('search.resultsFor', { query })}</h1>}
+        {tag && !query && <h1 className="text-lg sm:text-2xl font-bold">{t('search.gamesWithTag', { tag })}</h1>}
+        {!query && !tag && <h1 className="text-lg sm:text-2xl font-bold">{t('search.title')}</h1>}
+        <p className="text-text-secondary text-sm mt-1">{totalResults} Ergebnisse gefunden</p>
       </div>
 
       {/* Search input */}
-      <div className="relative mb-6">
-        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+      <div className="relative mb-4 sm:mb-6">
+        <SearchIcon className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-text-muted" />
         <input
           type="text"
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
           onKeyDown={handleLocalSearch}
           placeholder={t('search.searchPlaceholder')}
-          className="!pl-12 !py-3 !text-lg"
+          className="!pl-10 sm:!pl-12 !py-2.5 sm:!py-3 !text-base sm:!text-lg"
         />
       </div>
 
       {/* Category Tabs */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto">
         <Tabs
           tabs={TABS.map(tab => ({ ...tab, count: results[tab.id]?.length || 0 }))}
           activeTab={activeTab}

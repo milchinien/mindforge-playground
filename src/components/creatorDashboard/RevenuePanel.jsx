@@ -50,7 +50,7 @@ function EarningsChart({ data }) {
           return (
             <div key={i} className="flex flex-col items-center flex-1 min-w-[8px] relative group">
               {/* Tooltip */}
-              <div className="absolute bottom-full mb-1 bg-bg-secondary border border-gray-600 rounded px-2 py-1 text-xs text-text-primary opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              <div className="absolute bottom-full mb-1 bg-bg-secondary border border-gray-600 rounded px-2 py-1 text-xs text-text-primary hover-show transition-opacity pointer-events-none whitespace-nowrap z-10">
                 {day.date}: {day.earnings} MC
               </div>
               <div

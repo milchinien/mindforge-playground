@@ -40,7 +40,7 @@ export default function AssetLibrary({ isOpen, onClose, onInsertCode }) {
   if (!isOpen) return null
 
   return (
-    <div className="absolute top-0 right-0 w-80 h-full bg-bg-secondary border-l border-gray-700 z-20 flex flex-col">
+    <div className="absolute top-0 right-0 w-full sm:w-80 h-full bg-bg-secondary border-l border-gray-700 z-20 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
         <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ export default function AssetLibrary({ isOpen, onClose, onInsertCode }) {
                   <span className="text-[10px] text-text-muted">{asset.rating}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-1 text-[10px] text-accent opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-1 mt-1 text-[10px] text-accent hover-show transition-opacity">
                 <Download className="w-2.5 h-2.5" />
                 Einfuegen
               </div>

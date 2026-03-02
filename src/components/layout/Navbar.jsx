@@ -24,16 +24,66 @@ export default function Navbar({ onToggleSidebar }) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-bg-secondary border-b border-gray-700 h-16 flex items-center px-4 gap-4" role="navigation" aria-label="Main navigation">
       {/* Left: Logo + Nav */}
-      <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
         <button
           onClick={onToggleSidebar}
           aria-label={t('nav.toggleSidebar', 'Toggle sidebar')}
-          className="lg:hidden text-text-secondary hover:text-text-primary"
+          className="lg:hidden flex items-center justify-center text-text-secondary hover:text-text-primary"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <Link to="/" className="text-xl font-bold text-accent shrink-0">MindForge</Link>
+        <Link to="/" className="shrink-0 flex items-center h-8 group" aria-label="MindForge Home">
+          <span
+            className="text-[26px] font-black tracking-tight text-accent leading-none"
+            style={{
+              fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+              textShadow: '0 0 6px rgba(249, 115, 22, 0.2)',
+            }}
+          >
+            M
+          </span>
+          <span className="text-2xl font-black tracking-tight text-accent" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+            ind
+          </span>
+          <svg
+            viewBox="0 0 48 34"
+            className="w-[30px] h-[22px] mx-[-1px] self-center"
+            aria-hidden="true"
+            style={{ color: 'var(--color-accent)' }}
+          >
+            {/* Outline anvil matching reference image */}
+            <path
+              d="
+                M2 9
+                C5 5, 9 3, 14 3
+                Q14 1, 17 1
+                L40 1 Q44 1, 44 4
+                L44 10 Q44 13, 41 13
+                L31 13
+                C29 13, 27 16, 26 20
+                L25 25
+                L35 25 Q41 25, 41 28
+                L41 31 Q41 34, 38 34
+                L10 34 Q7 34, 7 31
+                L7 28 Q7 25, 13 25
+                L19 25
+                L18 20
+                C17 16, 16 13, 14 13
+                C9 13, 5 12, 2 9
+                Z
+              "
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span className="text-2xl font-black tracking-tight text-accent" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+            orge
+          </span>
+        </Link>
 
         <div className="hidden md:flex items-center gap-3">
           <Link to="/browse" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.mindbrowser')}</Link>
@@ -59,7 +109,16 @@ export default function Navbar({ onToggleSidebar }) {
       </div>
 
       {/* Right: User */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Mobile search icon */}
+        <Link
+          to="/search"
+          className="sm:hidden flex items-center justify-center text-text-secondary hover:text-text-primary"
+          aria-label={t('common.search')}
+        >
+          <Search className="w-5 h-5" />
+        </Link>
+
         {user ? (
           <>
             <Link to="/shop" className="hidden sm:flex items-center gap-1.5 bg-bg-card hover:bg-bg-hover px-3 py-1.5 rounded-lg transition-colors text-sm" aria-label={`${user.mindCoins || 0} MindCoins`}>
@@ -85,7 +144,7 @@ export default function Navbar({ onToggleSidebar }) {
               </div>
               <span className="text-sm text-text-secondary">{user.username}</span>
             </Link>
-            <Link to="/settings" aria-label={t('nav.settings')} className="text-text-secondary hover:text-text-primary">
+            <Link to="/settings" aria-label={t('nav.settings')} className="flex items-center justify-center text-text-secondary hover:text-text-primary">
               <Settings className="w-5 h-5" />
             </Link>
           </>

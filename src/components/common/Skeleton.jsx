@@ -12,16 +12,16 @@ function SkeletonBase({ className = '', rounded = 'rounded-lg' }) {
 
 export function SkeletonCard() {
   return (
-    <div className="w-[220px] flex-shrink-0 bg-bg-card rounded-xl overflow-hidden">
-      <SkeletonBase className="w-full h-40" rounded="rounded-none" />
-      <div className="p-3 space-y-2">
-        <SkeletonBase className="h-4 w-3/4" />
-        <SkeletonBase className="h-3 w-1/2" />
-        <div className="flex gap-1 mt-2">
+    <div className="w-[120px] sm:w-[220px] flex-shrink-0 bg-bg-card rounded-lg sm:rounded-xl overflow-hidden">
+      <SkeletonBase className="w-full h-20 sm:h-40" rounded="rounded-none" />
+      <div className="p-2 sm:p-3 space-y-1.5 sm:space-y-2">
+        <SkeletonBase className="h-3 sm:h-4 w-3/4" />
+        <SkeletonBase className="h-2.5 sm:h-3 w-1/2" />
+        <div className="hidden sm:flex gap-1 mt-2">
           <SkeletonBase className="h-5 w-12 rounded-full" />
           <SkeletonBase className="h-5 w-14 rounded-full" />
         </div>
-        <div className="flex gap-3 mt-2">
+        <div className="hidden sm:flex gap-3 mt-2">
           <SkeletonBase className="h-3 w-10" />
           <SkeletonBase className="h-3 w-10" />
         </div>

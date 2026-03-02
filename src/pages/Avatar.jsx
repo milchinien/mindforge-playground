@@ -46,7 +46,7 @@ function ColorPicker({ label, colors, selected, onChange }) {
               }`}
               style={{ backgroundColor: color.hex }}
             />
-            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-bg-primary/95 text-[10px] text-text-secondary rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-gray-700/50">
+            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-bg-primary/95 text-[10px] text-text-secondary rounded whitespace-nowrap hover-show pointer-events-none z-10 border border-gray-700/50">
               {color.name}
             </span>
           </button>
@@ -541,12 +541,12 @@ export default function Avatar() {
       </>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">{t('avatar.title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-text-primary">{t('avatar.title')}</h1>
           <p className="text-sm text-text-muted mt-0.5">{t('avatar.subtitle')}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {/* Undo/Redo Buttons */}
           <div className="flex items-center gap-1">
             <button
@@ -582,12 +582,12 @@ export default function Avatar() {
         </div>
       </div>
 
-      {/* Main Layout - 2 columns */}
-      <div className="flex gap-5 h-[calc(100vh-200px)] min-h-[500px]">
+      {/* Main Layout - stacked on mobile, 2 columns on desktop */}
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 lg:h-[calc(100vh-200px)] lg:min-h-[500px]">
         {/* Left: Avatar Preview */}
-        <div className="w-[300px] flex-shrink-0 flex flex-col">
+        <div className="w-full lg:w-[300px] flex-shrink-0 flex flex-col">
           {/* Preview Card */}
-          <div className="flex-1 rounded-2xl border border-gray-700/40 bg-bg-secondary/50 backdrop-blur-sm flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="h-[250px] lg:flex-1 rounded-2xl border border-gray-700/40 bg-bg-secondary/50 backdrop-blur-sm flex flex-col items-center justify-center relative overflow-hidden">
             {/* Decorative gradient glow behind avatar */}
             <div
               className="absolute inset-0 opacity-20"
@@ -614,7 +614,7 @@ export default function Avatar() {
                   clothingColor={avatarConfig.clothingColor}
                   bgStyle={avatarConfig.bgStyle}
                   bodyType={avatarConfig.bodyType}
-                  size={240}
+                  size={180}
                   username={user?.username}
                   animated
                 />

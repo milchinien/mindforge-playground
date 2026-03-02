@@ -68,8 +68,7 @@ export default memo(function ChatBubble({ message, friendId, isOwn }) {
 
       {/* Zeitstempel */}
       <span
-        className={`text-[10px] text-text-muted mt-0.5 opacity-0 group-hover:opacity-100
-                    transition-opacity ${isOwn ? 'mr-2' : 'ml-2'}`}
+        className={`text-[10px] text-text-muted mt-0.5 ${isOwn ? 'mr-2' : 'ml-2'}`}
       >
         {formatTime(message.timestamp)}
       </span>

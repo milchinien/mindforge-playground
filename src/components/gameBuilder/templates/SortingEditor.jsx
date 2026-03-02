@@ -170,7 +170,7 @@ export default function SortingEditor({ data: initialData, onChange }) {
                       {index + 1}
                     </span>
                     <span className="flex-1 text-sm text-text-primary">{item.text}</span>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 hover-show transition-opacity">
                       <button
                         onClick={() => moveItem(index, -1)}
                         disabled={index === 0}

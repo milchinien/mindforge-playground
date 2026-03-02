@@ -297,7 +297,7 @@ ${previewCode.js || ''}
   return (
     <div className="fixed inset-0 z-[60] flex flex-col h-screen bg-bg-primary">
       {/* Toolbar */}
-      <div className="flex items-center justify-between bg-bg-card px-4 py-2 border-b border-gray-700/50 flex-shrink-0">
+      <div className="flex items-center justify-between bg-bg-card px-4 py-2 border-b border-gray-700/50 flex-shrink-0 overflow-x-auto">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="text-text-muted hover:text-text-primary cursor-pointer transition-colors">
             <ArrowLeft size={18} />
@@ -470,7 +470,7 @@ ${previewCode.js || ''}
 
         {/* Right: Live Preview */}
         {showPreview && (
-          <div className="w-[340px] flex-shrink-0 border-l border-gray-700/50 flex flex-col bg-bg-card">
+          <div className="hidden md:flex md:w-[340px] flex-shrink-0 border-l border-gray-700/50 flex-col bg-bg-card">
             <div className="px-3 py-2 border-b border-gray-700/50 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Play size={12} className="text-accent" />

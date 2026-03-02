@@ -61,6 +61,22 @@ const TEST_ACCOUNTS = [
 
 const STORAGE_KEY = 'mindforge_dev_user'
 const DB_STORAGE_KEY = 'mindforge_dev_firestore'
+const CREDENTIALS_KEY = 'mindforge_dev_credentials'
+
+// Persistent credential store for dynamically registered accounts
+function loadCredentials() {
+  try {
+    const stored = localStorage.getItem(CREDENTIALS_KEY)
+    if (stored) return JSON.parse(stored)
+  } catch { /* ignore */ }
+  return []
+}
+
+function saveCredentials(creds) {
+  localStorage.setItem(CREDENTIALS_KEY, JSON.stringify(creds))
+}
+
+const dynamicCredentials = loadCredentials()
 
 // Firestore mock with localStorage persistence
 function loadDevFirestore() {
@@ -118,29 +134,49 @@ export const devAuth = {
   },
 
   async signInWithEmailAndPassword(email, password) {
+    // Check hardcoded test accounts first
     const account = TEST_ACCOUNTS.find(
-      (a) => a.email === email && a.password === password
+      (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password
     )
-    if (!account) {
-      const error = new Error('E-Mail oder Passwort falsch')
-      error.code = 'auth/invalid-credential'
-      throw error
+    if (account) {
+      const user = { uid: account.uid, email: account.email }
+      this.currentUser = user
+      storeUser(user)
+      authStateCallbacks.forEach(cb => cb(user))
+      return { user }
     }
-    const user = { uid: account.uid, email: account.email }
-    this.currentUser = user
-    storeUser(user)
-    authStateCallbacks.forEach(cb => cb(user))
-    return { user }
+    // Check dynamically registered accounts
+    const dynAccount = dynamicCredentials.find(
+      (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password
+    )
+    if (dynAccount) {
+      const user = { uid: dynAccount.uid, email: dynAccount.email }
+      this.currentUser = user
+      storeUser(user)
+      authStateCallbacks.forEach(cb => cb(user))
+      return { user }
+    }
+    const error = new Error('E-Mail oder Passwort falsch')
+    error.code = 'auth/invalid-credential'
+    throw error
   },
 
   async createUserWithEmailAndPassword(email, password) {
-    if (TEST_ACCOUNTS.some((a) => a.email === email)) {
+    if (TEST_ACCOUNTS.some((a) => a.email.toLowerCase() === email.toLowerCase())) {
+      const error = new Error('Email already in use')
+      error.code = 'auth/email-already-in-use'
+      throw error
+    }
+    if (dynamicCredentials.some((a) => a.email.toLowerCase() === email.toLowerCase())) {
       const error = new Error('Email already in use')
       error.code = 'auth/email-already-in-use'
       throw error
     }
     const uid = 'dev-user-' + Date.now()
     const user = { uid, email }
+    // Store credentials for later login
+    dynamicCredentials.push({ uid, email, password })
+    saveCredentials(dynamicCredentials)
     this.currentUser = user
     storeUser(user)
     authStateCallbacks.forEach(cb => cb(user))
@@ -191,7 +227,13 @@ export const devDb = {
     const col = devFirestore[queryRef._collection] || {}
     const results = Object.values(col).filter((doc) => {
       if (queryRef._where) {
-        return doc[queryRef._where.field] === queryRef._where.value
+        const docVal = doc[queryRef._where.field]
+        const queryVal = queryRef._where.value
+        // Case-insensitive comparison for string fields (e.g. username)
+        if (typeof docVal === 'string' && typeof queryVal === 'string') {
+          return docVal.toLowerCase() === queryVal.toLowerCase()
+        }
+        return docVal === queryVal
       }
       return true
     })

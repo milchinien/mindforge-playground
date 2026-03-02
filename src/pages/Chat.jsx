@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { Send, Smile, Shield, ArrowDown, Search } from 'lucide-react'
+import { Send, Smile, Shield, ArrowDown, ArrowLeft, Search } from 'lucide-react'
 import { useChatStore } from '../stores/chatStore'
 import { chatFriends, quickReactions } from '../data/chatData'
 import { timeAgo } from '../utils/formatters'
@@ -120,7 +120,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="-m-6 -mt-14">
+    <div className="-m-3 sm:-m-6 -mt-14">
       <>
         <title>Chat | MindForge</title>
         <meta name="description" content="Chatte mit deinen Freunden auf MindForge" />
@@ -131,7 +131,7 @@ export default function Chat() {
 
       <div className="flex h-[calc(100vh-4rem)]">
         {/* ====== LINKE SIDEBAR: Konversationsliste ====== */}
-        <div className="w-80 flex-shrink-0 bg-bg-secondary border-r border-gray-700 flex flex-col">
+        <div className={`${activeChatId ? 'hidden md:flex' : 'flex'} w-full md:w-80 md:flex-shrink-0 bg-bg-secondary border-r border-gray-700 flex-col`}>
           {/* Header */}
           <div className="p-4 border-b border-gray-700">
             <h2 className="text-lg font-bold text-text-primary mb-3">Nachrichten</h2>
@@ -219,17 +219,25 @@ export default function Chat() {
         </div>
 
         {/* ====== RECHTER BEREICH: Chat ====== */}
-        <div className="flex-1 flex flex-col bg-bg-primary">
+        <div className={`${!activeChatId ? 'hidden md:flex' : 'flex'} flex-1 flex-col bg-bg-primary`}>
           {activeChatId && activeFriend ? (
             <>
               {/* Chat-Header */}
-              <div className="flex items-center gap-3 px-6 py-3 border-b border-gray-700 bg-bg-secondary">
+              <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-gray-700 bg-bg-secondary">
+                {/* Back button for mobile */}
+                <button
+                  onClick={() => setActiveChat(null)}
+                  className="md:hidden text-text-secondary hover:text-text-primary p-1 cursor-pointer"
+                  aria-label="Zurueck zur Liste"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
                 {/* Jugendschutz-Hinweis */}
-                <Shield className="w-4 h-4 text-success flex-shrink-0" />
-                <span className="text-[10px] text-success mr-2 flex-shrink-0">
+                <Shield className="w-4 h-4 text-success flex-shrink-0 hidden sm:block" />
+                <span className="text-[10px] text-success mr-2 flex-shrink-0 hidden sm:inline">
                   Content wird gefiltert
                 </span>
-                <div className="h-4 w-px bg-gray-600" />
+                <div className="h-4 w-px bg-gray-600 hidden sm:block" />
 
                 {/* Freund-Info */}
                 <div className="relative flex-shrink-0 ml-2">
@@ -257,7 +265,7 @@ export default function Chat() {
               <div
                 ref={messagesContainerRef}
                 onScroll={handleScroll}
-                className="flex-1 overflow-y-auto px-6 py-4 space-y-2 relative"
+                className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-2 relative"
               >
                 {groupedMessages.map((item, i) => {
                   if (item.type === 'date') {
@@ -294,7 +302,7 @@ export default function Chat() {
               </div>
 
               {/* Eingabebereich */}
-              <div className="px-6 py-3 border-t border-gray-700 bg-bg-secondary">
+              <div className="px-3 sm:px-6 py-3 border-t border-gray-700 bg-bg-secondary">
                 {/* Emoji-Picker */}
                 {showEmojiPicker && (
                   <div className="mb-2 p-3 bg-bg-card rounded-xl border border-gray-600 flex flex-wrap gap-1.5">

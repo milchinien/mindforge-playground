@@ -102,7 +102,7 @@ function RewardSlot({ reward, tier, track, currentTier, isPremium, isClaimed }) 
           className="absolute inset-0 rounded-lg flex items-center justify-center bg-accent/0 hover:bg-accent/10 transition-colors cursor-pointer"
           title={`${reward.name} einsammeln`}
         >
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold text-accent bg-bg-card/90 px-2 py-1 rounded-md shadow">
+          <span className="hover-show transition-opacity text-xs font-semibold text-accent bg-bg-card/90 px-2 py-1 rounded-md shadow">
             Einsammeln
           </span>
         </button>

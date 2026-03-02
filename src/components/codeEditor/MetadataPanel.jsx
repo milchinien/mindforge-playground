@@ -23,7 +23,7 @@ export default function MetadataPanel({ metadata, onChange, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex justify-end">
-      <div className="w-96 bg-bg-secondary h-full overflow-y-auto p-6 shadow-xl">
+      <div className="w-full sm:w-96 bg-bg-secondary h-full overflow-y-auto p-6 shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold">Metadaten</h2>
           <button onClick={onClose} className="text-text-muted hover:text-text-primary cursor-pointer">

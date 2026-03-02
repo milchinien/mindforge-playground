@@ -47,7 +47,7 @@ export default function CollaborationPanel({ isOpen, onClose }) {
   if (!isOpen) return null
 
   return (
-    <div className="absolute top-0 right-0 w-80 h-full bg-bg-secondary border-l border-gray-700 z-20 flex flex-col">
+    <div className="absolute top-0 right-0 w-full sm:w-80 h-full bg-bg-secondary border-l border-gray-700 z-20 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
         <div className="flex items-center gap-2">

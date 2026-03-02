@@ -82,7 +82,7 @@ export default function NotificationDropdown() {
         aria-label={`${t('notifications.title')}${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        className="relative text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+        className="relative flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -101,7 +101,7 @@ export default function NotificationDropdown() {
           aria-label={t('notifications.title')}
           className="fixed right-2 sm:absolute sm:right-0 top-16 sm:top-full sm:mt-2 w-[calc(100vw-1rem)] sm:w-96 bg-bg-secondary
                         border border-gray-700 rounded-xl shadow-2xl z-50
-                        max-h-[500px] overflow-hidden flex flex-col"
+                        max-h-[70vh] sm:max-h-[500px] overflow-hidden flex flex-col"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">

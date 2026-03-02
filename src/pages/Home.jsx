@@ -52,7 +52,7 @@ function HomeGuest() {
   }).slice(0, 8)
 
   return (
-    <div className="space-y-8 py-4">
+    <div className="space-y-5 sm:space-y-8 py-2 sm:py-4">
       <>
         <title>MindForge - {t('home.subtitle')}</title>
         <meta name="description" content={t('home.subtitle')} />
@@ -60,21 +60,21 @@ function HomeGuest() {
         <meta property="og:description" content={t('home.subtitle')} />
       </>
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-8 sm:p-12 text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-4">{t('home.welcome')}</h1>
-        <p className="text-lg text-text-secondary mb-6 max-w-2xl mx-auto">
+      <div className="bg-gradient-to-r from-primary to-primary-dark rounded-xl sm:rounded-2xl p-4 sm:p-8 lg:p-12 text-center">
+        <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">{t('home.welcome')}</h1>
+        <p className="text-sm sm:text-lg text-text-secondary mb-4 sm:mb-6 max-w-2xl mx-auto">
           {t('home.subtitle')}
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center">
           <Link
             to="/register"
-            className="bg-accent hover:bg-accent-dark px-6 py-3 rounded-lg font-semibold transition-colors"
+            className="bg-accent hover:bg-accent-dark active:bg-accent-dark px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base"
           >
             {t('home.registerFree')}
           </Link>
           <Link
             to="/browse"
-            className="bg-bg-card hover:bg-bg-hover px-6 py-3 rounded-lg font-semibold transition-colors"
+            className="bg-bg-card hover:bg-bg-hover active:bg-bg-hover px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base"
           >
             {t('home.discoverGames')}
           </Link>
@@ -106,7 +106,7 @@ export default function Home() {
   }
 
   return (
-    <div className="space-y-8 py-4">
+    <div className="space-y-5 sm:space-y-8 py-2 sm:py-4">
       <>
         <title>MindForge - {t('nav.home')}</title>
         <meta name="description" content={t('home.subtitle')} />
