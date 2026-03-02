@@ -1,0 +1,390 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - link "MindForge" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e8]:
+        - link "Mindbrowser" [ref=e9] [cursor=pointer]:
+          - /url: /browse
+        - link "Events" [ref=e10] [cursor=pointer]:
+          - /url: /events
+        - link "Marketplace" [ref=e11] [cursor=pointer]:
+          - /url: /marketplace
+        - link "Create" [ref=e12] [cursor=pointer]:
+          - /url: /login
+        - link "My Games" [ref=e13] [cursor=pointer]:
+          - /url: /login
+      - search [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - searchbox "Search games..." [ref=e19]
+    - generic [ref=e21]:
+      - link "Log in" [ref=e22] [cursor=pointer]:
+        - /url: /login
+      - link "Register" [ref=e23] [cursor=pointer]:
+        - /url: /register
+  - generic [ref=e24]:
+    - complementary "Sidebar navigation" [ref=e25]:
+      - button "Collapse sidebar" [ref=e26]:
+        - img [ref=e27]
+      - link "Log in" [ref=e30] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e32]
+        - paragraph [ref=e36]: Log in
+      - navigation "Main menu" [ref=e37]:
+        - link "Home" [ref=e40] [cursor=pointer]:
+          - /url: /
+          - img [ref=e41]
+          - generic [ref=e44]: Home
+        - generic [ref=e45]:
+          - link "Quests Expand Quests" [ref=e47] [cursor=pointer]:
+            - /url: /quests
+            - img [ref=e48]
+            - generic [ref=e51]: Quests
+            - button "Expand Quests" [ref=e52]:
+              - img [ref=e53]
+          - generic:
+            - link "Achievements" [ref=e57] [cursor=pointer]:
+              - /url: /login
+              - img [ref=e58]
+              - generic [ref=e64]: Achievements
+            - link "Seasons" [ref=e67] [cursor=pointer]:
+              - /url: /seasons
+              - img [ref=e68]
+              - generic [ref=e70]: Seasons
+        - link "Chat" [ref=e73] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e74]
+          - generic [ref=e76]: Chat
+        - link "Gruppen" [ref=e79] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e80]
+          - generic [ref=e85]: Gruppen
+        - link "Friends" [ref=e88] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e89]
+          - generic [ref=e94]: Friends
+        - link "Avatar" [ref=e97] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e98]
+          - generic [ref=e104]: Avatar
+        - link "Inventory" [ref=e107] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e108]
+          - generic [ref=e112]: Inventory
+        - generic [ref=e113]:
+          - link "MindCoin Shop Expand Shop" [ref=e115] [cursor=pointer]:
+            - /url: /login
+            - img "MindCoin" [ref=e116]
+            - generic [ref=e117]: Shop
+            - button "Expand Shop" [ref=e118]:
+              - img [ref=e119]
+          - link "Verschenken" [ref=e123] [cursor=pointer]:
+            - /url: /login
+            - img [ref=e124]
+            - generic [ref=e128]: Verschenken
+      - link "Get Premium" [ref=e130] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e131]
+        - generic [ref=e133]: Get Premium
+    - main [ref=e135]:
+      - navigation "Breadcrumb" [ref=e136]:
+        - link "Home" [ref=e137] [cursor=pointer]:
+          - /url: /
+          - img [ref=e138]
+          - generic [ref=e141]: Home
+        - generic [ref=e142]:
+          - img [ref=e143]
+          - generic [ref=e145]: Leaderboards
+      - generic [ref=e146]:
+        - generic [ref=e147]:
+          - img [ref=e148]
+          - generic [ref=e154]:
+            - heading "Leaderboards" [level=1] [ref=e155]
+            - paragraph [ref=e156]: Compare yourself with other players
+        - generic [ref=e157]:
+          - button "Overall" [ref=e158] [cursor=pointer]:
+            - img [ref=e159]
+            - generic [ref=e165]: Overall
+          - button "This Week" [ref=e167] [cursor=pointer]:
+            - img [ref=e168]
+            - generic [ref=e170]: This Week
+          - button "This Month" [ref=e171] [cursor=pointer]:
+            - img [ref=e172]
+            - generic [ref=e175]: This Month
+        - button "All Games (Global)" [ref=e177] [cursor=pointer]:
+          - generic [ref=e178]:
+            - img [ref=e179]
+            - generic [ref=e184]: All Games (Global)
+          - img [ref=e185]
+        - generic [ref=e187]:
+          - generic [ref=e188]:
+            - img [ref=e190]
+            - paragraph [ref=e196]: Silver
+            - paragraph [ref=e197]: BrainStorm99
+            - paragraph [ref=e198]: "42.300"
+            - paragraph [ref=e199]: XP
+          - generic [ref=e200]:
+            - img [ref=e202]
+            - paragraph [ref=e204]: Gold
+            - paragraph [ref=e205]: PixelMaster
+            - paragraph [ref=e206]: "48.750"
+            - paragraph [ref=e207]: XP
+          - generic [ref=e208]:
+            - img [ref=e210]
+            - paragraph [ref=e216]: Bronze
+            - paragraph [ref=e217]: QuizKoenig
+            - paragraph [ref=e218]: "38.900"
+            - paragraph [ref=e219]: XP
+        - generic [ref=e220]:
+          - generic [ref=e221]:
+            - img [ref=e223]
+            - generic [ref=e225]:
+              - generic [ref=e226]:
+                - generic [ref=e227]: PixelMaster
+                - generic [ref=e228]:
+                  - img [ref=e229]
+                  - text: Creator
+                - img [ref=e231]
+              - generic [ref=e233]:
+                - generic [ref=e234]: Level 47
+                - generic [ref=e235]: 312 Games played
+                - generic [ref=e236]:
+                  - img [ref=e237]
+                  - text: 21 Days
+            - generic [ref=e239]:
+              - paragraph [ref=e240]: "48.750"
+              - paragraph [ref=e241]: XP
+          - generic [ref=e242]:
+            - img [ref=e244]
+            - generic [ref=e250]:
+              - generic [ref=e251]:
+                - generic [ref=e252]: BrainStorm99
+                - generic [ref=e253]:
+                  - img [ref=e254]
+                  - text: Pro
+              - generic [ref=e256]:
+                - generic [ref=e257]: Level 43
+                - generic [ref=e258]: 278 Games played
+                - generic [ref=e259]:
+                  - img [ref=e260]
+                  - text: 14 Days
+            - generic [ref=e262]:
+              - paragraph [ref=e263]: "42.300"
+              - paragraph [ref=e264]: XP
+          - generic [ref=e265]:
+            - img [ref=e267]
+            - generic [ref=e273]:
+              - generic [ref=e274]:
+                - generic [ref=e275]: QuizKoenig
+                - generic [ref=e276]:
+                  - img [ref=e277]
+                  - text: Lehrer
+                - img [ref=e279]
+              - generic [ref=e281]:
+                - generic [ref=e282]: Level 40
+                - generic [ref=e283]: 245 Games played
+                - generic [ref=e284]:
+                  - img [ref=e285]
+                  - text: 32 Days
+            - generic [ref=e287]:
+              - paragraph [ref=e288]: "38.900"
+              - paragraph [ref=e289]: XP
+          - generic [ref=e290]:
+            - generic [ref=e292]: "4"
+            - generic [ref=e293]:
+              - generic [ref=e295]: LernFuchs
+              - generic [ref=e296]:
+                - generic [ref=e297]: Level 37
+                - generic [ref=e298]: 210 Games played
+                - generic [ref=e299]:
+                  - img [ref=e300]
+                  - text: 9 Days
+            - generic [ref=e302]:
+              - paragraph [ref=e303]: "35.200"
+              - paragraph [ref=e304]: XP
+          - generic [ref=e305]:
+            - generic [ref=e307]: "5"
+            - generic [ref=e308]:
+              - generic [ref=e309]:
+                - generic [ref=e310]: WissenHeld
+                - generic [ref=e311]:
+                  - img [ref=e312]
+                  - text: Pro
+              - generic [ref=e314]:
+                - generic [ref=e315]: Level 34
+                - generic [ref=e316]: 198 Games played
+                - generic [ref=e317]:
+                  - img [ref=e318]
+                  - text: 18 Days
+            - generic [ref=e320]:
+              - paragraph [ref=e321]: "31.800"
+              - paragraph [ref=e322]: XP
+          - generic [ref=e323]:
+            - generic [ref=e325]: "6"
+            - generic [ref=e326]:
+              - generic [ref=e327]:
+                - generic [ref=e328]: CodeNinja42
+                - generic [ref=e329]:
+                  - img [ref=e330]
+                  - text: Creator
+              - generic [ref=e332]:
+                - generic [ref=e333]: Level 32
+                - generic [ref=e334]: 187 Games played
+                - generic [ref=e335]:
+                  - img [ref=e336]
+                  - text: 7 Days
+            - generic [ref=e338]:
+              - paragraph [ref=e339]: "29.400"
+              - paragraph [ref=e340]: XP
+          - generic [ref=e341]:
+            - generic [ref=e343]: "7"
+            - generic [ref=e344]:
+              - generic [ref=e345]:
+                - generic [ref=e346]: MathGenius
+                - img [ref=e347]
+              - generic [ref=e349]:
+                - generic [ref=e350]: Level 30
+                - generic [ref=e351]: 165 Games played
+                - generic [ref=e352]:
+                  - img [ref=e353]
+                  - text: 25 Days
+            - generic [ref=e355]:
+              - paragraph [ref=e356]: "27.100"
+              - paragraph [ref=e357]: XP
+          - generic [ref=e358]:
+            - generic [ref=e360]: "8"
+            - generic [ref=e361]:
+              - generic [ref=e362]:
+                - generic [ref=e363]: ScienceGirl
+                - generic [ref=e364]:
+                  - img [ref=e365]
+                  - text: Pro
+              - generic [ref=e367]:
+                - generic [ref=e368]: Level 28
+                - generic [ref=e369]: 152 Games played
+                - generic [ref=e370]:
+                  - img [ref=e371]
+                  - text: 11 Days
+            - generic [ref=e373]:
+              - paragraph [ref=e374]: "24.500"
+              - paragraph [ref=e375]: XP
+          - generic [ref=e376]:
+            - generic [ref=e378]: "9"
+            - generic [ref=e379]:
+              - generic [ref=e381]: HistoryPro
+              - generic [ref=e382]:
+                - generic [ref=e383]: Level 26
+                - generic [ref=e384]: 143 Games played
+                - generic [ref=e385]:
+                  - img [ref=e386]
+                  - text: 5 Days
+            - generic [ref=e388]:
+              - paragraph [ref=e389]: "22.800"
+              - paragraph [ref=e390]: XP
+          - generic [ref=e391]:
+            - generic [ref=e393]: "10"
+            - generic [ref=e394]:
+              - generic [ref=e396]: GeoExpert
+              - generic [ref=e397]:
+                - generic [ref=e398]: Level 24
+                - generic [ref=e399]: 130 Games played
+                - generic [ref=e400]:
+                  - img [ref=e401]
+                  - text: 16 Days
+            - generic [ref=e403]:
+              - paragraph [ref=e404]: "20.100"
+              - paragraph [ref=e405]: XP
+          - generic [ref=e406]:
+            - generic [ref=e408]: "11"
+            - generic [ref=e409]:
+              - generic [ref=e411]: PhysikFan
+              - generic [ref=e412]:
+                - generic [ref=e413]: Level 22
+                - generic [ref=e414]: 118 Games played
+                - generic [ref=e415]:
+                  - img [ref=e416]
+                  - text: 3 Days
+            - generic [ref=e418]:
+              - paragraph [ref=e419]: "18.700"
+              - paragraph [ref=e420]: XP
+          - generic [ref=e421]:
+            - generic [ref=e423]: "12"
+            - generic [ref=e424]:
+              - generic [ref=e425]:
+                - generic [ref=e426]: BioNerd
+                - generic [ref=e427]:
+                  - img [ref=e428]
+                  - text: Pro
+              - generic [ref=e430]:
+                - generic [ref=e431]: Level 20
+                - generic [ref=e432]: 105 Games played
+                - generic [ref=e433]:
+                  - img [ref=e434]
+                  - text: 8 Days
+            - generic [ref=e436]:
+              - paragraph [ref=e437]: "16.200"
+              - paragraph [ref=e438]: XP
+          - generic [ref=e439]:
+            - generic [ref=e441]: "13"
+            - generic [ref=e442]:
+              - generic [ref=e444]: SprachProfi
+              - generic [ref=e445]:
+                - generic [ref=e446]: Level 18
+                - generic [ref=e447]: 94 Games played
+                - generic [ref=e448]:
+                  - img [ref=e449]
+                  - text: 12 Days
+            - generic [ref=e451]:
+              - paragraph [ref=e452]: "14.800"
+              - paragraph [ref=e453]: XP
+          - generic [ref=e454]:
+            - generic [ref=e456]: "14"
+            - generic [ref=e457]:
+              - generic [ref=e459]: KunstFan
+              - generic [ref=e460]:
+                - generic [ref=e461]: Level 16
+                - generic [ref=e462]: 82 Games played
+                - generic [ref=e463]:
+                  - img [ref=e464]
+                  - text: 4 Days
+            - generic [ref=e466]:
+              - paragraph [ref=e467]: "12.500"
+              - paragraph [ref=e468]: XP
+          - generic [ref=e469]:
+            - generic [ref=e471]: "15"
+            - generic [ref=e472]:
+              - generic [ref=e474]: MusikStar
+              - generic [ref=e475]:
+                - generic [ref=e476]: Level 14
+                - generic [ref=e477]: 71 Games played
+                - generic [ref=e478]:
+                  - img [ref=e479]
+                  - text: 6 Days
+            - generic [ref=e481]:
+              - paragraph [ref=e482]: "10.900"
+              - paragraph [ref=e483]: XP
+          - generic [ref=e484]:
+            - generic [ref=e486]: "16"
+            - generic [ref=e487]:
+              - generic [ref=e488]:
+                - generic [ref=e489]: Spieler
+                - generic [ref=e490]: You
+              - generic [ref=e491]:
+                - generic [ref=e492]: Level 9
+                - generic [ref=e493]: 0 Games played
+            - generic [ref=e494]:
+              - paragraph [ref=e495]: "8.450"
+              - paragraph [ref=e496]: XP
+        - generic [ref=e497]:
+          - paragraph [ref=e498]: Leaderboards are updated regularly. Play more learning games to earn XP and climb the ranks!
+          - paragraph [ref=e499]: XP is earned by completing learning games.
+  - button "Chat oeffnen" [ref=e500] [cursor=pointer]:
+    - img [ref=e501]
+    - generic [ref=e503]: "3"
+```

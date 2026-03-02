@@ -1,0 +1,341 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - link "MindForge" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e8]:
+        - link "Mindbrowser" [ref=e9] [cursor=pointer]:
+          - /url: /browse
+        - link "Events" [ref=e10] [cursor=pointer]:
+          - /url: /events
+        - link "Marketplace" [ref=e11] [cursor=pointer]:
+          - /url: /marketplace
+        - link "Create" [ref=e12] [cursor=pointer]:
+          - /url: /create
+        - link "My Games" [ref=e13] [cursor=pointer]:
+          - /url: /my-games
+      - search [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - searchbox "Search games..." [ref=e19]
+    - generic [ref=e20]:
+      - link "0 MindCoins" [ref=e21] [cursor=pointer]:
+        - /url: /shop
+        - img "MindCoin" [ref=e22]
+        - generic [ref=e23]: "0"
+        - generic [ref=e24]: MC
+      - button "Notifications" [ref=e26] [cursor=pointer]:
+        - img [ref=e27]
+      - 'link "Profile: TestPlayer" [ref=e30] [cursor=pointer]':
+        - /url: /profile/TestPlayer
+        - img [ref=e33]
+        - generic [ref=e71]: TestPlayer
+      - link "Settings" [ref=e72] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e73]
+  - generic [ref=e76]:
+    - complementary "Sidebar navigation" [ref=e77]:
+      - button "Collapse sidebar" [ref=e78]:
+        - img [ref=e79]
+      - link "TestPlayer" [ref=e82] [cursor=pointer]:
+        - /url: /profile/TestPlayer
+        - img [ref=e85]
+        - paragraph [ref=e124]: TestPlayer
+      - navigation "Main menu" [ref=e125]:
+        - link "Home" [ref=e128] [cursor=pointer]:
+          - /url: /
+          - img [ref=e129]
+          - generic [ref=e132]: Home
+        - generic [ref=e133]:
+          - link "Quests Expand Quests" [ref=e135] [cursor=pointer]:
+            - /url: /quests
+            - img [ref=e136]
+            - generic [ref=e139]: Quests
+            - button "Expand Quests" [ref=e140]:
+              - img [ref=e141]
+          - generic:
+            - link "Achievements" [ref=e145] [cursor=pointer]:
+              - /url: /achievements
+              - img [ref=e146]
+              - generic [ref=e152]: Achievements
+            - link "Seasons" [ref=e155] [cursor=pointer]:
+              - /url: /seasons
+              - img [ref=e156]
+              - generic [ref=e158]: Seasons
+        - link "Chat" [ref=e161] [cursor=pointer]:
+          - /url: /chat
+          - img [ref=e162]
+          - generic [ref=e164]: Chat
+        - link "Gruppen" [ref=e167] [cursor=pointer]:
+          - /url: /groups
+          - img [ref=e168]
+          - generic [ref=e173]: Gruppen
+        - link "Friends" [ref=e176] [cursor=pointer]:
+          - /url: /friends
+          - img [ref=e177]
+          - generic [ref=e182]: Friends
+        - link "Avatar" [ref=e185] [cursor=pointer]:
+          - /url: /avatar
+          - img [ref=e186]
+          - generic [ref=e192]: Avatar
+        - link "Inventory" [ref=e195] [cursor=pointer]:
+          - /url: /inventory
+          - img [ref=e196]
+          - generic [ref=e200]: Inventory
+        - generic [ref=e201]:
+          - link "MindCoin Shop Expand Shop" [ref=e203] [cursor=pointer]:
+            - /url: /shop
+            - img "MindCoin" [ref=e204]
+            - generic [ref=e205]: Shop
+            - button "Expand Shop" [ref=e206]:
+              - img [ref=e207]
+          - link "Verschenken" [ref=e211] [cursor=pointer]:
+            - /url: /gift
+            - img [ref=e212]
+            - generic [ref=e216]: Verschenken
+    - main [ref=e218]:
+      - heading "Home" [level=1] [ref=e219]
+      - generic [ref=e220]:
+        - generic [ref=e224]:
+          - img [ref=e228]
+          - heading "Täglicher Login-Bonus" [level=2] [ref=e230]
+          - paragraph [ref=e231]: Komm jeden Tag vorbei und sammle XP!
+          - generic [ref=e233]:
+            - paragraph [ref=e234]: Tag 1
+            - generic [ref=e235]:
+              - img [ref=e236]
+              - generic [ref=e238]: 50 XP
+              - img [ref=e239]
+          - generic [ref=e241]:
+            - generic [ref=e242]:
+              - img [ref=e244]
+              - generic [ref=e248]: "50"
+            - generic [ref=e249]:
+              - generic [ref=e251]: "2"
+              - generic [ref=e252]: "75"
+            - generic [ref=e253]:
+              - generic [ref=e255]: "3"
+              - generic [ref=e256]: "100"
+            - generic [ref=e257]:
+              - generic [ref=e259]: "4"
+              - generic [ref=e260]: "125"
+            - generic [ref=e261]:
+              - generic [ref=e263]: "5"
+              - generic [ref=e264]: "150"
+            - generic [ref=e265]:
+              - generic [ref=e267]: "6"
+              - generic [ref=e268]: "175"
+            - generic [ref=e269]:
+              - generic [ref=e271]: "7"
+              - generic [ref=e272]: "200"
+          - button "Einsammeln!" [ref=e273] [cursor=pointer]
+        - heading "Welcome back, TestPlayer!" [level=1] [ref=e274]
+        - generic [ref=e275]:
+          - generic [ref=e276]:
+            - heading "Freunde" [level=3] [ref=e277]
+            - link "Alle anzeigen" [ref=e278] [cursor=pointer]:
+              - /url: /friends
+          - paragraph [ref=e279]: 0 Freunde online
+        - generic [ref=e280]:
+          - generic [ref=e281]:
+            - heading "Recommended for you" [level=2] [ref=e282]
+            - link "Alle anzeigen →" [ref=e283] [cursor=pointer]:
+              - /url: /browse
+          - generic [ref=e284]:
+            - generic [ref=e285] [cursor=pointer]:
+              - generic [ref=e287]:
+                - generic [ref=e288]:
+                  - generic [ref=e289]: 📐
+                  - generic [ref=e290]: 📐
+                - generic [ref=e291]: 📐
+                - generic [ref=e292]: Mathematik
+              - generic [ref=e293]:
+                - heading "Mathe-Meister" [level=3] [ref=e294]
+                - paragraph [ref=e295]: by MindForge Team
+                - generic [ref=e297]:
+                  - button "#mathematik" [ref=e298]
+                  - button "#quiz" [ref=e299]
+                  - button "#grundschule" [ref=e300]
+                - generic [ref=e301]:
+                  - generic [ref=e302]:
+                    - img [ref=e303]
+                    - text: "245"
+                  - generic [ref=e305]:
+                    - img [ref=e306]
+                    - text: 1.8K
+            - generic [ref=e308] [cursor=pointer]:
+              - generic [ref=e310]:
+                - generic [ref=e311]:
+                  - generic [ref=e312]: 💻
+                  - generic [ref=e313]: 💻
+                - generic [ref=e314]: 💻
+                - generic [ref=e315]: Informatik
+              - generic [ref=e316]:
+                - heading "Python-Abenteuer" [level=3] [ref=e317]
+                - paragraph [ref=e318]: by DevTeacher
+                - generic [ref=e320]:
+                  - button "#informatik" [ref=e321]
+                  - button "#python" [ref=e322]
+                  - button "#adventure" [ref=e323]
+                - generic [ref=e324]:
+                  - generic [ref=e325]:
+                    - img [ref=e326]
+                    - text: "412"
+                  - generic [ref=e328]:
+                    - img [ref=e329]
+                    - text: 2.9K
+            - generic [ref=e331] [cursor=pointer]:
+              - generic [ref=e333]:
+                - generic [ref=e334]:
+                  - generic [ref=e335]: ⚛️
+                  - generic [ref=e336]: ⚛️
+                - generic [ref=e337]: ⚛️
+                - generic [ref=e338]: Physik
+              - generic [ref=e339]:
+                - heading "Physik-Simulator" [level=3] [ref=e340]
+                - paragraph [ref=e341]: by ScienceGamer
+                - generic [ref=e343]:
+                  - button "#physik" [ref=e344]
+                  - button "#simulation" [ref=e345]
+                  - button "#interaktiv" [ref=e346]
+                - generic [ref=e347]:
+                  - generic [ref=e348]:
+                    - img [ref=e349]
+                    - text: "189"
+                  - generic [ref=e351]:
+                    - img [ref=e352]
+                    - text: 1.2K
+            - generic [ref=e354] [cursor=pointer]:
+              - generic [ref=e356]:
+                - generic [ref=e357]:
+                  - generic [ref=e358]: 🧪
+                  - generic [ref=e359]: 🧪
+                - generic [ref=e360]: 🧪
+                - generic [ref=e361]: Chemie
+              - generic [ref=e362]:
+                - heading "Chemie-Labor" [level=3] [ref=e363]
+                - paragraph [ref=e364]: by ChemieProf
+                - generic [ref=e366]:
+                  - button "#chemie" [ref=e367]
+                  - button "#simulation" [ref=e368]
+                  - button "#experimente" [ref=e369]
+                - generic [ref=e370]:
+                  - generic [ref=e371]:
+                    - img [ref=e372]
+                    - text: "312"
+                  - generic [ref=e374]:
+                    - img [ref=e375]
+                    - text: 2.1K
+            - generic [ref=e377] [cursor=pointer]:
+              - generic [ref=e379]:
+                - generic [ref=e380]:
+                  - generic [ref=e381]: 📚
+                  - generic [ref=e382]: 📚
+                - generic [ref=e383]: 📚
+                - generic [ref=e384]: Deutsch
+              - generic [ref=e385]:
+                - heading "Wort-Wizard" [level=3] [ref=e386]
+                - paragraph [ref=e387]: by SprachKuenstler
+                - generic [ref=e389]:
+                  - button "#deutsch" [ref=e390]
+                  - button "#quiz" [ref=e391]
+                  - button "#rechtschreibung" [ref=e392]
+                - generic [ref=e393]:
+                  - generic [ref=e394]:
+                    - img [ref=e395]
+                    - text: "178"
+                  - generic [ref=e397]:
+                    - img [ref=e398]
+                    - text: "980"
+            - generic [ref=e400] [cursor=pointer]:
+              - generic [ref=e402]:
+                - generic [ref=e403]:
+                  - generic [ref=e404]: 🗺️
+                  - generic [ref=e405]: 🗺️
+                - generic [ref=e406]: 🗺️
+                - generic [ref=e407]: Geographie
+              - generic [ref=e408]:
+                - heading "GeoQuest - Weltreise" [level=3] [ref=e409]
+                - paragraph [ref=e410]: by GeoExplorer
+                - generic [ref=e412]:
+                  - button "#geographie" [ref=e413]
+                  - button "#quiz" [ref=e414]
+                  - button "#laender" [ref=e415]
+                - generic [ref=e416]:
+                  - generic [ref=e417]:
+                    - img [ref=e418]
+                    - text: "421"
+                  - generic [ref=e420]:
+                    - img [ref=e421]
+                    - text: 3.2K
+            - generic [ref=e423] [cursor=pointer]:
+              - generic [ref=e424]:
+                - generic [ref=e425]:
+                  - generic [ref=e426]:
+                    - generic [ref=e427]: 🎨
+                    - generic [ref=e428]: 🎨
+                  - generic [ref=e429]: 🎨
+                  - generic [ref=e430]: Kunst
+                - generic [ref=e431]: 50 MC
+              - generic [ref=e432]:
+                - heading "Kunst-Atelier" [level=3] [ref=e433]
+                - paragraph [ref=e434]: by ArtLover
+                - generic [ref=e436]:
+                  - button "#kunst" [ref=e437]
+                  - button "#kreativ" [ref=e438]
+                  - button "#malen" [ref=e439]
+                - generic [ref=e440]:
+                  - generic [ref=e441]:
+                    - img [ref=e442]
+                    - text: "145"
+                  - generic [ref=e444]:
+                    - img [ref=e445]
+                    - text: "620"
+            - generic [ref=e447] [cursor=pointer]:
+              - generic [ref=e449]:
+                - generic [ref=e450]:
+                  - generic [ref=e451]: 📚
+                  - generic [ref=e452]: 📚
+                - generic [ref=e453]: 📚
+                - generic [ref=e454]: Deutsch
+              - generic [ref=e455]:
+                - heading "Grammatik-Gladiator" [level=3] [ref=e456]
+                - paragraph [ref=e457]: by SprachKuenstler
+                - generic [ref=e459]:
+                  - button "#deutsch" [ref=e460]
+                  - button "#grammatik" [ref=e461]
+                  - button "#challenge" [ref=e462]
+                - generic [ref=e463]:
+                  - generic [ref=e464]:
+                    - img [ref=e465]
+                    - text: "92"
+                  - generic [ref=e467]:
+                    - img [ref=e468]
+                    - text: "540"
+        - generic [ref=e470]:
+          - generic [ref=e472]:
+            - generic [ref=e473]: ⚛️
+            - generic [ref=e474]: ⚛️
+          - generic [ref=e476]:
+            - heading "Physik-Simulator" [level=2] [ref=e477]
+            - paragraph [ref=e478]: Experimentiere mit Schwerkraft, Reibung und Geschwindigkeit in dieser interaktiven Physiksimulation.
+            - button "Jetzt spielen" [ref=e480] [cursor=pointer]
+          - button [ref=e481] [cursor=pointer]:
+            - img [ref=e482]
+          - button [ref=e484] [cursor=pointer]:
+            - img [ref=e485]
+          - generic [ref=e487]:
+            - button [ref=e488] [cursor=pointer]
+            - button [ref=e489] [cursor=pointer]
+            - button [ref=e490] [cursor=pointer]
+            - button [ref=e491] [cursor=pointer]
+            - button [ref=e492] [cursor=pointer]
+  - button "Chat oeffnen" [ref=e493] [cursor=pointer]:
+    - img [ref=e494]
+    - generic [ref=e496]: "3"
+```

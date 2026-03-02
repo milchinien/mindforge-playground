@@ -1,0 +1,165 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - link "MindForge" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e8]:
+        - link "Mindbrowser" [ref=e9] [cursor=pointer]:
+          - /url: /browse
+        - link "Events" [ref=e10] [cursor=pointer]:
+          - /url: /events
+        - link "Marketplace" [ref=e11] [cursor=pointer]:
+          - /url: /marketplace
+        - link "Create" [ref=e12] [cursor=pointer]:
+          - /url: /create
+        - link "My Games" [ref=e13] [cursor=pointer]:
+          - /url: /my-games
+      - search [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - searchbox "Search games..." [ref=e19]
+    - generic [ref=e20]:
+      - link "0 MindCoins" [ref=e21] [cursor=pointer]:
+        - /url: /shop
+        - img "MindCoin" [ref=e22]
+        - generic [ref=e23]: "0"
+        - generic [ref=e24]: MC
+      - button "Notifications" [ref=e26] [cursor=pointer]:
+        - img [ref=e27]
+      - 'link "Profile: TestPlayer" [ref=e30] [cursor=pointer]':
+        - /url: /profile/TestPlayer
+        - img [ref=e33]
+        - generic [ref=e71]: TestPlayer
+      - link "Settings" [ref=e72] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e73]
+  - generic [ref=e76]:
+    - complementary "Sidebar navigation" [ref=e77]:
+      - button "Collapse sidebar" [ref=e78]:
+        - img [ref=e79]
+      - link "TestPlayer" [ref=e82] [cursor=pointer]:
+        - /url: /profile/TestPlayer
+        - img [ref=e85]
+        - paragraph [ref=e124]: TestPlayer
+      - navigation "Main menu" [ref=e125]:
+        - link "Home" [ref=e128] [cursor=pointer]:
+          - /url: /
+          - img [ref=e129]
+          - generic [ref=e132]: Home
+        - generic [ref=e133]:
+          - link "Quests Expand Quests" [ref=e135] [cursor=pointer]:
+            - /url: /quests
+            - img [ref=e136]
+            - generic [ref=e139]: Quests
+            - button "Expand Quests" [ref=e140]:
+              - img [ref=e141]
+          - generic:
+            - link "Achievements" [ref=e145] [cursor=pointer]:
+              - /url: /achievements
+              - img [ref=e146]
+              - generic [ref=e152]: Achievements
+            - link "Seasons" [ref=e155] [cursor=pointer]:
+              - /url: /seasons
+              - img [ref=e156]
+              - generic [ref=e158]: Seasons
+        - link "Chat" [ref=e161] [cursor=pointer]:
+          - /url: /chat
+          - img [ref=e162]
+          - generic [ref=e164]: Chat
+        - link "Gruppen" [ref=e167] [cursor=pointer]:
+          - /url: /groups
+          - img [ref=e168]
+          - generic [ref=e173]: Gruppen
+        - link "Friends" [ref=e176] [cursor=pointer]:
+          - /url: /friends
+          - img [ref=e177]
+          - generic [ref=e182]: Friends
+        - link "Avatar" [ref=e185] [cursor=pointer]:
+          - /url: /avatar
+          - img [ref=e186]
+          - generic [ref=e192]: Avatar
+        - link "Inventory" [ref=e195] [cursor=pointer]:
+          - /url: /inventory
+          - img [ref=e196]
+          - generic [ref=e200]: Inventory
+        - generic [ref=e201]:
+          - link "MindCoin Shop Expand Shop" [ref=e203] [cursor=pointer]:
+            - /url: /shop
+            - img "MindCoin" [ref=e204]
+            - generic [ref=e205]: Shop
+            - button "Expand Shop" [ref=e206]:
+              - img [ref=e207]
+          - link "Verschenken" [ref=e211] [cursor=pointer]:
+            - /url: /gift
+            - img [ref=e212]
+            - generic [ref=e216]: Verschenken
+    - main [ref=e218]:
+      - navigation "Breadcrumb" [ref=e219]:
+        - link "Home" [ref=e220] [cursor=pointer]:
+          - /url: /
+          - img [ref=e221]
+          - generic [ref=e224]: Home
+        - generic [ref=e225]:
+          - img [ref=e226]
+          - link "Profile" [ref=e228] [cursor=pointer]:
+            - /url: /profile
+        - generic [ref=e229]:
+          - img [ref=e230]
+          - generic [ref=e232]: TestPlayer
+      - generic [ref=e233]:
+        - generic [ref=e235]:
+          - img [ref=e239]
+          - generic [ref=e277]:
+            - heading "TestPlayer" [level=1] [ref=e278]
+            - generic [ref=e279]:
+              - button "Select title" [ref=e281] [cursor=pointer]:
+                - text: Select title
+                - img [ref=e282]
+              - img [ref=e284]
+            - paragraph [ref=e286]: Premium Test Account
+            - generic [ref=e287]:
+              - generic [ref=e288]:
+                - paragraph [ref=e289]: "0"
+                - paragraph [ref=e290]: Followers
+              - generic [ref=e291]:
+                - paragraph [ref=e292]: "0"
+                - paragraph [ref=e293]: Following
+              - generic [ref=e294]:
+                - paragraph [ref=e295]: "0"
+                - paragraph [ref=e296]: Games
+              - generic [ref=e297]:
+                - paragraph [ref=e298]: "0"
+                - paragraph [ref=e299]: Plays
+            - paragraph [ref=e301]: Member since Januar 2025
+            - generic [ref=e302]:
+              - button "Edit profile" [ref=e303] [cursor=pointer]:
+                - img [ref=e304]
+                - generic [ref=e306]: Edit profile
+              - button "Teilen" [ref=e308]:
+                - img [ref=e309]
+                - text: Teilen
+        - generic [ref=e316]:
+          - button "Created Games 0" [ref=e317] [cursor=pointer]:
+            - img [ref=e318]
+            - generic [ref=e320]: Created Games
+            - generic [ref=e321]: "0"
+          - button "Favorites 4" [ref=e323] [cursor=pointer]:
+            - img [ref=e324]
+            - generic [ref=e326]: Favorites
+            - generic [ref=e327]: "4"
+          - button "Achievements" [ref=e328] [cursor=pointer]:
+            - img [ref=e329]
+            - generic [ref=e335]: Achievements
+        - paragraph [ref=e338]: You haven't created any games yet.
+        - generic [ref=e339]:
+          - heading "Letzte Aktivitaeten" [level=3] [ref=e340]
+          - paragraph [ref=e342]: Noch keine Aktivitaeten. Spiele ein Spiel oder schliesse eine Quest ab!
+  - button "Chat oeffnen" [ref=e343] [cursor=pointer]:
+    - img [ref=e344]
+    - generic [ref=e346]: "3"
+```

@@ -1,0 +1,207 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - link "MindForge" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e8]:
+        - link "Mindbrowser" [ref=e9] [cursor=pointer]:
+          - /url: /browse
+        - link "Events" [ref=e10] [cursor=pointer]:
+          - /url: /events
+        - link "Marketplace" [ref=e11] [cursor=pointer]:
+          - /url: /marketplace
+        - link "Create" [ref=e12] [cursor=pointer]:
+          - /url: /create
+        - link "My Games" [ref=e13] [cursor=pointer]:
+          - /url: /my-games
+      - search [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - searchbox "Search games..." [ref=e19]
+    - generic [ref=e20]:
+      - link "0 MindCoins" [ref=e21] [cursor=pointer]:
+        - /url: /shop
+        - img "MindCoin" [ref=e22]
+        - generic [ref=e23]: "0"
+        - generic [ref=e24]: MC
+      - button "Notifications" [ref=e26] [cursor=pointer]:
+        - img [ref=e27]
+      - 'link "Profile: DevAccount" [ref=e30] [cursor=pointer]':
+        - /url: /profile/DevAccount
+        - img [ref=e33]
+        - generic [ref=e65]: DevAccount
+      - link "Settings" [ref=e66] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e67]
+  - generic [ref=e70]:
+    - complementary "Sidebar navigation" [ref=e71]:
+      - button "Collapse sidebar" [ref=e72]:
+        - img [ref=e73]
+      - link "DevAccount" [ref=e76] [cursor=pointer]:
+        - /url: /profile/DevAccount
+        - img [ref=e79]
+        - paragraph [ref=e112]: DevAccount
+      - navigation "Main menu" [ref=e113]:
+        - link "Home" [ref=e116] [cursor=pointer]:
+          - /url: /
+          - img [ref=e117]
+          - generic [ref=e120]: Home
+        - generic [ref=e121]:
+          - link "Quests Expand Quests" [ref=e123] [cursor=pointer]:
+            - /url: /quests
+            - img [ref=e124]
+            - generic [ref=e127]: Quests
+            - button "Expand Quests" [ref=e128]:
+              - img [ref=e129]
+          - generic:
+            - link "Achievements" [ref=e133] [cursor=pointer]:
+              - /url: /achievements
+              - img [ref=e134]
+              - generic [ref=e140]: Achievements
+            - link "Seasons" [ref=e143] [cursor=pointer]:
+              - /url: /seasons
+              - img [ref=e144]
+              - generic [ref=e146]: Seasons
+        - link "Chat" [ref=e149] [cursor=pointer]:
+          - /url: /chat
+          - img [ref=e150]
+          - generic [ref=e152]: Chat
+        - link "Gruppen" [ref=e155] [cursor=pointer]:
+          - /url: /groups
+          - img [ref=e156]
+          - generic [ref=e161]: Gruppen
+        - link "Friends" [ref=e164] [cursor=pointer]:
+          - /url: /friends
+          - img [ref=e165]
+          - generic [ref=e170]: Friends
+        - link "Avatar" [ref=e173] [cursor=pointer]:
+          - /url: /avatar
+          - img [ref=e174]
+          - generic [ref=e180]: Avatar
+        - link "Inventory" [ref=e183] [cursor=pointer]:
+          - /url: /inventory
+          - img [ref=e184]
+          - generic [ref=e188]: Inventory
+        - generic [ref=e189]:
+          - link "MindCoin Shop Expand Shop" [ref=e191] [cursor=pointer]:
+            - /url: /shop
+            - img "MindCoin" [ref=e192]
+            - generic [ref=e193]: Shop
+            - button "Expand Shop" [ref=e194]:
+              - img [ref=e195]
+          - link "Verschenken" [ref=e199] [cursor=pointer]:
+            - /url: /gift
+            - img [ref=e200]
+            - generic [ref=e204]: Verschenken
+    - main [ref=e206]:
+      - navigation "Breadcrumb" [ref=e207]:
+        - link "Home" [ref=e208] [cursor=pointer]:
+          - /url: /
+          - img [ref=e209]
+          - generic [ref=e212]: Home
+        - generic [ref=e213]:
+          - img [ref=e214]
+          - generic [ref=e216]: Shop
+      - heading "Shop" [level=1] [ref=e217]
+      - generic [ref=e218]:
+        - generic [ref=e219]:
+          - generic [ref=e220]:
+            - heading "MindCoins Shop" [level=1] [ref=e221]
+            - paragraph [ref=e222]: Buy MindCoins for exclusive items and premium content.
+          - generic [ref=e223]:
+            - img "MindCoin" [ref=e224]
+            - generic [ref=e225]:
+              - paragraph [ref=e226]: Your Balance
+              - paragraph [ref=e227]: 0 MC
+        - generic [ref=e228]:
+          - navigation [ref=e229]:
+            - generic [ref=e230]:
+              - button "MindCoins" [ref=e231] [cursor=pointer]:
+                - img [ref=e232]
+                - text: MindCoins
+              - button "Premium Plans" [ref=e237] [cursor=pointer]:
+                - img [ref=e238]
+                - text: Premium Plans
+              - button "Seasonal Offers" [ref=e240] [cursor=pointer]:
+                - img [ref=e241]
+                - text: Seasonal Offers
+              - button "Premium Exclusive" [ref=e245] [cursor=pointer]:
+                - img [ref=e246]
+                - text: Premium Exclusive
+              - button "Transactions" [ref=e249] [cursor=pointer]:
+                - img [ref=e250]
+                - text: Transactions
+          - generic [ref=e254]:
+            - generic [ref=e255]:
+              - img [ref=e256]
+              - generic [ref=e258]:
+                - paragraph [ref=e259]: Premium discount (15%)
+                - paragraph [ref=e260]: "Premium Bonus: +200 MC auf jedes Paket"
+            - generic [ref=e261]:
+              - generic [ref=e262]:
+                - heading "Starter" [level=3] [ref=e263]
+                - generic [ref=e264]:
+                  - img "MindCoin" [ref=e265]
+                  - paragraph [ref=e266]: 700 MC
+                  - paragraph [ref=e267]: "Premium Bonus: +200 MC"
+                - generic [ref=e268]:
+                  - paragraph [ref=e269]: 4,99€
+                  - paragraph [ref=e270]: 4,24€
+                  - paragraph [ref=e271]: 100 MC/€
+                - button "Buy" [ref=e272] [cursor=pointer]
+              - generic [ref=e273]:
+                - generic [ref=e274]: POPULAR
+                - heading "Standard" [level=3] [ref=e275]
+                - generic [ref=e276]:
+                  - img "MindCoin" [ref=e277]
+                  - paragraph [ref=e278]: 1.600 MC
+                  - paragraph [ref=e279]: +200 Bonus MindCoins!
+                  - paragraph [ref=e280]: "Premium Bonus: +200 MC"
+                - generic [ref=e281]:
+                  - paragraph [ref=e282]: 9,99€
+                  - paragraph [ref=e283]: 8,49€
+                  - paragraph [ref=e284]: 120 MC/€
+                - button "Buy" [ref=e285] [cursor=pointer]
+              - generic [ref=e286]:
+                - generic [ref=e287]: BEST DEAL
+                - heading "Premium" [level=3] [ref=e288]
+                - generic [ref=e289]:
+                  - img "MindCoin" [ref=e290]
+                  - paragraph [ref=e291]: 3.200 MC
+                  - paragraph [ref=e292]: +500 Bonus MindCoins!
+                  - paragraph [ref=e293]: "Premium Bonus: +200 MC"
+                - generic [ref=e294]:
+                  - paragraph [ref=e295]: 19,99€
+                  - paragraph [ref=e296]: 16,99€
+                  - paragraph [ref=e297]: 125 MC/€
+                - button "Buy" [ref=e298] [cursor=pointer]
+            - button "Show more packages" [ref=e299] [cursor=pointer]:
+              - text: Show more packages
+              - img [ref=e300]
+            - generic [ref=e302]:
+              - heading "What can you use MindCoins for?" [level=3] [ref=e303]
+              - generic [ref=e304]:
+                - generic [ref=e305]:
+                  - generic [ref=e306]: 💎
+                  - generic [ref=e307]:
+                    - paragraph [ref=e308]: Premium Avatar Items
+                    - paragraph [ref=e309]: Exclusive customizations for your avatar
+                - generic [ref=e310]:
+                  - generic [ref=e311]: 🎨
+                  - generic [ref=e312]:
+                    - paragraph [ref=e313]: Marketplace Assets
+                    - paragraph [ref=e314]: 3D models, textures, audio, and more
+                - generic [ref=e315]:
+                  - generic [ref=e316]: 🎮
+                  - generic [ref=e317]:
+                    - paragraph [ref=e318]: Premium Game Content
+                    - paragraph [ref=e319]: Exclusive content and features
+  - button "Chat oeffnen" [ref=e320] [cursor=pointer]:
+    - img [ref=e321]
+    - generic [ref=e323]: "3"
+```

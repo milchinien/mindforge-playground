@@ -15,6 +15,7 @@ import {
   HAIR_COLORS, CLOTHING_COLORS, RARITY_CONFIG,
   MARKETPLACE_CATEGORIES,
 } from '../data/avatarItems'
+import { useInventoryStore } from '../stores/inventoryStore'
 
 const CATEGORY_ICONS = {
   all: Package,
@@ -706,6 +707,25 @@ export default function Marketplace() {
     }
 
     await updateUser(updates)
+
+    // Add to inventory store so item appears on the Inventory page
+    const categoryToType = {
+      hats: 'hat',
+      accessories: 'accessory',
+      hair: 'avatar-item',
+      clothing: 'avatar-item',
+      background: 'background',
+      face: 'avatar-item',
+    }
+    useInventoryStore.getState().addItem({
+      id: `marketplace-${item.id}`,
+      type: categoryToType[item.category] || 'avatar-item',
+      name: item.name,
+      description: t('marketplace.purchasedInMarketplace', { name: item.name }),
+      rarity: item.rarity || 'common',
+      source: 'shop',
+    })
+
     setSelectedItem(null)
   }
 

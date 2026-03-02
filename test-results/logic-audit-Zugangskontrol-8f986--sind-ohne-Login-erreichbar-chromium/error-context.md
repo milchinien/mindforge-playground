@@ -1,0 +1,305 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - link "MindForge" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e8]:
+        - link "Mindbrowser" [ref=e9] [cursor=pointer]:
+          - /url: /browse
+        - link "Events" [ref=e10] [cursor=pointer]:
+          - /url: /events
+        - link "Marketplace" [ref=e11] [cursor=pointer]:
+          - /url: /marketplace
+        - link "Create" [ref=e12] [cursor=pointer]:
+          - /url: /login
+        - link "My Games" [ref=e13] [cursor=pointer]:
+          - /url: /login
+      - search [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - searchbox "Search games..." [ref=e19]
+    - generic [ref=e21]:
+      - link "Log in" [ref=e22] [cursor=pointer]:
+        - /url: /login
+      - link "Register" [ref=e23] [cursor=pointer]:
+        - /url: /register
+  - generic [ref=e24]:
+    - complementary "Sidebar navigation" [ref=e25]:
+      - button "Collapse sidebar" [ref=e26]:
+        - img [ref=e27]
+      - link "Log in" [ref=e30] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e32]
+        - paragraph [ref=e36]: Log in
+      - navigation "Main menu" [ref=e37]:
+        - link "Home" [ref=e40] [cursor=pointer]:
+          - /url: /
+          - img [ref=e41]
+          - generic [ref=e44]: Home
+        - generic [ref=e45]:
+          - link "Quests Expand Quests" [ref=e47] [cursor=pointer]:
+            - /url: /quests
+            - img [ref=e48]
+            - generic [ref=e51]: Quests
+            - button "Expand Quests" [ref=e52]:
+              - img [ref=e53]
+          - generic:
+            - link "Achievements" [ref=e57] [cursor=pointer]:
+              - /url: /login
+              - img [ref=e58]
+              - generic [ref=e64]: Achievements
+            - link "Seasons" [ref=e67] [cursor=pointer]:
+              - /url: /seasons
+              - img [ref=e68]
+              - generic [ref=e70]: Seasons
+        - link "Chat" [ref=e73] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e74]
+          - generic [ref=e76]: Chat
+        - link "Gruppen" [ref=e79] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e80]
+          - generic [ref=e85]: Gruppen
+        - link "Friends" [ref=e88] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e89]
+          - generic [ref=e94]: Friends
+        - link "Avatar" [ref=e97] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e98]
+          - generic [ref=e104]: Avatar
+        - link "Inventory" [ref=e107] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e108]
+          - generic [ref=e112]: Inventory
+        - generic [ref=e113]:
+          - link "MindCoin Shop Expand Shop" [ref=e115] [cursor=pointer]:
+            - /url: /login
+            - img "MindCoin" [ref=e116]
+            - generic [ref=e117]: Shop
+            - button "Expand Shop" [ref=e118]:
+              - img [ref=e119]
+          - link "Verschenken" [ref=e123] [cursor=pointer]:
+            - /url: /login
+            - img [ref=e124]
+            - generic [ref=e128]: Verschenken
+      - link "Get Premium" [ref=e130] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e131]
+        - generic [ref=e133]: Get Premium
+    - main [ref=e135]:
+      - heading "Home" [level=1] [ref=e136]
+      - generic [ref=e137]:
+        - generic [ref=e138]:
+          - heading "Welcome to MindForge!" [level=1] [ref=e139]
+          - paragraph [ref=e140]: Discover thousands of learning games or create your own!
+          - generic [ref=e141]:
+            - link "Register for free" [ref=e142] [cursor=pointer]:
+              - /url: /register
+            - link "Discover games" [ref=e143] [cursor=pointer]:
+              - /url: /browse
+        - generic [ref=e144]:
+          - generic [ref=e146]:
+            - generic [ref=e147]: ⚛️
+            - generic [ref=e148]: ⚛️
+          - generic [ref=e150]:
+            - heading "Physik-Simulator" [level=2] [ref=e151]
+            - paragraph [ref=e152]: Experimentiere mit Schwerkraft, Reibung und Geschwindigkeit in dieser interaktiven Physiksimulation.
+            - button "Jetzt spielen" [ref=e154] [cursor=pointer]
+          - button [ref=e155] [cursor=pointer]:
+            - img [ref=e156]
+          - button [ref=e158] [cursor=pointer]:
+            - img [ref=e159]
+          - generic [ref=e161]:
+            - button [ref=e162] [cursor=pointer]
+            - button [ref=e163] [cursor=pointer]
+            - button [ref=e164] [cursor=pointer]
+            - button [ref=e165] [cursor=pointer]
+            - button [ref=e166] [cursor=pointer]
+        - generic [ref=e167]:
+          - generic [ref=e168]:
+            - heading "Popular Games" [level=2] [ref=e169]
+            - link "Alle anzeigen →" [ref=e170] [cursor=pointer]:
+              - /url: /search?sort=popular
+          - generic [ref=e171]:
+            - generic [ref=e172] [cursor=pointer]:
+              - generic [ref=e174]:
+                - generic [ref=e175]:
+                  - generic [ref=e176]: 🗺️
+                  - generic [ref=e177]: 🗺️
+                - generic [ref=e178]: 🗺️
+                - generic [ref=e179]: Geographie
+              - generic [ref=e180]:
+                - heading "GeoQuest - Weltreise" [level=3] [ref=e181]
+                - paragraph [ref=e182]: by GeoExplorer
+                - generic [ref=e184]:
+                  - button "#geographie" [ref=e185]
+                  - button "#quiz" [ref=e186]
+                  - button "#laender" [ref=e187]
+                - generic [ref=e188]:
+                  - generic [ref=e189]:
+                    - img [ref=e190]
+                    - text: "421"
+                  - generic [ref=e192]:
+                    - img [ref=e193]
+                    - text: 3.2K
+            - generic [ref=e195] [cursor=pointer]:
+              - generic [ref=e197]:
+                - generic [ref=e198]:
+                  - generic [ref=e199]: 💻
+                  - generic [ref=e200]: 💻
+                - generic [ref=e201]: 💻
+                - generic [ref=e202]: Informatik
+              - generic [ref=e203]:
+                - heading "Python-Abenteuer" [level=3] [ref=e204]
+                - paragraph [ref=e205]: by DevTeacher
+                - generic [ref=e207]:
+                  - button "#informatik" [ref=e208]
+                  - button "#python" [ref=e209]
+                  - button "#adventure" [ref=e210]
+                - generic [ref=e211]:
+                  - generic [ref=e212]:
+                    - img [ref=e213]
+                    - text: "412"
+                  - generic [ref=e215]:
+                    - img [ref=e216]
+                    - text: 2.9K
+            - generic [ref=e218] [cursor=pointer]:
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - generic [ref=e222]: 💻
+                  - generic [ref=e223]: 💻
+                - generic [ref=e224]: 💻
+                - generic [ref=e225]: Informatik
+              - generic [ref=e226]:
+                - heading "Code-Knacker" [level=3] [ref=e227]
+                - paragraph [ref=e228]: by DevTeacher
+                - generic [ref=e230]:
+                  - button "#informatik" [ref=e231]
+                  - button "#programmierung" [ref=e232]
+                  - button "#raetsel" [ref=e233]
+                - generic [ref=e234]:
+                  - generic [ref=e235]:
+                    - img [ref=e236]
+                    - text: "356"
+                  - generic [ref=e238]:
+                    - img [ref=e239]
+                    - text: 2.5K
+            - generic [ref=e241] [cursor=pointer]:
+              - generic [ref=e243]:
+                - generic [ref=e244]:
+                  - generic [ref=e245]: 🧪
+                  - generic [ref=e246]: 🧪
+                - generic [ref=e247]: 🧪
+                - generic [ref=e248]: Chemie
+              - generic [ref=e249]:
+                - heading "Chemie-Labor" [level=3] [ref=e250]
+                - paragraph [ref=e251]: by ChemieProf
+                - generic [ref=e253]:
+                  - button "#chemie" [ref=e254]
+                  - button "#simulation" [ref=e255]
+                  - button "#experimente" [ref=e256]
+                - generic [ref=e257]:
+                  - generic [ref=e258]:
+                    - img [ref=e259]
+                    - text: "312"
+                  - generic [ref=e261]:
+                    - img [ref=e262]
+                    - text: 2.1K
+            - generic [ref=e264] [cursor=pointer]:
+              - generic [ref=e265]:
+                - generic [ref=e266]:
+                  - generic [ref=e267]:
+                    - generic [ref=e268]: 🏛️
+                    - generic [ref=e269]: 🏛️
+                  - generic [ref=e270]: 🏛️
+                  - generic [ref=e271]: Geschichte
+                - generic [ref=e272]: 75 MC
+              - generic [ref=e273]:
+                - 'heading "Strategie: Roemisches Reich" [level=3] [ref=e274]'
+                - paragraph [ref=e275]: by HistoryBuff
+                - generic [ref=e277]:
+                  - button "#geschichte" [ref=e278]
+                  - button "#strategie" [ref=e279]
+                  - button "#antike" [ref=e280]
+                - generic [ref=e281]:
+                  - generic [ref=e282]:
+                    - img [ref=e283]
+                    - text: "278"
+                  - generic [ref=e285]:
+                    - img [ref=e286]
+                    - text: 1.6K
+            - generic [ref=e288] [cursor=pointer]:
+              - generic [ref=e290]:
+                - generic [ref=e291]:
+                  - generic [ref=e292]: 🌍
+                  - generic [ref=e293]: 🌍
+                - generic [ref=e294]: 🌍
+                - generic [ref=e295]: Englisch
+              - generic [ref=e296]:
+                - heading "English Vocabulary Master" [level=3] [ref=e297]
+                - paragraph [ref=e298]: by EnglishPro
+                - generic [ref=e300]:
+                  - button "#englisch" [ref=e301]
+                  - button "#vokabeln" [ref=e302]
+                  - button "#lernen" [ref=e303]
+                - generic [ref=e304]:
+                  - generic [ref=e305]:
+                    - img [ref=e306]
+                    - text: "267"
+                  - generic [ref=e308]:
+                    - img [ref=e309]
+                    - text: 1.9K
+            - generic [ref=e311] [cursor=pointer]:
+              - generic [ref=e313]:
+                - generic [ref=e314]:
+                  - generic [ref=e315]: 📐
+                  - generic [ref=e316]: 📐
+                - generic [ref=e317]: 📐
+                - generic [ref=e318]: Mathematik
+              - generic [ref=e319]:
+                - heading "Mathe-Meister" [level=3] [ref=e320]
+                - paragraph [ref=e321]: by MindForge Team
+                - generic [ref=e323]:
+                  - button "#mathematik" [ref=e324]
+                  - button "#quiz" [ref=e325]
+                  - button "#grundschule" [ref=e326]
+                - generic [ref=e327]:
+                  - generic [ref=e328]:
+                    - img [ref=e329]
+                    - text: "245"
+                  - generic [ref=e331]:
+                    - img [ref=e332]
+                    - text: 1.8K
+            - generic [ref=e334] [cursor=pointer]:
+              - generic [ref=e335]:
+                - generic [ref=e336]:
+                  - generic [ref=e337]:
+                    - generic [ref=e338]: 🧪
+                    - generic [ref=e339]: 🧪
+                  - generic [ref=e340]: 🧪
+                  - generic [ref=e341]: Chemie
+                - generic [ref=e342]: 30 MC
+              - generic [ref=e343]:
+                - heading "Periodensystem-Explorer" [level=3] [ref=e344]
+                - paragraph [ref=e345]: by ChemieProf
+                - generic [ref=e347]:
+                  - button "#chemie" [ref=e348]
+                  - button "#elemente" [ref=e349]
+                  - button "#interaktiv" [ref=e350]
+                - generic [ref=e351]:
+                  - generic [ref=e352]:
+                    - img [ref=e353]
+                    - text: "203"
+                  - generic [ref=e355]:
+                    - img [ref=e356]
+                    - text: 1.3K
+  - button "Chat oeffnen" [ref=e358] [cursor=pointer]:
+    - img [ref=e359]
+    - generic [ref=e361]: "3"
+```

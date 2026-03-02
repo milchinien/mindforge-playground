@@ -1,0 +1,100 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Main navigation" [ref=e5]:
+    - generic [ref=e6]:
+      - link "MindForge" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e8]:
+        - link "Mindbrowser" [ref=e9] [cursor=pointer]:
+          - /url: /browse
+        - link "Events" [ref=e10] [cursor=pointer]:
+          - /url: /events
+        - link "Marketplace" [ref=e11] [cursor=pointer]:
+          - /url: /marketplace
+        - link "Create" [ref=e12] [cursor=pointer]:
+          - /url: /login
+        - link "My Games" [ref=e13] [cursor=pointer]:
+          - /url: /login
+      - search [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - searchbox "Search games..." [ref=e19]
+    - generic [ref=e21]:
+      - link "Log in" [ref=e22] [cursor=pointer]:
+        - /url: /login
+      - link "Register" [ref=e23] [cursor=pointer]:
+        - /url: /register
+  - generic [ref=e24]:
+    - complementary "Sidebar navigation" [ref=e25]:
+      - button "Collapse sidebar" [ref=e26]:
+        - img [ref=e27]
+      - link "Log in" [ref=e30] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e32]
+        - paragraph [ref=e36]: Log in
+      - navigation "Main menu" [ref=e37]:
+        - link "Home" [ref=e40] [cursor=pointer]:
+          - /url: /
+          - img [ref=e41]
+          - generic [ref=e44]: Home
+        - generic [ref=e45]:
+          - link "Quests Expand Quests" [ref=e47] [cursor=pointer]:
+            - /url: /quests
+            - img [ref=e48]
+            - generic [ref=e51]: Quests
+            - button "Expand Quests" [ref=e52]:
+              - img [ref=e53]
+          - generic:
+            - link "Achievements" [ref=e57] [cursor=pointer]:
+              - /url: /login
+              - img [ref=e58]
+              - generic [ref=e64]: Achievements
+            - link "Seasons" [ref=e67] [cursor=pointer]:
+              - /url: /seasons
+              - img [ref=e68]
+              - generic [ref=e70]: Seasons
+        - link "Chat" [ref=e73] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e74]
+          - generic [ref=e76]: Chat
+        - link "Gruppen" [ref=e79] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e80]
+          - generic [ref=e85]: Gruppen
+        - link "Friends" [ref=e88] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e89]
+          - generic [ref=e94]: Friends
+        - link "Avatar" [ref=e97] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e98]
+          - generic [ref=e104]: Avatar
+        - link "Inventory" [ref=e107] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e108]
+          - generic [ref=e112]: Inventory
+        - generic [ref=e113]:
+          - link "MindCoin Shop Expand Shop" [ref=e115] [cursor=pointer]:
+            - /url: /login
+            - img "MindCoin" [ref=e116]
+            - generic [ref=e117]: Shop
+            - button "Expand Shop" [ref=e118]:
+              - img [ref=e119]
+          - link "Verschenken" [ref=e123] [cursor=pointer]:
+            - /url: /login
+            - img [ref=e124]
+            - generic [ref=e128]: Verschenken
+      - link "Get Premium" [ref=e130] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e131]
+        - generic [ref=e133]: Get Premium
+    - main [ref=e135]:
+      - heading "Home" [level=1] [ref=e136]
+  - button "Chat oeffnen" [ref=e139] [cursor=pointer]:
+    - img [ref=e140]
+    - generic [ref=e142]: "3"
+```
