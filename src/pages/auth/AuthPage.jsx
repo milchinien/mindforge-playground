@@ -30,24 +30,82 @@ const subjectStyles = {
 
 const fallbackStyle = { color: '#f97316', emoji: '\u{1F3AE}' }
 
+const CARD_W = 240
+const CARD_H = 150
+const CARDS_PER_SET = 20
+const ROW_COUNT = 15
+
+function GameCard({ game }) {
+  const s = subjectStyles[game.subject] || fallbackStyle
+  const hasThumbnail = game.thumbnail != null
+
+  return (
+    <div
+      style={{
+        minWidth: `${CARD_W}px`,
+        width: `${CARD_W}px`,
+        height: `${CARD_H}px`,
+        flexShrink: 0,
+        ...(hasThumbnail
+          ? {
+              backgroundImage: `url(${game.thumbnail})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }
+          : {
+              background: `linear-gradient(145deg, ${s.color}, ${s.color}88)`,
+            }),
+      }}
+      className="flex flex-col items-center justify-center overflow-hidden"
+    >
+      {!hasThumbnail && (
+        <>
+          <span className="text-4xl md:text-5xl select-none opacity-90">{s.emoji}</span>
+          <span className="text-white/60 text-[10px] md:text-xs font-bold mt-1 text-center px-2 truncate max-w-full select-none">
+            {game.title}
+          </span>
+        </>
+      )}
+    </div>
+  )
+}
+
 function GameBackground() {
-  // Build background tiles from real MindForge games (live data)
-  // Need extra tiles because the 45° rotation requires ~2x area coverage
-  const tiles = useMemo(() => {
-    const games = mockGames.length > 0 ? mockGames : []
-    const repeated = []
-    while (repeated.length < 200) {
-      for (const game of games) {
-        repeated.push(game)
-        if (repeated.length >= 200) break
+  // Sort games by popularity (most played first)
+  const sortedGames = useMemo(
+    () => [...mockGames].sort((a, b) => b.plays - a.plays),
+    []
+  )
+
+  // Build rows with offset so each row starts at a different game
+  const rows = useMemo(() => {
+    const result = []
+    for (let r = 0; r < ROW_COUNT; r++) {
+      const offset = (r * 4) % sortedGames.length
+      const rowGames = []
+      for (let i = 0; i < CARDS_PER_SET; i++) {
+        rowGames.push(sortedGames[(i + offset) % sortedGames.length])
       }
+      result.push(rowGames)
     }
-    return repeated
-  }, [])
+    return result
+  }, [sortedGames])
 
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
-      {/* Game grid rotated diagonally - Steam gift card style, no gaps */}
+      {/* Keyframes for infinite scrolling rows */}
+      <style>{`
+        @keyframes marquee-left {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        @keyframes marquee-right {
+          from { transform: translateX(-50%); }
+          to { transform: translateX(0); }
+        }
+      `}</style>
+
+      {/* Rotated row container */}
       <div
         style={{
           position: 'absolute',
@@ -55,58 +113,30 @@ function GameBackground() {
           left: '-50%',
           width: '200%',
           height: '200%',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-          gridAutoRows: '150px',
-          gap: '0px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
           transform: 'rotate(-20deg)',
           transformOrigin: 'center center',
           filter: 'blur(1.5px) grayscale(0.4) brightness(0.7)',
         }}
       >
-        {tiles.map((game, i) => {
-          const s = subjectStyles[game.subject] || fallbackStyle
-          const hasThumbnail = game.thumbnail && game.thumbnail !== null
-
-          return (
-            <div
-              key={i}
-              style={{
-                width: 'calc(100% + 2px)',
-                height: 'calc(100% + 2px)',
-                margin: '-1px',
-                ...(hasThumbnail
-                  ? {
-                      backgroundImage: `url(${game.thumbnail})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }
-                  : {
-                      background: `linear-gradient(145deg, ${s.color}, ${s.color}88)`,
-                    }),
-              }}
-              className="flex flex-col items-center justify-center relative overflow-hidden"
-            >
-              {!hasThumbnail && (
-                <>
-                  <span className="text-4xl md:text-5xl select-none opacity-90">
-                    {s.emoji}
-                  </span>
-                  <span className="text-white/60 text-[10px] md:text-xs font-bold mt-1 text-center px-2 leading-tight select-none truncate max-w-full">
-                    {game.title}
-                  </span>
-                </>
-              )}
-              {hasThumbnail && (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-2 py-1.5">
-                  <span className="text-white/80 text-[10px] font-bold truncate block">
-                    {game.title}
-                  </span>
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {rows.map((rowGames, rowIdx) => (
+          <div
+            key={rowIdx}
+            style={{
+              display: 'flex',
+              height: `${CARD_H}px`,
+              animation: `${rowIdx % 2 === 0 ? 'marquee-left' : 'marquee-right'} ${70 + rowIdx * 5}s linear infinite`,
+              willChange: 'transform',
+            }}
+          >
+            {/* Two identical sets for seamless infinite loop */}
+            {[...rowGames, ...rowGames].map((game, i) => (
+              <GameCard key={i} game={game} />
+            ))}
+          </div>
+        ))}
       </div>
 
       {/* Strong vignette overlay */}
@@ -186,6 +216,7 @@ export default function AuthPage() {
   const [mode, setMode] = useState(location.pathname === '/login' ? 'login' : 'register')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
+  const [loginIdentifier, setLoginIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -251,7 +282,7 @@ export default function AuthPage() {
     setError('')
     setLoading(true)
     try {
-      await login(email, password, rememberMe)
+      await login(loginIdentifier, password, rememberMe)
       navigate('/')
     } catch (err) {
       const key = loginErrorMap[err.code]
@@ -337,27 +368,38 @@ export default function AuthPage() {
                 </div>
               )}
 
-              {/* Email */}
+              {/* Email (register) or Email/Username (login) */}
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-300 mb-1.5">
-                  {t('auth.email')}
+                  {isRegister ? t('auth.email') : 'E-Mail oder Benutzername'}
                   {isRegister && touched.email && <ValidationIcon valid={validations.email} />}
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onBlur={() => markTouched('email')}
-                  placeholder="deine@email.com"
-                  required
-                  className={`!bg-[#1a1a2e] !border-gray-700 focus:!ring-orange-500 focus:!border-orange-500 ${
-                    isRegister && touched.email && validations.email === false
-                      ? '!border-red-500'
-                      : isRegister && touched.email && validations.email
-                        ? '!border-green-500'
-                        : ''
-                  }`}
-                />
+                {isRegister ? (
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onBlur={() => markTouched('email')}
+                    placeholder="deine@email.com"
+                    required
+                    className={`!bg-[#1a1a2e] !border-gray-700 focus:!ring-orange-500 focus:!border-orange-500 ${
+                      touched.email && validations.email === false
+                        ? '!border-red-500'
+                        : touched.email && validations.email
+                          ? '!border-green-500'
+                          : ''
+                    }`}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={loginIdentifier}
+                    onChange={(e) => setLoginIdentifier(e.target.value)}
+                    placeholder="deine@email.com oder DeinName123"
+                    required
+                    className="!bg-[#1a1a2e] !border-gray-700 focus:!ring-orange-500 focus:!border-orange-500"
+                  />
+                )}
               </div>
 
               {/* Password */}

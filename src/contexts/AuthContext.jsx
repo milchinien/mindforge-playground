@@ -99,8 +99,23 @@ export function AuthProvider({ children }) {
     return () => { if (unsubscribe) unsubscribe() }
   }, [])
 
-  const login = async (email, password, rememberMe = false) => {
+  const login = async (identifier, password, rememberMe = false) => {
+    // Determine if identifier is email or username
+    const isEmail = identifier.includes('@')
+
     if (USE_DEV_AUTH) {
+      let email = identifier
+      if (!isEmail) {
+        // Resolve username to email
+        const q = devDb.query(devDb.collection('users'), devDb.where('username', '==', identifier))
+        const snap = await devDb.getDocs(q)
+        if (snap.empty) {
+          const error = new Error('Benutzer nicht gefunden')
+          error.code = 'auth/user-not-found'
+          throw error
+        }
+        email = snap.docs[0].data().email
+      }
       const result = await devAuth.signInWithEmailAndPassword(email, password)
       const userDoc = await devDb.getDoc(devDb.doc('users', result.user.uid))
       if (userDoc.exists()) {
@@ -111,8 +126,22 @@ export function AuthProvider({ children }) {
     }
 
     const { signInWithEmailAndPassword } = await import('firebase/auth')
-    const { doc, getDoc } = await import('firebase/firestore')
+    const { doc, getDoc, collection, query, where, getDocs } = await import('firebase/firestore')
     const { auth, db } = await import('../firebase/config')
+
+    let email = identifier
+    if (!isEmail) {
+      // Resolve username to email via Firestore
+      const q = query(collection(db, 'users'), where('username', '==', identifier))
+      const snap = await getDocs(q)
+      if (snap.empty) {
+        const error = new Error('Benutzer nicht gefunden')
+        error.code = 'auth/user-not-found'
+        throw error
+      }
+      email = snap.docs[0].data().email
+    }
+
     const result = await signInWithEmailAndPassword(auth, email, password)
     const userDoc = await getDoc(doc(db, 'users', result.user.uid))
     if (userDoc.exists()) {
