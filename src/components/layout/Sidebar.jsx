@@ -59,7 +59,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const isChildActive = (item) =>
     item.children?.some((child) => location.pathname === child.to)
 
-  const sidebarWidth = collapsed ? 'w-16' : 'w-60'
+  const sidebarWidth = collapsed ? 'w-16' : 'w-48'
 
   const renderNavItem = (item, isChild = false) => {
     const needsAuth = !item.public && !user

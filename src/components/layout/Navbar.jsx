@@ -33,7 +33,7 @@ export default function Navbar({ onToggleSidebar }) {
           <Menu className="w-5 h-5" />
         </button>
 
-        <Link to="/" className="shrink-0 flex items-center h-8 group" aria-label="MindForge Home">
+        <Link to="/" className="shrink-0 flex items-center h-8 group lg:w-40" aria-label="MindForge Home">
           <span
             className="text-[26px] font-black tracking-tight text-accent leading-none"
             style={{
@@ -85,7 +85,7 @@ export default function Navbar({ onToggleSidebar }) {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-8">
           <Link to="/browse" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.mindbrowser')}</Link>
           <Link to="/events" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.events')}</Link>
           <Link to="/marketplace" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.marketplace')}</Link>

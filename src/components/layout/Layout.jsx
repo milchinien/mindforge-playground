@@ -66,7 +66,7 @@ export default function Layout({ children }) {
           role="main"
           tabIndex={-1}
           className={`flex-1 mt-16 p-3 sm:p-6 pb-24 md:pb-6 transition-all duration-200 min-w-0 overflow-x-clip ${
-            collapsed ? 'lg:ml-16' : 'lg:ml-60'
+            collapsed ? 'lg:ml-16' : 'lg:ml-48'
           }`}
         >
           <Breadcrumbs />

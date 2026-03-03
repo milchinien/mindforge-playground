@@ -10,6 +10,8 @@ const TYPE_TO_SETTING = {
   system: 'system',
   new_game: 'events',
   event: 'events',
+  chat_message: 'chat',
+  friend_activity: 'friends',
 }
 
 export const useNotificationStore = create(
@@ -24,6 +26,8 @@ export const useNotificationStore = create(
         system: true,
         quests: true,
         season: true,
+        chat: true,
+        friends: true,
       },
 
       addNotification: ({ type, title, message, link = null }) => {
