@@ -1,419 +1,366 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Upload, X, Plus, Image, FileArchive, Tag, ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Rocket, Monitor, Save } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import ProgressBar from '../components/common/ProgressBar'
-import ModeSelector from '../components/gameBuilder/ModeSelector'
-import GameBuilderPage from '../components/gameBuilder/GameBuilderPage'
+import { useForgeAI } from '../hooks/useForgeAI'
+import { usePublishedGames } from '../hooks/usePublishedGames'
+import { useGameDrafts } from '../hooks/useGameDrafts'
+import { defaultHtml, defaultCss, defaultJs } from '../data/codeTemplates'
+import ForgeChat from '../components/create/ForgeChat'
+import CodePanel from '../components/create/CodePanel'
+import MetadataPanel from '../components/codeEditor/MetadataPanel'
 
-// Suggested tags
-const SUGGESTED_TAGS = [
-  'mathematik', 'physik', 'chemie', 'biologie', 'deutsch', 'englisch',
-  'geschichte', 'geographie', 'informatik', 'kunst', 'musik',
-  'quiz', 'simulation', 'puzzle', 'adventure', 'strategie',
-  'grundschule', 'mittelstufe', 'oberstufe', 'interaktiv'
-]
+const DRAFT_KEY = 'mindforge_forge_draft'
 
-function validateForm(formData, t) {
-  const errors = {}
-  if (!formData.title.trim()) errors.title = t('create.errors.titleRequired')
-  else if (formData.title.length < 3) errors.title = t('create.errors.titleMin')
-  else if (formData.title.length > 100) errors.title = t('create.errors.titleMax')
-
-  if (!formData.description.trim()) errors.description = t('create.errors.descRequired')
-  else if (formData.description.length < 10) errors.description = t('create.errors.descMin')
-  else if (formData.description.length > 2000) errors.description = t('create.errors.descMax')
-
-  if (!formData.gameFile) errors.gameFile = t('create.errors.zipRequired')
-  else if (!formData.gameFile.name.endsWith('.zip')) errors.gameFile = t('create.errors.zipOnly')
-  else if (formData.gameFile.size > 200 * 1024 * 1024) errors.gameFile = t('create.errors.fileSize')
-
-  if (!formData.thumbnail) errors.thumbnail = t('create.errors.thumbRequired')
-  else if (formData.thumbnail.size > 5 * 1024 * 1024) errors.thumbnail = t('create.errors.thumbSize')
-
-  if (formData.tags.length === 0) errors.tags = t('create.errors.tagRequired')
-
-  if (!formData.isFree && formData.price < 1) errors.price = t('create.errors.priceMin')
-
-  return errors
+function loadLastDraft() {
+  try {
+    const stored = localStorage.getItem(DRAFT_KEY)
+    return stored ? JSON.parse(stored) : null
+  } catch { return null }
 }
 
-function DropZone({ onFileSelect, file, error, t }) {
-  const [isDragOver, setIsDragOver] = useState(false)
-
-  return (
-    <div
-      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true) }}
-      onDragLeave={() => setIsDragOver(false)}
-      onDrop={(e) => {
-        e.preventDefault()
-        setIsDragOver(false)
-        const droppedFile = e.dataTransfer.files[0]
-        if (droppedFile) onFileSelect(droppedFile)
-      }}
-      onClick={() => document.getElementById('game-file-input').click()}
-      className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-        isDragOver
-          ? 'border-accent bg-accent/10'
-          : error
-            ? 'border-error bg-error/5'
-            : 'border-gray-600 hover:border-gray-500'
-      }`}
-    >
-      {file ? (
-        <div>
-          <FileArchive className="w-8 h-8 mx-auto mb-2 text-accent" />
-          <p className="font-semibold text-text-primary">{file.name}</p>
-          <p className="text-text-muted text-sm">{(file.size / (1024 * 1024)).toFixed(1)} MB</p>
-        </div>
-      ) : (
-        <div>
-          <Upload className="w-8 h-8 mx-auto mb-2 text-text-muted" />
-          <p className="font-semibold text-text-primary">{t('create.dropFile')}</p>
-          <p className="text-text-muted text-sm mt-1">{t('create.fileHint')}</p>
-        </div>
-      )}
-      <input
-        type="file"
-        accept=".zip"
-        onChange={(e) => onFileSelect(e.target.files[0])}
-        className="hidden"
-        id="game-file-input"
-      />
-    </div>
-  )
+function persistDraft(data) {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data))
+  } catch { /* quota exceeded */ }
 }
-
-function ZipUploadMode({ onBack }) {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    gameFile: null,
-    thumbnail: null,
-    thumbnailPreview: null,
-    screenshots: [],
-    screenshotPreviews: [],
-    tags: [],
-    price: 0,
-    isFree: true,
-  })
-
-  const [tagInput, setTagInput] = useState('')
-  const [showTagSuggestions, setShowTagSuggestions] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [isUploading, setIsUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadStep, setUploadStep] = useState('')
-
-  const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
-  }
-
-  const handleThumbnailSelect = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    updateField('thumbnail', file)
-    const reader = new FileReader()
-    reader.onload = () => updateField('thumbnailPreview', reader.result)
-    reader.readAsDataURL(file)
-  }
-
-  const handleScreenshotAdd = (e) => {
-    const files = Array.from(e.target.files)
-    if (formData.screenshots.length + files.length > 5) return
-
-    const newScreenshots = [...formData.screenshots, ...files]
-    const newPreviews = [...formData.screenshotPreviews]
-
-    let loadedCount = 0
-    const previewResults = new Array(files.length)
-    files.forEach((file, idx) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        previewResults[idx] = reader.result
-        loadedCount++
-        if (loadedCount === files.length) {
-          setFormData(prev => ({
-            ...prev,
-            screenshotPreviews: [...prev.screenshotPreviews, ...previewResults]
-          }))
-        }
-      }
-      reader.readAsDataURL(file)
-    })
-
-    updateField('screenshots', newScreenshots)
-  }
-
-  const removeScreenshot = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      screenshots: prev.screenshots.filter((_, i) => i !== index),
-      screenshotPreviews: prev.screenshotPreviews.filter((_, i) => i !== index),
-    }))
-  }
-
-  const addTag = (tag) => {
-    const cleaned = tag.toLowerCase().trim().replace(/[^a-z0-9äöüß-]/g, '')
-    if (!cleaned || cleaned.length < 2 || cleaned.length > 30) return
-    if (formData.tags.length >= 10 || formData.tags.includes(cleaned)) return
-    updateField('tags', [...formData.tags, cleaned])
-    setTagInput('')
-  }
-
-  const removeTag = (tag) => {
-    updateField('tags', formData.tags.filter(t => t !== tag))
-  }
-
-  const handleUpload = async () => {
-    const validationErrors = validateForm(formData, t)
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
-      return
-    }
-
-    setIsUploading(true)
-    setErrors({})
-
-    const steps = [
-      { step: t('create.steps.validate'), progress: 10 },
-      { step: t('create.steps.prepare'), progress: 15 },
-      { step: t('create.steps.uploadFile'), progress: 45 },
-      { step: t('create.steps.uploadThumb'), progress: 72 },
-      { step: t('create.steps.uploadScreens'), progress: 85 },
-      { step: t('create.steps.createEntry'), progress: 92 },
-      { step: t('create.steps.updateProfile'), progress: 97 },
-      { step: t('create.steps.done'), progress: 100 },
-    ]
-
-    for (const { step, progress } of steps) {
-      setUploadStep(step)
-      setUploadProgress(progress)
-      await new Promise(r => setTimeout(r, 500))
-    }
-
-    setTimeout(() => {
-      setIsUploading(false)
-      setUploadProgress(0)
-      setUploadStep('')
-      setFormData({
-        title: '', description: '', gameFile: null, thumbnail: null,
-        thumbnailPreview: null, screenshots: [], screenshotPreviews: [],
-        tags: [], price: 0, isFree: true,
-      })
-      navigate('/browse')
-    }, 1000)
-  }
-
-  const filteredSuggestions = SUGGESTED_TAGS.filter(
-    t => t.includes(tagInput.toLowerCase()) && !formData.tags.includes(t)
-  ).slice(0, 5)
-
-  return (
-    <div className="py-4">
-      <button onClick={onBack} className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-6 cursor-pointer">
-        <ArrowLeft size={20} />
-        <span>{t('create.backToMode')}</span>
-      </button>
-
-      <h1 className="text-3xl font-bold mb-8">{t('create.zipUpload')}</h1>
-
-      <div className="space-y-6">
-        {/* Title */}
-        <div>
-          <label>{t('create.gameTitle')}</label>
-          <input type="text" value={formData.title} onChange={(e) => updateField('title', e.target.value)} placeholder={t('create.titlePlaceholder')} maxLength={100} />
-          {errors.title && <p className="form-error">{errors.title}</p>}
-        </div>
-
-        {/* Description */}
-        <div>
-          <label>{t('create.description')}</label>
-          <textarea value={formData.description} onChange={(e) => updateField('description', e.target.value)} placeholder={t('create.descriptionPlaceholder')} rows={5} maxLength={2000} />
-          <p className="text-text-muted text-xs mt-1 text-right">{formData.description.length}/2000</p>
-          {errors.description && <p className="form-error">{errors.description}</p>}
-        </div>
-
-        {/* Game File (ZIP) */}
-        <div>
-          <label>{t('create.gameFile')}</label>
-          <DropZone onFileSelect={(file) => updateField('gameFile', file)} file={formData.gameFile} error={errors.gameFile} t={t} />
-          {errors.gameFile && <p className="form-error">{errors.gameFile}</p>}
-        </div>
-
-        {/* Thumbnail */}
-        <div>
-          <label>{t('create.thumbnail')}</label>
-          <div className="flex items-center gap-4">
-            {formData.thumbnailPreview ? (
-              <div className="relative">
-                <img src={formData.thumbnailPreview} alt={t('create.thumbnailPreview')} className="w-40 h-24 object-cover rounded-lg" />
-                <button onClick={() => { updateField('thumbnail', null); updateField('thumbnailPreview', null) }} className="absolute -top-2 -right-2 w-6 h-6 bg-error rounded-full flex items-center justify-center text-white">
-                  <X size={12} />
-                </button>
-              </div>
-            ) : (
-              <div className="w-40 h-24 bg-bg-card rounded-lg flex items-center justify-center border border-dashed border-gray-600">
-                <Image size={24} className="text-text-muted" />
-              </div>
-            )}
-            <div>
-              <label htmlFor="thumbnail-input" className="bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer inline-block !mb-0">
-                {t('create.selectImage')}
-              </label>
-              <input id="thumbnail-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleThumbnailSelect} className="hidden" />
-              <p className="text-text-muted text-xs mt-1">{t('create.imageHint')}</p>
-            </div>
-          </div>
-          {errors.thumbnail && <p className="form-error">{errors.thumbnail}</p>}
-        </div>
-
-        {/* Screenshots */}
-        <div>
-          <label>{t('create.screenshots')}</label>
-          <div className="flex flex-wrap gap-2">
-            {formData.screenshotPreviews.map((src, idx) => (
-              <div key={idx} className="relative">
-                <img src={src} alt={`Screenshot ${idx + 1}`} className="w-24 h-16 object-cover rounded-lg" />
-                <button onClick={() => removeScreenshot(idx)} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error rounded-full flex items-center justify-center text-white">
-                  <X size={10} />
-                </button>
-              </div>
-            ))}
-            {formData.screenshots.length < 5 && (
-              <label className="w-24 h-16 bg-bg-card rounded-lg flex items-center justify-center border border-dashed border-gray-600 cursor-pointer hover:border-gray-500 transition-colors">
-                <Plus size={20} className="text-text-muted" />
-                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleScreenshotAdd} className="hidden" multiple />
-              </label>
-            )}
-          </div>
-        </div>
-
-        {/* Tags */}
-        <div>
-          <label>{t('create.tags')}</label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {formData.tags.map(tag => (
-              <span key={tag} className="flex items-center gap-1 bg-primary/20 text-primary-light px-3 py-1 rounded-full text-sm">
-                #{tag}
-                <button onClick={() => removeTag(tag)} className="hover:text-error transition-colors cursor-pointer"><X size={12} /></button>
-              </span>
-            ))}
-          </div>
-          {formData.tags.length < 10 && (
-            <div className="relative">
-              <div className="flex gap-2">
-                <input type="text" value={tagInput} onChange={(e) => { setTagInput(e.target.value); setShowTagSuggestions(true) }} onFocus={() => setShowTagSuggestions(true)} onBlur={() => setTimeout(() => setShowTagSuggestions(false), 150)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput); setShowTagSuggestions(false) } }} placeholder={t('create.addTag')} className="!flex-1" />
-                <button onClick={() => { addTag(tagInput); setShowTagSuggestions(false) }} className="bg-bg-card hover:bg-bg-hover text-text-secondary px-4 py-2 rounded-lg transition-colors cursor-pointer"><Tag size={16} /></button>
-              </div>
-              {showTagSuggestions && tagInput && filteredSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-12 mt-1 bg-bg-secondary border border-gray-700 rounded-lg overflow-hidden z-10 shadow-lg">
-                  {filteredSuggestions.map(tag => (
-                    <button key={tag} onMouseDown={(e) => e.preventDefault()} onClick={() => { addTag(tag); setShowTagSuggestions(false) }} className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-bg-hover transition-colors cursor-pointer">#{tag}</button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-          {errors.tags && <p className="form-error">{errors.tags}</p>}
-          <p className="text-text-muted text-xs mt-1">{t('create.tagCount', { count: formData.tags.length })}</p>
-        </div>
-
-        {/* Price */}
-        <div>
-          <label>{t('create.pricing')}</label>
-          <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2 cursor-pointer !mb-0">
-              <input type="radio" checked={formData.isFree} onChange={() => updateField('isFree', true)} className="!w-4 !h-4" />
-              <span className="text-text-primary text-sm">{t('create.freeLabel')}</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer !mb-0">
-              <input type="radio" checked={!formData.isFree} onChange={() => updateField('isFree', false)} className="!w-4 !h-4" />
-              <span className="text-text-primary text-sm">{t('create.mindcoinsLabel')}</span>
-              {!formData.isFree && (
-                <input type="number" value={formData.price} onChange={(e) => updateField('price', parseInt(e.target.value) || 0)} min={1} max={9999} className="!w-24 !py-1 !text-sm" />
-              )}
-            </label>
-          </div>
-          {errors.price && <p className="form-error">{errors.price}</p>}
-        </div>
-
-        {/* Upload Progress */}
-        {isUploading && (
-          <div className="bg-bg-secondary rounded-xl p-6">
-            <p className="text-text-secondary mb-2">{uploadStep}</p>
-            <ProgressBar value={uploadProgress} max={100} />
-            <p className="text-text-muted text-sm mt-1">{uploadProgress}%</p>
-          </div>
-        )}
-
-        {errors.upload && (
-          <div className="bg-error/10 border border-error/30 rounded-lg p-4">
-            <p className="text-error">{errors.upload}</p>
-          </div>
-        )}
-
-        <button onClick={handleUpload} disabled={isUploading} className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-lg">
-          {isUploading ? t('create.uploading') : t('create.uploadGame')}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-const CodeEditorLayout = lazy(() => import('../components/codeEditor/CodeEditorLayout'))
-const VisualBuilder = lazy(() => import('../components/gameBuilder/VisualBuilder'))
 
 export default function Create() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { t } = useTranslation()
-  const [mode, setMode] = useState(null)
-  const [editDraftId, setEditDraftId] = useState(null)
+  const { publish } = usePublishedGames()
+  const { saveDraft } = useGameDrafts()
 
-  const handleBack = () => {
-    setMode(null)
-    setEditDraftId(null)
-  }
+  // Load draft on mount
+  const lastDraft = useRef(loadLastDraft())
 
-  if (mode === 'template') {
-    return <GameBuilderPage editDraftId={editDraftId} onBack={handleBack} />
-  }
+  // Code state
+  const [code, setCode] = useState(() => {
+    if (lastDraft.current?.code) return lastDraft.current.code
+    return { html: defaultHtml, css: defaultCss, js: defaultJs }
+  })
+  const [activeFile, setActiveFile] = useState('html')
 
-  if (mode === 'freeform') {
+  // Metadata state
+  const [metadata, setMetadata] = useState(() => {
+    if (lastDraft.current?.metadata) return lastDraft.current.metadata
+    return { title: '', description: '', subject: '', tags: [], premium: false, price: 0, visibility: 'public' }
+  })
+  const [showMetadata, setShowMetadata] = useState(false)
+  const [savedFlash, setSavedFlash] = useState(false)
+
+  // Panel resize - Chat 38%, Code+Preview 62% (more space for preview)
+  const [panelRatio, setPanelRatio] = useState(0.38)
+  const [isDragging, setIsDragging] = useState(false)
+  const containerRef = useRef(null)
+
+  // AI Hook
+  const handleApplyCode = useCallback((blocks) => {
+    setCode(prev => ({
+      html: blocks.html ?? prev.html,
+      css: blocks.css ?? prev.css,
+      js: blocks.js ?? prev.js,
+    }))
+  }, [])
+
+  const {
+    messages,
+    isStreaming,
+    error,
+    sendMessage,
+    stopGeneration,
+    clearHistory,
+    reapplyCode,
+    setMessages,
+    isMock,
+  } = useForgeAI({ code, onApplyCode: handleApplyCode })
+
+  // Restore chat history from draft
+  useEffect(() => {
+    if (lastDraft.current?.messages?.length > 0) {
+      setMessages(lastDraft.current.messages)
+    }
+  }, [setMessages])
+
+  // Code change handler (manual edits in Monaco)
+  const handleCodeChange = useCallback((file, value) => {
+    setCode(prev => ({ ...prev, [file]: value }))
+  }, [])
+
+  // Metadata change handler
+  const handleMetadataChange = useCallback((updates) => {
+    setMetadata(prev => ({ ...prev, ...updates }))
+  }, [])
+
+  // Save draft manually
+  const handleSaveDraft = useCallback(() => {
+    const draftData = {
+      code: { ...code },
+      metadata: { ...metadata },
+      messages: messages.map(m => ({
+        role: m.role,
+        content: m.content,
+        timestamp: m.timestamp,
+        codeBlocks: m.codeBlocks || null,
+        codeApplied: m.codeApplied || false,
+      })),
+      savedAt: Date.now(),
+    }
+    persistDraft(draftData)
+
+    // Also save to useGameDrafts
+    saveDraft({
+      id: 'forge-latest',
+      mode: 'forge',
+      type: 'custom',
+      title: metadata.title || 'Unbenanntes Spiel',
+      description: metadata.description,
+      creatorId: user?.uid || 'unknown',
+      creator: user?.displayName || user?.username || 'Anonymous',
+      code: { ...code },
+      status: 'draft',
+    })
+
+    setSavedFlash(true)
+    setTimeout(() => setSavedFlash(false), 2000)
+  }, [code, metadata, messages, user, saveDraft])
+
+  // Auto-save every 30s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (messages.length > 0 || code.html !== defaultHtml) {
+        persistDraft({
+          code: { ...code },
+          metadata: { ...metadata },
+          messages: messages.map(m => ({
+            role: m.role,
+            content: m.content,
+            timestamp: m.timestamp,
+            codeBlocks: m.codeBlocks || null,
+            codeApplied: m.codeApplied || false,
+          })),
+          savedAt: Date.now(),
+        })
+      }
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [messages, code, metadata])
+
+  // Publish handler
+  const handlePublish = useCallback(() => {
+    if (!metadata.title.trim()) {
+      setShowMetadata(true)
+      return
+    }
+
+    const gameData = {
+      id: `game-forge-${Date.now()}`,
+      mode: 'forge',
+      type: 'custom',
+      title: metadata.title,
+      description: metadata.description,
+      creator: user?.displayName || user?.username || 'Anonymous',
+      creatorId: user?.uid || 'unknown',
+      code: { ...code },
+      tags: metadata.tags,
+      subject: metadata.subject,
+      price: metadata.premium ? metadata.price : 0,
+      premium: metadata.premium,
+      visibility: metadata.visibility,
+      thumbnailUrl: null,
+      category: 'custom',
+    }
+
+    publish(gameData)
+    // Clear draft after publish
+    localStorage.removeItem(DRAFT_KEY)
+    navigate('/browse')
+  }, [metadata, code, user, publish, navigate])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl+S = Save draft
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        handleSaveDraft()
+      }
+      // Escape = Stop streaming
+      if (e.key === 'Escape' && isStreaming) {
+        stopGeneration()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleSaveDraft, isStreaming, stopGeneration])
+
+  // Resize handler
+  const handleResizeStart = useCallback((e) => {
+    e.preventDefault()
+    setIsDragging(true)
+
+    const container = containerRef.current
+    if (!container) return
+    const rect = container.getBoundingClientRect()
+
+    const handleMouseMove = (e) => {
+      const x = e.clientX - rect.left
+      const ratio = Math.max(0.2, Math.min(0.65, x / rect.width))
+      setPanelRatio(ratio)
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }, [])
+
+  // Mobile check
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  if (isMobile) {
     return (
-      <Suspense fallback={<div className="text-center py-20 text-text-muted">{t('create.loadingEditor')}</div>}>
-        <CodeEditorLayout onBack={handleBack} />
-      </Suspense>
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center p-6 text-center">
+        <div>
+          <Monitor size={48} className="text-accent mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Desktop erforderlich</h2>
+          <p className="text-gray-400 text-sm">
+            Der Forge KI Game Creator ist nur auf Desktop-Geraeten verfuegbar.
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-6 px-6 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg transition-colors cursor-pointer"
+          >
+            Zurueck
+          </button>
+        </div>
+      </div>
     )
-  }
-
-  if (mode === 'visual') {
-    return (
-      <Suspense fallback={<div className="text-center py-20 text-text-muted">{t('create.loadingEditor')}</div>}>
-        <VisualBuilder onBack={handleBack} />
-      </Suspense>
-    )
-  }
-
-  if (mode === 'zip') {
-    return <ZipUploadMode onBack={handleBack} />
   }
 
   return (
-    <>
-      <>
-        <title>Create | MindForge</title>
-        <meta name="description" content="Create and upload your own learning games on MindForge." />
-        <meta property="og:title" content="Create | MindForge" />
-        <meta property="og:description" content="Create and upload your own learning games on MindForge." />
-      </>
-      <ModeSelector onSelect={setMode} />
-    </>
+    <div className="fixed inset-0 bg-[#0a0a14] flex flex-col z-[60]">
+      {/* Top Bar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-[#0f0f1a] border-b border-gray-800/50">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-gray-500 hover:text-white transition-colors cursor-pointer p-1.5 rounded-lg hover:bg-white/5"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div className="h-5 w-px bg-gray-800" />
+          <span className="text-sm font-bold text-white">MindForge</span>
+          <span className="text-xs px-2 py-0.5 rounded bg-accent/15 text-accent font-medium">Create</span>
+          {isMock && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500/70 font-mono">
+              Mock-KI
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Save indicator */}
+          {savedFlash && (
+            <span className="text-xs text-emerald-400 animate-pulse flex items-center gap-1">
+              <Save size={12} /> Gespeichert
+            </span>
+          )}
+          <button
+            onClick={handleSaveDraft}
+            className="px-3 py-1.5 text-xs text-gray-500 hover:text-white border border-gray-800 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+            title="Ctrl+S"
+          >
+            <Save size={14} />
+          </button>
+          <button
+            onClick={() => setShowMetadata(true)}
+            className="px-3 py-1.5 text-xs text-gray-500 hover:text-white border border-gray-800 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            Metadaten
+          </button>
+          <button
+            onClick={() => {
+              if (!metadata.title.trim()) {
+                setShowMetadata(true)
+              } else {
+                handlePublish()
+              }
+            }}
+            className="flex items-center gap-1.5 px-4 py-1.5 bg-accent hover:bg-accent-dark text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+          >
+            <Rocket size={14} />
+            Publish
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div
+        ref={containerRef}
+        className="flex-1 flex min-h-0"
+        style={{ userSelect: isDragging ? 'none' : 'auto' }}
+      >
+        {/* Left Panel - Forge Chat */}
+        <div style={{ width: `${panelRatio * 100}%` }} className="min-w-0">
+          <ForgeChat
+            messages={messages}
+            isStreaming={isStreaming}
+            error={error}
+            onSendMessage={sendMessage}
+            onStopGeneration={stopGeneration}
+            onClearHistory={() => {
+              clearHistory()
+              setCode({ html: defaultHtml, css: defaultCss, js: defaultJs })
+            }}
+            onReapply={reapplyCode}
+            isMock={isMock}
+          />
+        </div>
+
+        {/* Resize Handle */}
+        <div
+          onMouseDown={handleResizeStart}
+          className="w-1 bg-[#0f0f1a] hover:bg-accent/20 cursor-col-resize transition-colors flex-shrink-0 flex items-center justify-center group"
+        >
+          <div className="w-0.5 h-8 bg-gray-800 group-hover:bg-accent rounded-full transition-colors" />
+        </div>
+
+        {/* Right Panel - Code + Preview */}
+        <div style={{ width: `${(1 - panelRatio) * 100}%` }} className="min-w-0">
+          <CodePanel
+            code={code}
+            activeFile={activeFile}
+            onFileChange={setActiveFile}
+            onCodeChange={handleCodeChange}
+          />
+        </div>
+      </div>
+
+      {/* Metadata Panel Overlay */}
+      {showMetadata && (
+        <MetadataPanel
+          metadata={metadata}
+          onChange={handleMetadataChange}
+          onClose={() => setShowMetadata(false)}
+        />
+      )}
+    </div>
   )
 }

@@ -581,47 +581,22 @@
       "tagRequired": "Mindestens ein Tag ist erforderlich.",
       "priceMin": "Preis muss mindestens 1 MindCoin betragen."
     },
-    "builder": {
-      "newQuiz": "Neues Quiz",
-      "templateMode": "Template-Modus",
-      "savedAt": "Gespeichert {{time}}",
-      "saveDraft": "Entwurf speichern",
-      "tabs": {
-        "basics": "Grundlagen",
-        "questions": "Fragen",
-        "design": "Design",
-        "settings": "Einstellungen",
-        "preview": "Vorschau & Publish"
-      }
-    },
-    "modes": {
-      "title": "Erstelle dein eigenes Spiel",
-      "subtitle": "Waehle deinen Erstellungsmodus",
-      "template": {
-        "title": "Template-Modus",
-        "subtitle": "Empfohlen",
-        "description": "Erstelle Quiz-Spiele ohne Programmierung. Waehle aus vorgefertigten Spieltypen und gestalte deine Fragen.",
-        "features": ["Kein Code noetig", "Quiz-Editor mit Drag & Drop", "5 Design-Themes", "Sofort spielbar"],
-        "recommended": "Empfohlen"
-      },
-      "visual": {
-        "title": "Visual Builder",
-        "subtitle": "Scratch-aehnlich",
-        "description": "Baue Spiele mit Drag-and-Drop-Bloecken. Kein Code noetig - einfach Bloecke zusammenstecken.",
-        "features": ["Block-Editor wie Scratch", "Drag & Drop Bloecke", "Live-Vorschau", "Code-Export"]
-      },
-      "freeform": {
-        "title": "Freier Modus",
-        "subtitle": "Fortgeschritten",
-        "description": "Schreibe eigenen HTML/CSS/JS-Code mit Live-Preview und KI-Unterstuetzung.",
-        "features": ["Monaco Code Editor", "Live Preview", "KI-Assistent", "Volle Freiheit"]
-      },
-      "zip": {
-        "title": "ZIP Upload",
-        "subtitle": "Klassisch",
-        "description": "Lade ein fertiges Spielpaket als ZIP-Datei hoch. Muss eine index.html enthalten.",
-        "features": ["Fertiges Spiel hochladen", "Max. 200 MB", "ZIP mit index.html", "Beliebige Technologie"]
-      }
+    "forge": {
+      "title": "Forge KI",
+      "welcome": "Willkommen in der Schmiede! Beschreibe mir einfach, was fuer ein Lernspiel du erstellen moechtest.",
+      "placeholder": "Beschreibe dein Spiel...",
+      "streaming": "Forge arbeitet...",
+      "stop": "Stoppen",
+      "send": "Senden",
+      "quickstart": "Schnellstart",
+      "codeApplied": "Code in Editor uebernommen",
+      "desktopRequired": "Desktop erforderlich",
+      "desktopHint": "Der Forge KI Game Creator ist nur auf Desktop-Geraeten verfuegbar.",
+      "metadata": "Metadaten",
+      "publish": "Publish",
+      "clearChat": "Chat leeren",
+      "apiKeyMissing": "API Key fehlt",
+      "errorRetry": "Antwort unvollstaendig - versuche es erneut"
     },
     "dashboard": {
       "title": "Meine Spiele",

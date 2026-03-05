@@ -580,47 +580,22 @@
       "tagRequired": "At least one tag is required.",
       "priceMin": "Price must be at least 1 MindCoin."
     },
-    "builder": {
-      "newQuiz": "New Quiz",
-      "templateMode": "Template Mode",
-      "savedAt": "Saved {{time}}",
-      "saveDraft": "Save draft",
-      "tabs": {
-        "basics": "Basics",
-        "questions": "Questions",
-        "design": "Design",
-        "settings": "Settings",
-        "preview": "Preview & Publish"
-      }
-    },
-    "modes": {
-      "title": "Create your own game",
-      "subtitle": "Choose your creation mode",
-      "template": {
-        "title": "Template Mode",
-        "subtitle": "Recommended",
-        "description": "Create quiz games without programming. Choose from pre-built game types and design your questions.",
-        "features": ["No code needed", "Quiz editor with drag & drop", "5 design themes", "Instantly playable"],
-        "recommended": "Recommended"
-      },
-      "visual": {
-        "title": "Visual Builder",
-        "subtitle": "Scratch-like",
-        "description": "Build games with drag-and-drop blocks. No code needed - just snap blocks together.",
-        "features": ["Block editor like Scratch", "Drag & drop blocks", "Live preview", "Code export"]
-      },
-      "freeform": {
-        "title": "Free Mode",
-        "subtitle": "Advanced",
-        "description": "Write your own HTML/CSS/JS code with live preview and AI assistance.",
-        "features": ["Monaco Code Editor", "Live Preview", "AI Assistant", "Full freedom"]
-      },
-      "zip": {
-        "title": "ZIP Upload",
-        "subtitle": "Classic",
-        "description": "Upload a finished game package as a ZIP file. Must contain an index.html.",
-        "features": ["Upload finished game", "Max. 200 MB", "ZIP with index.html", "Any technology"]
-      }
+    "forge": {
+      "title": "Forge AI",
+      "welcome": "Welcome to the forge! Describe what kind of learning game you want to create.",
+      "placeholder": "Describe your game...",
+      "streaming": "Forge is working...",
+      "stop": "Stop",
+      "send": "Send",
+      "quickstart": "Quick Start",
+      "codeApplied": "Code applied to editor",
+      "desktopRequired": "Desktop required",
+      "desktopHint": "The Forge AI Game Creator is only available on desktop devices.",
+      "metadata": "Metadata",
+      "publish": "Publish",
+      "clearChat": "Clear chat",
+      "apiKeyMissing": "API key missing",
+      "errorRetry": "Response incomplete - try again"
     },
     "dashboard": {
       "title": "My Games",
