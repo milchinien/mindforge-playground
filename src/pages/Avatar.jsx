@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
@@ -9,8 +9,18 @@ import useUndoRedo from '../hooks/useUndoRedo'
 import {
   Sparkles, User, Scissors, Smile, Crown, Shirt,
   Glasses, Palette, Eye, ShoppingBag, PersonStanding,
-  ChevronLeft, ChevronRight, Undo2, Redo2,
+  ChevronLeft, ChevronRight, Undo2, Redo2, Box, Layers,
 } from 'lucide-react'
+
+const Avatar3DRenderer = lazy(() =>
+  import('../components/profile/Avatar3DRenderer').catch(() => ({
+    default: () => (
+      <div className="w-[180px] h-[180px] rounded-full bg-bg-primary/50 flex items-center justify-center text-text-muted text-xs text-center p-4">
+        3D nicht verfuegbar.<br/>Dein Browser unterstuetzt kein WebGL.
+      </div>
+    ),
+  }))
+)
 import {
   SKIN_COLORS, HAIR_COLORS, EYE_COLORS, CLOTHING_COLORS,
   HAIR_STYLES, EYE_TYPES, EYEBROW_TYPES, MOUTH_TYPES,
@@ -356,6 +366,18 @@ export default function Avatar() {
     { id: 'background', name: t('avatar.background'), icon: Palette },
   ]
 
+  const [is3D, setIs3D] = useState(() => {
+    try { return localStorage.getItem('avatar-3d-mode') === 'true' } catch { return false }
+  })
+
+  const toggle3D = () => {
+    setIs3D(prev => {
+      const next = !prev
+      try { localStorage.setItem('avatar-3d-mode', String(next)) } catch {}
+      return next
+    })
+  }
+
   const savedConfig = useRef({
     skinColor: user?.avatar?.skinColor || '#F5D6B8',
     hairColor: user?.avatar?.hairColor || '#2C1810',
@@ -588,6 +610,22 @@ export default function Avatar() {
         <div className="w-full lg:w-[300px] flex-shrink-0 flex flex-col">
           {/* Preview Card */}
           <div className="h-[250px] lg:flex-1 rounded-2xl border border-gray-700/40 bg-bg-secondary/50 backdrop-blur-sm flex flex-col items-center justify-center relative overflow-hidden">
+            {/* 2D/3D Toggle */}
+            <div className="absolute top-3 right-3 z-20">
+              <button
+                onClick={toggle3D}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer border ${
+                  is3D
+                    ? 'bg-accent/15 text-accent border-accent/40 shadow-sm shadow-accent/10'
+                    : 'bg-bg-secondary/80 text-text-muted border-gray-700/50 hover:text-text-secondary hover:border-gray-600'
+                }`}
+                title={is3D ? 'Zu 2D wechseln' : 'Zu 3D wechseln'}
+              >
+                {is3D ? <Box size={13} /> : <Layers size={13} />}
+                {is3D ? '3D' : '2D'}
+              </button>
+            </div>
+
             {/* Decorative gradient glow behind avatar */}
             <div
               className="absolute inset-0 opacity-20"
@@ -600,29 +638,59 @@ export default function Avatar() {
               {/* Avatar with subtle ring */}
               <div className="relative">
                 <div className="absolute -inset-3 rounded-full bg-accent/5 border border-accent/10" />
-                <AvatarRenderer
-                  skinColor={avatarConfig.skinColor}
-                  hairColor={avatarConfig.hairColor}
-                  hairStyle={avatarConfig.hairStyle}
-                  eyeType={avatarConfig.eyeType}
-                  eyeColor={avatarConfig.eyeColor}
-                  eyebrows={avatarConfig.eyebrows}
-                  mouth={avatarConfig.mouth}
-                  accessory={avatarConfig.accessory}
-                  hat={avatarConfig.hat}
-                  clothing={avatarConfig.clothing}
-                  clothingColor={avatarConfig.clothingColor}
-                  bgStyle={avatarConfig.bgStyle}
-                  bodyType={avatarConfig.bodyType}
-                  size={180}
-                  username={user?.username}
-                  animated
-                />
+                {is3D ? (
+                  <Suspense fallback={
+                    <div className="w-[180px] h-[180px] rounded-full bg-bg-primary/50 flex items-center justify-center">
+                      <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
+                    </div>
+                  }>
+                    <Avatar3DRenderer
+                      skinColor={avatarConfig.skinColor}
+                      hairColor={avatarConfig.hairColor}
+                      hairStyle={avatarConfig.hairStyle}
+                      eyeType={avatarConfig.eyeType}
+                      eyeColor={avatarConfig.eyeColor}
+                      eyebrows={avatarConfig.eyebrows}
+                      mouth={avatarConfig.mouth}
+                      accessory={avatarConfig.accessory}
+                      hat={avatarConfig.hat}
+                      clothing={avatarConfig.clothing}
+                      clothingColor={avatarConfig.clothingColor}
+                      bgStyle={avatarConfig.bgStyle}
+                      bodyType={avatarConfig.bodyType}
+                      size={180}
+                      animated
+                    />
+                  </Suspense>
+                ) : (
+                  <AvatarRenderer
+                    skinColor={avatarConfig.skinColor}
+                    hairColor={avatarConfig.hairColor}
+                    hairStyle={avatarConfig.hairStyle}
+                    eyeType={avatarConfig.eyeType}
+                    eyeColor={avatarConfig.eyeColor}
+                    eyebrows={avatarConfig.eyebrows}
+                    mouth={avatarConfig.mouth}
+                    accessory={avatarConfig.accessory}
+                    hat={avatarConfig.hat}
+                    clothing={avatarConfig.clothing}
+                    clothingColor={avatarConfig.clothingColor}
+                    bgStyle={avatarConfig.bgStyle}
+                    bodyType={avatarConfig.bodyType}
+                    size={180}
+                    username={user?.username}
+                    animated
+                  />
+                )}
               </div>
               <p className="mt-4 text-lg font-bold text-text-primary">{user?.username}</p>
               <p className="text-text-muted text-xs flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                {t('avatar.livePreview')}
+                {is3D ? (
+                  <span>{t('avatar.livePreview')} &middot; 3D</span>
+                ) : (
+                  t('avatar.livePreview')
+                )}
               </p>
             </div>
           </div>

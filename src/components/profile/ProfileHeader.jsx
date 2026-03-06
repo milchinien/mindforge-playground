@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Edit3, Crown, Globe, Twitter, ChevronDown, Lock, Check } from 'lucide-react'
 import ShareButtons from '../common/ShareButtons'
 import { formatNumber } from '../../utils/formatters'
-import AvatarRenderer from './AvatarRenderer'
+import AvatarDisplay from './AvatarDisplay'
 import { useSocialStore, selectFollowing } from '../../stores/socialStore'
 import { useInventoryStore, selectItems } from '../../stores/inventoryStore'
 
@@ -168,7 +168,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEditClick, isLogge
         {/* Avatar */}
         <div className="flex-shrink-0 self-center sm:self-start">
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden">
-            <AvatarRenderer
+            <AvatarDisplay
               skinColor={user.avatar?.skinColor}
               hairColor={user.avatar?.hairColor}
               hairStyle={user.avatar?.hairStyle}

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
-import AvatarRenderer from '../components/profile/AvatarRenderer'
+import AvatarDisplay from '../components/profile/AvatarDisplay'
 import MindCoinIcon from '../components/common/MindCoinIcon'
 import useEscapeKey from '../hooks/useEscapeKey'
 import {
@@ -265,7 +265,7 @@ function MarketplaceItemCard({ item, avatarConfig, isOwned, isEquipped, rating, 
             />
           </div>
         ) : (
-          <AvatarRenderer
+          <AvatarDisplay
             skinColor={previewConfig.skinColor}
             hairColor={previewConfig.hairColor}
             hairStyle={previewConfig.hairStyle}
@@ -349,7 +349,7 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
             <div className="text-center">
               <p className="text-[10px] text-text-muted mb-2 uppercase tracking-wider font-medium">{t('marketplace.currentLabel')}</p>
               <div className="rounded-xl overflow-hidden border-2 border-gray-700/30">
-                <AvatarRenderer
+                <AvatarDisplay
                   skinColor={avatarConfig.skinColor}
                   hairColor={avatarConfig.hairColor}
                   hairStyle={avatarConfig.hairStyle}
@@ -375,7 +375,7 @@ function ItemDetailModal({ item, avatarConfig, user, isOwned, isEquipped, userRa
             <div className="text-center">
               <p className="text-[10px] text-accent mb-2 uppercase tracking-wider font-medium">{t('marketplace.previewLabel')}</p>
               <div className="rounded-xl overflow-hidden border-2 border-accent/40 shadow-lg shadow-accent/10">
-                <AvatarRenderer
+                <AvatarDisplay
                   skinColor={previewConfig.skinColor}
                   hairColor={previewConfig.hairColor}
                   hairStyle={previewConfig.hairStyle}
