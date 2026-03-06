@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { Bell } from 'lucide-react'
-import { useNotificationStore } from '../../stores/notificationStore'
+import { useNotificationStore, selectNotifSettings } from '../../stores/notificationStore'
 import ToggleSwitch from './ToggleSwitch'
 
 export default function NotificationsTab() {
   const { t } = useTranslation()
-  const notifSettings = useNotificationStore((s) => s.settings)
+  const notifSettings = useNotificationStore(selectNotifSettings)
   const updateNotifSettings = useNotificationStore((s) => s.updateSettings)
 
   const notificationItems = [

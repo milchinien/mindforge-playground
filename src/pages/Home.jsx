@@ -9,12 +9,16 @@ import { getFeaturedGames, getGameById, mockGames } from '../data/mockGames'
 import { useGameInteractionStore } from '../stores/gameInteractionStore'
 import { useSocialStore } from '../stores/socialStore'
 
-const RECENTLY_PLAYED_KEY = 'mindforge_recently_played'
+const RECENTLY_PLAYED_PREFIX = 'mindforge_recently_played_'
 const MAX_RECENT_GAMES = 10
 
-function getRecentlyPlayedGames() {
+function getRecentlyPlayedKey(userId) {
+  return RECENTLY_PLAYED_PREFIX + (userId || 'guest')
+}
+
+function getRecentlyPlayedGames(userId) {
   try {
-    const stored = localStorage.getItem(RECENTLY_PLAYED_KEY)
+    const stored = localStorage.getItem(getRecentlyPlayedKey(userId))
     if (!stored) return []
     const gameIds = JSON.parse(stored)
     return gameIds.map(id => getGameById(id)).filter(Boolean)
@@ -23,14 +27,15 @@ function getRecentlyPlayedGames() {
   }
 }
 
-export function addToRecentlyPlayed(gameId) {
+export function addToRecentlyPlayed(gameId, userId) {
   try {
-    const stored = localStorage.getItem(RECENTLY_PLAYED_KEY)
+    const key = getRecentlyPlayedKey(userId)
+    const stored = localStorage.getItem(key)
     let gameIds = stored ? JSON.parse(stored) : []
     gameIds = gameIds.filter(id => id !== gameId)
     gameIds.unshift(gameId)
     gameIds = gameIds.slice(0, MAX_RECENT_GAMES)
-    localStorage.setItem(RECENTLY_PLAYED_KEY, JSON.stringify(gameIds))
+    localStorage.setItem(key, JSON.stringify(gameIds))
   } catch {
     // localStorage not available
   }
@@ -95,7 +100,7 @@ export default function Home() {
     return <HomeGuest />
   }
 
-  const recentlyPlayed = getRecentlyPlayedGames()
+  const recentlyPlayed = getRecentlyPlayedGames(user?.uid)
   const recommended = getRandomGames(8)
   const featured = getFeaturedGames()
 

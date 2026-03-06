@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { timeAgo } from '../../utils/formatters'
-import { useNotificationStore } from '../../stores/notificationStore'
+import { useNotificationStore, selectNotifications } from '../../stores/notificationStore'
 
 const NOTIFICATION_ICONS = {
   system: '\u2699\uFE0F',
@@ -53,8 +53,8 @@ export default function NotificationDropdown() {
   const navigate = useNavigate()
   const dropdownRef = useRef(null)
 
-  const notifications = useNotificationStore((s) => s.notifications)
-  const unreadCount = useNotificationStore((s) => s.notifications.filter((n) => !n.read).length)
+  const notifications = useNotificationStore(selectNotifications)
+  const unreadCount = useNotificationStore((s) => selectNotifications(s).filter((n) => !n.read).length)
   const { markAsRead, markAllAsRead } = useNotificationStore()
 
   // Close on outside click

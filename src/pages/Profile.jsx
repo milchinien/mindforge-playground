@@ -8,7 +8,7 @@ import ProfileHeader from '../components/profile/ProfileHeader'
 import ProfileTabs from '../components/profile/ProfileTabs'
 import GameCard from '../components/game/GameCard'
 import Modal from '../components/common/Modal'
-import { useSocialStore } from '../stores/socialStore'
+import { useSocialStore, selectFollowing, selectFollowers } from '../stores/socialStore'
 import { useActivityStore } from '../stores/activityStore'
 import { useAchievementStore } from '../stores/achievementStore'
 
@@ -19,8 +19,8 @@ export default function Profile() {
   const [profileUser, setProfileUser] = useState(null)
   const [activeTab, setActiveTab] = useState('games')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const socialFollowing = useSocialStore((s) => s.following)
-  const socialFollowers = useSocialStore((s) => s.followers)
+  const socialFollowing = useSocialStore(selectFollowing)
+  const socialFollowers = useSocialStore(selectFollowers)
   const [notFound, setNotFound] = useState(false)
 
   // Edit form state

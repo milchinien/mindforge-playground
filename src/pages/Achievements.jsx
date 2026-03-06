@@ -7,8 +7,8 @@ import {
 } from '../data/achievementDefinitions'
 import TitleSelectModal from '../components/achievements/TitleSelectModal'
 import Tabs from '../components/ui/Tabs'
-import { useAchievementStore } from '../stores/achievementStore'
-import { useInventoryStore } from '../stores/inventoryStore'
+import { useAchievementStore, selectProgress, selectUnlockedAchievements } from '../stores/achievementStore'
+import { useInventoryStore, selectItems } from '../stores/inventoryStore'
 
 function getAchievementStatus(achievement, progress, isUnlocked) {
   if (isUnlocked(achievement.id)) {
@@ -86,11 +86,11 @@ export default function Achievements() {
   const [activeCategory, setActiveCategory] = useState('player')
   const [showTitleModal, setShowTitleModal] = useState(false)
 
-  const progress = useAchievementStore((s) => s.progress)
-  const unlockedMap = useAchievementStore((s) => s.unlockedAchievements)
+  const progress = useAchievementStore(selectProgress)
+  const unlockedMap = useAchievementStore(selectUnlockedAchievements)
   const isUnlocked = (id) => id in unlockedMap
 
-  const items = useInventoryStore((s) => s.items)
+  const items = useInventoryStore(selectItems)
   const equipItem = useInventoryStore((s) => s.equipItem)
   const unequipItem = useInventoryStore((s) => s.unequipItem)
   const equippedTitle = useMemo(() => items.find((i) => i.type === 'title' && i.equipped)?.name || null, [items])

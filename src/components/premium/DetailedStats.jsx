@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, Clock, Target, Flame, Award, BookOpen, BarChart3 } from 'lucide-react'
-import { usePremiumStore } from '../../stores/premiumStore'
+import { usePremiumStore, selectDetailedStats } from '../../stores/premiumStore'
 
 // ──────────── STREAK CALENDAR (GitHub-style) ────────────
 
@@ -209,7 +209,7 @@ function ImprovementTrends({ improvements }) {
 // ──────────── MAIN COMPONENT ────────────
 
 export default function DetailedStats() {
-  const { detailedStats } = usePremiumStore()
+  const detailedStats = usePremiumStore(selectDetailedStats)
 
   return (
     <div className="space-y-6">

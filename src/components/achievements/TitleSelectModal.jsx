@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useInventoryStore } from '../../stores/inventoryStore'
+import { useInventoryStore, selectItems } from '../../stores/inventoryStore'
 import Modal from '../common/Modal'
 
 export default function TitleSelectModal({ isOpen, onClose, activeTitle, onSelect }) {
   const { t } = useTranslation()
-  const items = useInventoryStore((s) => s.items)
+  const items = useInventoryStore(selectItems)
   const titleItems = useMemo(() => items.filter((i) => i.type === 'title'), [items])
 
   const allTitles = titleItems.map((item) => ({

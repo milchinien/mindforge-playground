@@ -8,7 +8,6 @@ import { formatNumber, formatDate } from '../utils/formatters'
 import { getSubjectConfig } from '../data/subjectConfig'
 import TagList from '../components/game/TagList'
 import LikeDislike from '../components/game/LikeDislike'
-import GameReviews from '../components/game/GameReviews'
 import { useGameInteractionStore } from '../stores/gameInteractionStore'
 
 function ThumbnailPlaceholder({ title, subject, className = '' }) {
@@ -31,14 +30,13 @@ export default function GameDetail() {
   const navigate = useNavigate()
   const game = getGameById(id)
   const [showPreview, setShowPreview] = useState(false)
-  const recordView = useGameInteractionStore((s) => s.recordView)
   const stats = useGameInteractionStore((s) => s.globalStats[game?.id]) || { likes: 0, dislikes: 0, views: 0, plays: 0 }
 
   useEffect(() => {
     if (game?.id) {
-      recordView(game.id)
+      useGameInteractionStore.getState().recordView(game.id)
     }
-  }, [game?.id, recordView])
+  }, [game?.id])
 
   if (!game) {
     return (
@@ -227,11 +225,6 @@ export default function GameDetail() {
             <ShareButtons title={game.title} compact />
           </div>
         </div>
-      </div>
-
-      {/* Reviews Section */}
-      <div className="mt-8">
-        <GameReviews gameId={game.id} />
       </div>
 
       {/* Preview Modal */}

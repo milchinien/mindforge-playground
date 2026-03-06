@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Check, Lock, Palette, Sparkles } from 'lucide-react'
-import { usePremiumStore } from '../../stores/premiumStore'
+import { usePremiumStore, selectActiveTheme, selectUnlockedThemes, selectActiveFrame, selectUnlockedFrames } from '../../stores/premiumStore'
 import { PREMIUM_THEMES, PROFILE_FRAMES, RARITY_CONFIG } from '../../data/premiumThemes'
 import { useAuth } from '../../contexts/AuthContext'
 import { isPremium } from '../../utils/premiumChecks'
@@ -9,10 +9,14 @@ import MindCoinIcon from '../common/MindCoinIcon'
 export default function ThemeSelector() {
   const { user } = useAuth()
   const userIsPremium = isPremium(user)
-  const {
-    activeTheme, unlockedThemes, setTheme, unlockTheme,
-    activeFrame, unlockedFrames, setFrame, unlockFrame,
-  } = usePremiumStore()
+  const activeTheme = usePremiumStore(selectActiveTheme)
+  const unlockedThemes = usePremiumStore(selectUnlockedThemes)
+  const activeFrame = usePremiumStore(selectActiveFrame)
+  const unlockedFrames = usePremiumStore(selectUnlockedFrames)
+  const setTheme = usePremiumStore((s) => s.setTheme)
+  const unlockTheme = usePremiumStore((s) => s.unlockTheme)
+  const setFrame = usePremiumStore((s) => s.setFrame)
+  const unlockFrame = usePremiumStore((s) => s.unlockFrame)
   const [confirmUnlock, setConfirmUnlock] = useState(null)
   const [confirmFrame, setConfirmFrame] = useState(null)
 

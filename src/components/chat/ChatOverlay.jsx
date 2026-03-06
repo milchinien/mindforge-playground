@@ -1,19 +1,24 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { MessageCircle, X, Minus, Send, Smile, ArrowLeft, Shield } from 'lucide-react'
+import { MessageCircle, X, Minus, Send, Smile, ArrowLeft, Shield, Bot } from 'lucide-react'
 import { useChatStore } from '../../stores/chatStore'
-import { chatFriends, quickReactions } from '../../data/chatData'
+import { mindForgeBot, quickReactions } from '../../data/chatData'
+import { useAuth } from '../../contexts/AuthContext'
 import { timeAgo } from '../../utils/formatters'
 import ChatBubble from './ChatBubble'
 
+// Alle Chat-Kontakte (derzeit nur der Bot)
+const chatContacts = [mindForgeBot]
+
 export default function ChatOverlay() {
+  const { user } = useAuth()
   const [inputText, setInputText] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  const [selectedFriendId, setSelectedFriendId] = useState(null)
+  const [selectedContactId, setSelectedContactId] = useState(null)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
-  const conversations = useChatStore((s) => s.conversations)
-  const unreadCounts = useChatStore((s) => s.unreadCounts)
+  const conversations = useChatStore((s) => s.getConversations())
+  const unreadCounts = useChatStore((s) => s.getUnreadCounts())
   const overlayOpen = useChatStore((s) => s.overlayOpen)
   const overlayMinimized = useChatStore((s) => s.overlayMinimized)
   const toggleOverlay = useChatStore((s) => s.toggleOverlay)
@@ -23,30 +28,38 @@ export default function ChatOverlay() {
   const sendMessage = useChatStore((s) => s.sendMessage)
   const markAsRead = useChatStore((s) => s.markAsRead)
   const getTotalUnread = useChatStore((s) => s.getTotalUnread)
+  const setCurrentUser = useChatStore((s) => s.setCurrentUser)
+
+  // User im Chat-Store setzen
+  useEffect(() => {
+    if (user?.uid) {
+      setCurrentUser(user.uid)
+    }
+  }, [user?.uid, setCurrentUser])
 
   const totalUnread = getTotalUnread()
-  const selectedFriend = chatFriends.find((f) => f.id === selectedFriendId)
-  const activeConversation = selectedFriendId ? conversations[selectedFriendId] : null
+  const selectedContact = chatContacts.find((f) => f.id === selectedContactId)
+  const activeConversation = selectedContactId ? conversations[selectedContactId] : null
 
   // Auto-Scroll bei neuen Nachrichten
   useEffect(() => {
-    if (selectedFriendId && overlayOpen && !overlayMinimized) {
+    if (selectedContactId && overlayOpen && !overlayMinimized) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [activeConversation?.messages?.length, selectedFriendId, overlayOpen, overlayMinimized])
+  }, [activeConversation?.messages?.length, selectedContactId, overlayOpen, overlayMinimized])
 
   // Beim Oeffnen eines Chats: als gelesen markieren
   useEffect(() => {
-    if (selectedFriendId && overlayOpen && !overlayMinimized) {
-      markAsRead(selectedFriendId)
+    if (selectedContactId && overlayOpen && !overlayMinimized) {
+      markAsRead(selectedContactId)
     }
-  }, [selectedFriendId, overlayOpen, overlayMinimized, markAsRead])
+  }, [selectedContactId, overlayOpen, overlayMinimized, markAsRead])
 
   // Nachricht senden
   const handleSend = () => {
     const text = inputText.trim()
-    if (!text || !selectedFriendId) return
-    sendMessage(selectedFriendId, text)
+    if (!text || !selectedContactId) return
+    sendMessage(selectedContactId, text)
     setInputText('')
     setShowEmojiPicker(false)
     inputRef.current?.focus()
@@ -64,19 +77,19 @@ export default function ChatOverlay() {
     inputRef.current?.focus()
   }
 
-  const getLastMessage = (friendId) => {
-    const conv = conversations[friendId]
+  const getLastMessage = (contactId) => {
+    const conv = conversations[contactId]
     if (!conv || conv.messages.length === 0) return null
     return conv.messages[conv.messages.length - 1]
   }
 
-  const handleSelectFriend = (friendId) => {
-    setSelectedFriendId(friendId)
-    markAsRead(friendId)
+  const handleSelectContact = (contactId) => {
+    setSelectedContactId(contactId)
+    markAsRead(contactId)
   }
 
   const handleBack = () => {
-    setSelectedFriendId(null)
+    setSelectedContactId(null)
     setShowEmojiPicker(false)
     setInputText('')
   }
@@ -130,7 +143,7 @@ export default function ChatOverlay() {
           {/* Panel-Header */}
           <div className="flex items-center justify-between px-4 py-2.5 bg-bg-card border-b border-gray-700">
             <div className="flex items-center gap-2">
-              {selectedFriendId ? (
+              {selectedContactId ? (
                 <>
                   <button
                     onClick={handleBack}
@@ -139,15 +152,22 @@ export default function ChatOverlay() {
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </button>
-                  <div className="w-7 h-7 bg-bg-hover rounded-full flex items-center justify-center text-sm">
-                    {selectedFriend?.emoji}
+                  <div className="w-7 h-7 bg-gradient-to-br from-accent to-purple-600 rounded-full flex items-center justify-center text-sm">
+                    {selectedContact?.isBot ? (
+                      <Bot className="w-4 h-4 text-white" />
+                    ) : (
+                      selectedContact?.emoji
+                    )}
                   </div>
                   <div>
-                    <span className="text-sm font-semibold text-text-primary">
-                      {selectedFriend?.displayName}
+                    <span className="text-sm font-semibold text-text-primary flex items-center gap-1">
+                      {selectedContact?.displayName}
+                      {selectedContact?.isBot && (
+                        <span className="text-[8px] bg-accent/20 text-accent px-1 py-0.5 rounded-full">AI</span>
+                      )}
                     </span>
-                    {selectedFriend?.isOnline && (
-                      <span className="block text-[9px] text-success leading-tight">Online</span>
+                    {selectedContact?.isBot && (
+                      <span className="block text-[9px] text-success leading-tight">Immer online</span>
                     )}
                   </div>
                 </>
@@ -182,7 +202,7 @@ export default function ChatOverlay() {
             <span className="text-[9px] text-success">Content wird gefiltert</span>
           </div>
 
-          {selectedFriendId ? (
+          {selectedContactId ? (
             /* ====== Chat-Ansicht ====== */
             <>
               {/* Nachrichten */}
@@ -201,7 +221,7 @@ export default function ChatOverlay() {
                     <ChatBubble
                       key={item.data.id}
                       message={item.data}
-                      friendId={selectedFriendId}
+                      friendId={selectedContactId}
                       isOwn={item.data.senderId === 'me'}
                     />
                   )
@@ -262,27 +282,31 @@ export default function ChatOverlay() {
               </div>
             </>
           ) : (
-            /* ====== Freundesliste ====== */
+            /* ====== Kontaktliste ====== */
             <div className="flex-1 overflow-y-auto">
-              {chatFriends.map((friend) => {
-                const lastMsg = getLastMessage(friend.id)
-                const unread = unreadCounts[friend.id] || 0
+              {chatContacts.map((contact) => {
+                const lastMsg = getLastMessage(contact.id)
+                const unread = unreadCounts[contact.id] || 0
 
                 return (
                   <button
-                    key={friend.id}
-                    onClick={() => handleSelectFriend(friend.id)}
+                    key={contact.id}
+                    onClick={() => handleSelectContact(contact.id)}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left
                                hover:bg-bg-hover transition-colors cursor-pointer"
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
-                      <div className="w-9 h-9 bg-bg-hover rounded-full flex items-center justify-center text-base">
-                        {friend.emoji}
+                      <div className="w-9 h-9 bg-gradient-to-br from-accent to-purple-600 rounded-full flex items-center justify-center text-base">
+                        {contact.isBot ? (
+                          <Bot className="w-5 h-5 text-white" />
+                        ) : (
+                          contact.emoji
+                        )}
                       </div>
                       <span
                         className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-bg-secondary
-                          ${friend.isOnline ? 'bg-success' : 'bg-gray-500'}`}
+                          ${contact.isOnline ? 'bg-success' : 'bg-gray-500'}`}
                       />
                     </div>
 
@@ -292,7 +316,10 @@ export default function ChatOverlay() {
                         <span className={`text-xs font-semibold truncate ${
                           unread > 0 ? 'text-text-primary' : 'text-text-secondary'
                         }`}>
-                          {friend.displayName}
+                          {contact.displayName}
+                          {contact.isBot && (
+                            <span className="ml-1 text-[8px] bg-accent/20 text-accent px-1 py-0.5 rounded-full">AI</span>
+                          )}
                         </span>
                         {lastMsg && (
                           <span className="text-[9px] text-text-muted flex-shrink-0 ml-1">

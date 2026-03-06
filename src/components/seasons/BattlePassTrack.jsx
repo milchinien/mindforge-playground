@@ -4,7 +4,7 @@ import {
   Sparkles, ShieldCheck, Crown, Gem, Star, Frame,
 } from 'lucide-react'
 import { BATTLE_PASS_TIERS, RARITY_CONFIG } from '../../data/seasonData'
-import { useSeasonStore } from '../../stores/seasonStore'
+import { useSeasonStore, selectSeasonXP, selectIsPremiumPass } from '../../stores/seasonStore'
 
 // Map icon names to lucide components
 const ICON_MAP = {
@@ -119,8 +119,8 @@ function RewardSlot({ reward, tier, track, currentTier, isPremium, isClaimed }) 
 }
 
 export default function BattlePassTrack() {
-  const seasonXP = useSeasonStore((s) => s.seasonXP)
-  const isPremiumPass = useSeasonStore((s) => s.isPremiumPass)
+  const seasonXP = useSeasonStore(selectSeasonXP)
+  const isPremiumPass = useSeasonStore(selectIsPremiumPass)
   const isRewardClaimed = useSeasonStore((s) => s.isRewardClaimed)
   const currentTier = useSeasonStore((s) => s.getBattlePassTier)()
 

@@ -5,7 +5,6 @@ import { useInventoryStore } from './inventoryStore'
 import { useNotificationStore } from './notificationStore'
 import { useActivityStore } from './activityStore'
 
-// Calculate current week number based on season start
 function getCurrentWeek() {
   const now = new Date()
   const start = new Date(CURRENT_SEASON.startDate)
@@ -15,7 +14,6 @@ function getCurrentWeek() {
   return Math.min(diffWeeks + 1, WEEKLY_CHALLENGES.length)
 }
 
-// Calculate tier from total XP
 function getTierFromXP(xp) {
   let tier = 0
   for (const t of BATTLE_PASS_TIERS) {
@@ -28,7 +26,6 @@ function getTierFromXP(xp) {
   return tier
 }
 
-// Initialize challenge progress for a given week
 function initChallengeProgress(weekNumber) {
   const weekData = WEEKLY_CHALLENGES.find((w) => w.week === weekNumber)
   if (!weekData) return {}
@@ -39,36 +36,61 @@ function initChallengeProgress(weekNumber) {
   return progress
 }
 
+function createDefaultUserData() {
+  return {
+    currentSeasonId: CURRENT_SEASON.id,
+    seasonXP: 8450,
+    isPremiumPass: false,
+    claimedRewards: ['1-free', '1-premium', '2-free', '2-premium', '3-premium', '4-free', '5-free', '5-premium', '6-free', '7-premium', '8-free', '8-premium'],
+    currentWeek: getCurrentWeek(),
+    challengeProgress: {
+      'w1-c1': { current: 5, completed: true, claimed: true },
+      'w1-c2': { current: 3, completed: true, claimed: true },
+      'w1-c3': { current: 3, completed: true, claimed: true },
+      'w1-c4': { current: 10, completed: true, claimed: false },
+      'w1-c5': { current: 0, completed: false, claimed: false },
+      'w2-c1': { current: 2, completed: false, claimed: false },
+      'w2-c2': { current: 1200, completed: false, claimed: false },
+      'w2-c3': { current: 3, completed: false, claimed: false },
+      'w2-c4': { current: 1, completed: false, claimed: false },
+      'w2-c5': { current: 4, completed: false, claimed: false },
+    },
+  }
+}
+
+function getUserData(state) {
+  if (!state.currentUserId) return createDefaultUserData()
+  return state.userData[state.currentUserId] || createDefaultUserData()
+}
+
+// Selectors for components
+export const selectSeasonXP = (s) => getUserData(s).seasonXP
+export const selectIsPremiumPass = (s) => getUserData(s).isPremiumPass
+export const selectChallengeProgress = (s) => getUserData(s).challengeProgress
+export const selectCurrentWeek = (s) => getUserData(s).currentWeek
+export const selectClaimedRewards = (s) => getUserData(s).claimedRewards
+
 export const useSeasonStore = create(
   persist(
     (set, get) => ({
-      // Season state
-      currentSeasonId: CURRENT_SEASON.id,
-      seasonXP: 8450,
-      isPremiumPass: false,
+      userData: {},
+      currentUserId: null,
 
-      // Claimed rewards: set of "tier-free" or "tier-premium" strings
-      claimedRewards: new Set(['1-free', '1-premium', '2-free', '2-premium', '3-premium', '4-free', '5-free', '5-premium', '6-free', '7-premium', '8-free', '8-premium']),
-
-      // Weekly challenge progress: { challengeId: { current, completed, claimed } }
-      currentWeek: getCurrentWeek(),
-      challengeProgress: {
-        'w1-c1': { current: 5, completed: true, claimed: true },
-        'w1-c2': { current: 3, completed: true, claimed: true },
-        'w1-c3': { current: 3, completed: true, claimed: true },
-        'w1-c4': { current: 10, completed: true, claimed: false },
-        'w1-c5': { current: 0, completed: false, claimed: false },
-        'w2-c1': { current: 2, completed: false, claimed: false },
-        'w2-c2': { current: 1200, completed: false, claimed: false },
-        'w2-c3': { current: 3, completed: false, claimed: false },
-        'w2-c4': { current: 1, completed: false, claimed: false },
-        'w2-c5': { current: 4, completed: false, claimed: false },
+      setCurrentUser: (userId) => {
+        set((state) => {
+          if (userId && !state.userData[userId]) {
+            return {
+              currentUserId: userId,
+              userData: { ...state.userData, [userId]: createDefaultUserData() },
+            }
+          }
+          return { currentUserId: userId }
+        })
       },
 
-      // Computed getters
-      getBattlePassTier: () => getTierFromXP(get().seasonXP),
+      getBattlePassTier: () => getTierFromXP(getUserData(get()).seasonXP),
       getXPInCurrentTier: () => {
-        const xp = get().seasonXP
+        const xp = getUserData(get()).seasonXP
         const tier = getTierFromXP(xp)
         const currentTierData = BATTLE_PASS_TIERS.find((t) => t.tier === tier)
         const nextTierData = BATTLE_PASS_TIERS.find((t) => t.tier === tier + 1)
@@ -84,22 +106,36 @@ export const useSeasonStore = create(
         }
       },
 
-      // Actions
       addSeasonXP: (amount) => {
-        set((state) => ({
-          seasonXP: state.seasonXP + amount,
-        }))
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        set((state) => {
+          const ud = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: { ...ud, seasonXP: ud.seasonXP + amount },
+            },
+          }
+        })
       },
 
       claimReward: (tier, track) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
         const key = `${tier}-${track}`
         set((state) => {
-          const newClaimed = new Set(state.claimedRewards)
-          newClaimed.add(key)
-          return { claimedRewards: newClaimed }
+          const ud = getUserData(state)
+          const newClaimed = [...ud.claimedRewards]
+          if (!newClaimed.includes(key)) newClaimed.push(key)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: { ...ud, claimedRewards: newClaimed },
+            },
+          }
         })
 
-        // Cross-store side effects
         const tierData = BATTLE_PASS_TIERS.find(t => t.tier === tier)
         if (!tierData) return
 
@@ -141,32 +177,54 @@ export const useSeasonStore = create(
       },
 
       isRewardClaimed: (tier, track) => {
-        return get().claimedRewards.has(`${tier}-${track}`)
+        return getUserData(get()).claimedRewards.includes(`${tier}-${track}`)
       },
 
       completeChallenge: (challengeId) => {
-        set((state) => ({
-          challengeProgress: {
-            ...state.challengeProgress,
-            [challengeId]: {
-              ...state.challengeProgress[challengeId],
-              completed: true,
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        set((state) => {
+          const ud = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: {
+                ...ud,
+                challengeProgress: {
+                  ...ud.challengeProgress,
+                  [challengeId]: {
+                    ...ud.challengeProgress[challengeId],
+                    completed: true,
+                  },
+                },
+              },
             },
-          },
-        }))
+          }
+        })
       },
 
       claimChallengeReward: (challengeId, xpAmount) => {
-        set((state) => ({
-          challengeProgress: {
-            ...state.challengeProgress,
-            [challengeId]: {
-              ...state.challengeProgress[challengeId],
-              claimed: true,
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        set((state) => {
+          const ud = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: {
+                ...ud,
+                challengeProgress: {
+                  ...ud.challengeProgress,
+                  [challengeId]: {
+                    ...ud.challengeProgress[challengeId],
+                    claimed: true,
+                  },
+                },
+                seasonXP: ud.seasonXP + xpAmount,
+              },
             },
-          },
-          seasonXP: state.seasonXP + xpAmount,
-        }))
+          }
+        })
 
         useNotificationStore.getState()?.addNotification?.({
           type: 'season',
@@ -177,50 +235,70 @@ export const useSeasonStore = create(
       },
 
       updateChallengeProgress: (challengeId, current, target) => {
-        set((state) => ({
-          challengeProgress: {
-            ...state.challengeProgress,
-            [challengeId]: {
-              current: Math.min(current, target),
-              completed: current >= target,
-              claimed: state.challengeProgress[challengeId]?.claimed || false,
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        set((state) => {
+          const ud = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: {
+                ...ud,
+                challengeProgress: {
+                  ...ud.challengeProgress,
+                  [challengeId]: {
+                    current: Math.min(current, target),
+                    completed: current >= target,
+                    claimed: ud.challengeProgress[challengeId]?.claimed || false,
+                  },
+                },
+              },
             },
-          },
-        }))
+          }
+        })
       },
 
       upgradeToPremium: () => {
-        set({ isPremiumPass: true })
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        set((state) => {
+          const ud = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: { ...ud, isPremiumPass: true },
+            },
+          }
+        })
       },
 
       resetWeeklyChallenges: (weekNumber) => {
-        set({
-          currentWeek: weekNumber,
-          challengeProgress: {
-            ...get().challengeProgress,
-            ...initChallengeProgress(weekNumber),
-          },
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        set((state) => {
+          const ud = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: {
+                ...ud,
+                currentWeek: weekNumber,
+                challengeProgress: {
+                  ...ud.challengeProgress,
+                  ...initChallengeProgress(weekNumber),
+                },
+              },
+            },
+          }
         })
       },
+
     }),
     {
       name: 'mindforge-season',
       partialize: (state) => ({
-        currentSeasonId: state.currentSeasonId,
-        seasonXP: state.seasonXP,
-        isPremiumPass: state.isPremiumPass,
-        claimedRewards: Array.from(state.claimedRewards),
-        currentWeek: state.currentWeek,
-        challengeProgress: state.challengeProgress,
+        userData: state.userData,
       }),
-      merge: (persistedState, currentState) => {
-        if (!persistedState) return currentState
-        return {
-          ...currentState,
-          ...persistedState,
-          claimedRewards: new Set(persistedState.claimedRewards || []),
-        }
-      },
     }
   )
 )

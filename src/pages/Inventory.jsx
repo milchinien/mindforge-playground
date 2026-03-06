@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useInventoryStore } from '../stores/inventoryStore'
+import { useInventoryStore, selectItems } from '../stores/inventoryStore'
 import Tabs from '../components/ui/Tabs'
 
 const RARITY_STYLES = {
@@ -150,7 +150,7 @@ export default function Inventory() {
   const { t } = useTranslation()
   const [activeCategory, setActiveCategory] = useState('all')
 
-  const items = useInventoryStore((s) => s.items)
+  const items = useInventoryStore(selectItems)
   const { equipItem, unequipItem } = useInventoryStore()
 
   const filteredItems = activeCategory === 'all'

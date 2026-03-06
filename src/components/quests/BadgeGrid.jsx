@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { Lock, Check, Info } from 'lucide-react'
 import { BADGE_DEFINITIONS, RARITY_CONFIG } from '../../data/questData'
-import { useQuestStore } from '../../stores/questStore'
+import { useQuestStore, selectUnlockedBadges, selectSelectedBadges } from '../../stores/questStore'
 
 /**
  * BadgeGrid - Responsive badge collection grid
  * Shows all badges with rarity styling, locked state, and selection for profile showcase.
  */
 export default function BadgeGrid() {
-  const unlockedBadges = useQuestStore((s) => s.unlockedBadges)
-  const selectedBadges = useQuestStore((s) => s.selectedBadges)
+  const unlockedBadges = useQuestStore(selectUnlockedBadges)
+  const selectedBadges = useQuestStore(selectSelectedBadges)
   const selectBadge = useQuestStore((s) => s.selectBadge)
 
   const [tooltipBadge, setTooltipBadge] = useState(null)

@@ -6,89 +6,167 @@ import { useNotificationStore } from './notificationStore'
 import { useInventoryStore } from './inventoryStore'
 import { useActivityStore } from './activityStore'
 
+const DEFAULT_PROGRESS = {
+  games_played: 0,
+  games_completed: 0,
+  daily_streak: 0,
+  likes_given: 0,
+  total_playtime_minutes: 0,
+  following_count: 0,
+  followers_count: 0,
+  friends_count: 0,
+  avatar_customized: 0,
+  profile_complete: 0,
+  events_participated: 0,
+  events_completed: 0,
+  games_created: 0,
+  total_likes_received: 0,
+  total_plays_received: 0,
+  game_approval_rate: 0,
+  assets_sold: 0,
+  is_premium: 0,
+  unique_categories_played: 0,
+  category_games_completed: {
+    mathematik: 0, physik: 0, chemie: 0, biologie: 0,
+    geschichte: 0, sprachen: 0, informatik: 0, musik: 0,
+  },
+  category_perfect_scores: {
+    mathematik: 0, physik: 0,
+  },
+}
+
+const EMPTY_OBJ = {}
+const EMPTY_ARR = []
+
+function createDefaultUserData() {
+  return {
+    progress: JSON.parse(JSON.stringify(DEFAULT_PROGRESS)),
+    unlockedAchievements: {},
+    lastStreakDate: null,
+    categoriesPlayed: [],
+  }
+}
+
+function getUserData(state) {
+  if (!state.currentUserId) return createDefaultUserData()
+  return state.userData[state.currentUserId] || createDefaultUserData()
+}
+
+// Selectors for components
+export const selectProgress = (s) => s.userData[s.currentUserId]?.progress || DEFAULT_PROGRESS
+export const selectUnlockedAchievements = (s) => s.userData[s.currentUserId]?.unlockedAchievements || EMPTY_OBJ
+
 export const useAchievementStore = create(
   persist(
     (set, get) => ({
-      progress: {
-        games_played: 0,
-        games_completed: 0,
-        daily_streak: 0,
-        likes_given: 0,
-        total_playtime_minutes: 0,
-        following_count: 0,
-        followers_count: 0,
-        friends_count: 0,
-        avatar_customized: 0,
-        profile_complete: 0,
-        events_participated: 0,
-        events_completed: 0,
-        games_created: 0,
-        total_likes_received: 0,
-        total_plays_received: 0,
-        game_approval_rate: 0,
-        assets_sold: 0,
-        is_premium: 0,
-        unique_categories_played: 0,
-        category_games_completed: {
-          mathematik: 0, physik: 0, chemie: 0, biologie: 0,
-          geschichte: 0, sprachen: 0, informatik: 0, musik: 0,
-        },
-        category_perfect_scores: {
-          mathematik: 0, physik: 0,
-        },
-      },
+      userData: {},
+      currentUserId: null,
 
-      unlockedAchievements: {},
-      lastStreakDate: null,
-      categoriesPlayed: [],
+      setCurrentUser: (userId) => {
+        set((state) => {
+          if (userId && !state.userData[userId]) {
+            return {
+              currentUserId: userId,
+              userData: { ...state.userData, [userId]: createDefaultUserData() },
+            }
+          }
+          return { currentUserId: userId }
+        })
+      },
 
       incrementProgress: (field, amount = 1) => {
-        if (typeof get().progress[field] !== 'number') return
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        const ud = getUserData(get())
+        if (typeof ud.progress[field] !== 'number') return
         set((state) => ({
-          progress: { ...state.progress, [field]: state.progress[field] + amount },
-        }))
-        get().checkAchievements(field)
-      },
-
-      incrementCategoryProgress: (category, field, amount = 1) => {
-        const fieldObj = get().progress[field]
-        if (!fieldObj || typeof fieldObj[category] !== 'number') return
-        set((state) => ({
-          progress: {
-            ...state.progress,
-            [field]: { ...state.progress[field], [category]: state.progress[field][category] + amount },
+          userData: {
+            ...state.userData,
+            [currentUserId]: {
+              ...getUserData(state),
+              progress: { ...getUserData(state).progress, [field]: getUserData(state).progress[field] + amount },
+            },
           },
         }))
         get().checkAchievements(field)
       },
 
+      incrementCategoryProgress: (category, field, amount = 1) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        const ud = getUserData(get())
+        const fieldObj = ud.progress[field]
+        if (!fieldObj || typeof fieldObj[category] !== 'number') return
+        set((state) => {
+          const currentUd = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: {
+                ...currentUd,
+                progress: {
+                  ...currentUd.progress,
+                  [field]: { ...currentUd.progress[field], [category]: currentUd.progress[field][category] + amount },
+                },
+              },
+            },
+          }
+        })
+        get().checkAchievements(field)
+      },
+
       setSyncedProgress: (field, value) => {
-        set((state) => ({
-          progress: { ...state.progress, [field]: value },
-        }))
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        set((state) => {
+          const currentUd = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: {
+                ...currentUd,
+                progress: { ...currentUd.progress, [field]: value },
+              },
+            },
+          }
+        })
         get().checkAchievements(field)
       },
 
       trackCategoryPlayed: (category) => {
         if (!category) return
-        if (get().categoriesPlayed.includes(category)) return
-        const newCategories = [...get().categoriesPlayed, category]
-        set((state) => ({
-          categoriesPlayed: newCategories,
-          progress: { ...state.progress, unique_categories_played: newCategories.length },
-        }))
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        const ud = getUserData(get())
+        if (ud.categoriesPlayed.includes(category)) return
+        const newCategories = [...ud.categoriesPlayed, category]
+        set((state) => {
+          const currentUd = getUserData(state)
+          return {
+            userData: {
+              ...state.userData,
+              [currentUserId]: {
+                ...currentUd,
+                categoriesPlayed: newCategories,
+                progress: { ...currentUd.progress, unique_categories_played: newCategories.length },
+              },
+            },
+          }
+        })
         get().checkAchievements('unique_categories_played')
       },
 
       checkAchievements: (changedField = null) => {
-        const { progress, unlockedAchievements } = get()
+        const { currentUserId } = get()
+        if (!currentUserId) return []
+        const ud = getUserData(get())
+        const { progress, unlockedAchievements } = ud
         const newlyUnlocked = []
         const updatedUnlocked = { ...unlockedAchievements }
 
         for (const achievement of ALL_ACHIEVEMENTS) {
           if (updatedUnlocked[achievement.id]) continue
 
-          // Optimization: only check relevant achievements
           if (changedField !== null) {
             const reqType = achievement.requirement.type
             if (reqType !== changedField
@@ -124,9 +202,16 @@ export const useAchievementStore = create(
 
         if (newlyUnlocked.length === 0) return []
 
-        set({ unlockedAchievements: updatedUnlocked })
+        set((state) => ({
+          userData: {
+            ...state.userData,
+            [currentUserId]: {
+              ...getUserData(state),
+              unlockedAchievements: updatedUnlocked,
+            },
+          },
+        }))
 
-        // Cross-store side effects — deferred to next tick to avoid cascading re-renders
         setTimeout(() => {
           for (const achievement of newlyUnlocked) {
             useToastStore.getState()?.showToast?.(
@@ -163,44 +248,61 @@ export const useAchievementStore = create(
       },
 
       checkDailyStreak: () => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
+        const ud = getUserData(get())
         const today = new Date().toISOString().split('T')[0]
-        const { lastStreakDate } = get()
-        if (lastStreakDate === today) return
+        if (ud.lastStreakDate === today) return
 
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
-        if (lastStreakDate === yesterday) {
-          set((state) => ({
-            progress: { ...state.progress, daily_streak: state.progress.daily_streak + 1 },
-            lastStreakDate: today,
-          }))
+        if (ud.lastStreakDate === yesterday) {
+          set((state) => {
+            const currentUd = getUserData(state)
+            return {
+              userData: {
+                ...state.userData,
+                [currentUserId]: {
+                  ...currentUd,
+                  progress: { ...currentUd.progress, daily_streak: currentUd.progress.daily_streak + 1 },
+                  lastStreakDate: today,
+                },
+              },
+            }
+          })
         } else {
-          set((state) => ({
-            progress: { ...state.progress, daily_streak: 1 },
-            lastStreakDate: today,
-          }))
+          set((state) => {
+            const currentUd = getUserData(state)
+            return {
+              userData: {
+                ...state.userData,
+                [currentUserId]: {
+                  ...currentUd,
+                  progress: { ...currentUd.progress, daily_streak: 1 },
+                  lastStreakDate: today,
+                },
+              },
+            }
+          })
         }
 
         get().checkAchievements('daily_streak')
       },
 
-      getProgress: () => get().progress,
+      getProgress: () => getUserData(get()).progress,
 
-      isUnlocked: (achievementId) => achievementId in get().unlockedAchievements,
+      isUnlocked: (achievementId) => achievementId in getUserData(get()).unlockedAchievements,
 
-      getUnlockDate: (achievementId) => get().unlockedAchievements[achievementId] || null,
+      getUnlockDate: (achievementId) => getUserData(get()).unlockedAchievements[achievementId] || null,
 
-      getUnlockedCount: () => Object.keys(get().unlockedAchievements).length,
+      getUnlockedCount: () => Object.keys(getUserData(get()).unlockedAchievements).length,
 
-      getUnlockedIds: () => Object.keys(get().unlockedAchievements),
+      getUnlockedIds: () => Object.keys(getUserData(get()).unlockedAchievements),
     }),
     {
       name: 'mindforge-achievements',
       partialize: (state) => ({
-        progress: state.progress,
-        unlockedAchievements: state.unlockedAchievements,
-        lastStreakDate: state.lastStreakDate,
-        categoriesPlayed: state.categoriesPlayed,
+        userData: state.userData,
       }),
     }
   )

@@ -13,10 +13,9 @@ const navItems = [
 
 export default function BottomNav() {
   const { user } = useAuth()
-  const unreadCounts = useChatStore((s) => s.unreadCounts)
+  const getTotalUnread = useChatStore((s) => s.getTotalUnread)
 
-  // Calculate total unread messages
-  const totalUnread = Object.values(unreadCounts || {}).reduce((sum, count) => sum + count, 0)
+  const totalUnread = getTotalUnread()
 
   return (
     <nav

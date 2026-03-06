@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { mockGames } from '../data/mockGames'
 
-const DEFAULT_STATS = { likes: 0, dislikes: 0, views: 0, plays: 0, avgRating: 0, ratingCount: 0 }
+const DEFAULT_STATS = { likes: 0, dislikes: 0, views: 0, plays: 0 }
 
 function buildInitialGlobalStats() {
   const stats = {}
@@ -12,8 +12,6 @@ function buildInitialGlobalStats() {
       dislikes: game.dislikes || 0,
       views: game.views || 0,
       plays: game.plays || 0,
-      avgRating: 0,
-      ratingCount: 0,
     }
   }
   return stats
@@ -27,64 +25,91 @@ function ensureStats(globalStats, gameId) {
 export const useGameInteractionStore = create(
   persist(
     (set, get) => ({
-      likes: {},
-      dislikes: {},
+      // Per-user likes/dislikes: { [userId]: { [gameId]: true/false } }
+      userLikes: {},
+      userDislikes: {},
+
+      // Play counts (global)
       plays: {},
-      ratings: {},
       viewedThisSession: {},
+
+      // Global stats (shared across users)
       globalStats: buildInitialGlobalStats(),
+
+      // Current user ID
+      currentUserId: null,
+
+      setCurrentUser: (userId) => {
+        set({ currentUserId: userId })
+      },
 
       toggleLike: (gameId) => {
         if (!gameId) return
-        const { likes, dislikes, globalStats } = get()
-        const wasLiked = likes[gameId] === true
-        const wasDisliked = dislikes[gameId] === true
+        const { currentUserId, userLikes, userDislikes, globalStats } = get()
+        if (!currentUserId) return
+
+        const myLikes = userLikes[currentUserId] || {}
+        const myDislikes = userDislikes[currentUserId] || {}
+        const wasLiked = myLikes[gameId] === true
+        const wasDisliked = myDislikes[gameId] === true
         const stats = ensureStats(globalStats, gameId)
 
-        const newLikes = { ...likes }
-        const newDislikes = { ...dislikes }
+        const newMyLikes = { ...myLikes }
+        const newMyDislikes = { ...myDislikes }
         const newStats = { ...globalStats, [gameId]: { ...stats } }
 
         if (wasLiked) {
-          newLikes[gameId] = false
+          newMyLikes[gameId] = false
           newStats[gameId].likes = Math.max(0, stats.likes - 1)
         } else {
-          newLikes[gameId] = true
+          newMyLikes[gameId] = true
           newStats[gameId].likes = stats.likes + 1
           if (wasDisliked) {
-            newDislikes[gameId] = false
+            newMyDislikes[gameId] = false
             newStats[gameId].dislikes = Math.max(0, stats.dislikes - 1)
           }
         }
 
-        set({ likes: newLikes, dislikes: newDislikes, globalStats: newStats })
-        return !wasLiked // returns true if this was a new like
+        set({
+          userLikes: { ...userLikes, [currentUserId]: newMyLikes },
+          userDislikes: { ...userDislikes, [currentUserId]: newMyDislikes },
+          globalStats: newStats,
+        })
+        return !wasLiked
       },
 
       toggleDislike: (gameId) => {
         if (!gameId) return
-        const { likes, dislikes, globalStats } = get()
-        const wasDisliked = dislikes[gameId] === true
-        const wasLiked = likes[gameId] === true
+        const { currentUserId, userLikes, userDislikes, globalStats } = get()
+        if (!currentUserId) return
+
+        const myLikes = userLikes[currentUserId] || {}
+        const myDislikes = userDislikes[currentUserId] || {}
+        const wasDisliked = myDislikes[gameId] === true
+        const wasLiked = myLikes[gameId] === true
         const stats = ensureStats(globalStats, gameId)
 
-        const newLikes = { ...likes }
-        const newDislikes = { ...dislikes }
+        const newMyLikes = { ...myLikes }
+        const newMyDislikes = { ...myDislikes }
         const newStats = { ...globalStats, [gameId]: { ...stats } }
 
         if (wasDisliked) {
-          newDislikes[gameId] = false
+          newMyDislikes[gameId] = false
           newStats[gameId].dislikes = Math.max(0, stats.dislikes - 1)
         } else {
-          newDislikes[gameId] = true
+          newMyDislikes[gameId] = true
           newStats[gameId].dislikes = stats.dislikes + 1
           if (wasLiked) {
-            newLikes[gameId] = false
+            newMyLikes[gameId] = false
             newStats[gameId].likes = Math.max(0, stats.likes - 1)
           }
         }
 
-        set({ likes: newLikes, dislikes: newDislikes, globalStats: newStats })
+        set({
+          userLikes: { ...userLikes, [currentUserId]: newMyLikes },
+          userDislikes: { ...userDislikes, [currentUserId]: newMyDislikes },
+          globalStats: newStats,
+        })
       },
 
       recordView: (gameId) => {
@@ -110,53 +135,35 @@ export const useGameInteractionStore = create(
         })
       },
 
-      setRating: (gameId, rating) => {
-        if (!gameId) return
-        const { ratings, globalStats } = get()
-        const oldRating = ratings[gameId] || 0
-        const stats = ensureStats(globalStats, gameId)
-        const newStats = { ...stats }
-
-        if (oldRating === 0) {
-          newStats.ratingCount = stats.ratingCount + 1
-          newStats.avgRating = ((stats.avgRating * (newStats.ratingCount - 1)) + rating) / newStats.ratingCount
-        } else {
-          newStats.avgRating = ((stats.avgRating * stats.ratingCount) - oldRating + rating) / stats.ratingCount
-        }
-
-        set({
-          ratings: { ...ratings, [gameId]: rating },
-          globalStats: { ...globalStats, [gameId]: newStats },
-        })
-      },
-
       getGameStats: (gameId) => get().globalStats[gameId] || { ...DEFAULT_STATS },
 
-      hasLiked: (gameId) => get().likes[gameId] === true,
+      hasLiked: (gameId) => {
+        const s = get()
+        if (!s.currentUserId) return false
+        return (s.userLikes[s.currentUserId] || {})[gameId] === true
+      },
 
-      hasDisliked: (gameId) => get().dislikes[gameId] === true,
-
-      getUserRating: (gameId) => get().ratings[gameId] || 0,
+      hasDisliked: (gameId) => {
+        const s = get()
+        if (!s.currentUserId) return false
+        return (s.userDislikes[s.currentUserId] || {})[gameId] === true
+      },
 
       getTotalUserPlays: () => Object.values(get().plays).reduce((sum, p) => sum + p, 0),
 
       deleteGameStats: (gameId) => {
-        const { likes, dislikes, plays, ratings, globalStats } = get()
-        const newLikes = { ...likes }; delete newLikes[gameId]
-        const newDislikes = { ...dislikes }; delete newDislikes[gameId]
+        const { plays, globalStats } = get()
         const newPlays = { ...plays }; delete newPlays[gameId]
-        const newRatings = { ...ratings }; delete newRatings[gameId]
         const newGlobalStats = { ...globalStats }; delete newGlobalStats[gameId]
-        set({ likes: newLikes, dislikes: newDislikes, plays: newPlays, ratings: newRatings, globalStats: newGlobalStats })
+        set({ plays: newPlays, globalStats: newGlobalStats })
       },
     }),
     {
-      name: 'mindforge-game-interactions',
+      name: 'mindforge-game-interactions-v2',
       partialize: (state) => ({
-        likes: state.likes,
-        dislikes: state.dislikes,
+        userLikes: state.userLikes,
+        userDislikes: state.userDislikes,
         plays: state.plays,
-        ratings: state.ratings,
         globalStats: state.globalStats,
       }),
     }

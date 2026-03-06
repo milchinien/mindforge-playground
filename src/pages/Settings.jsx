@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Settings as SettingsIcon, Bell, Shield, Eye } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useThemeStore } from '../stores/themeStore'
-import { useNotificationStore } from '../stores/notificationStore'
+import { useNotificationStore, selectNotifSettings } from '../stores/notificationStore'
 import { useSettingsStore } from '../stores/settingsStore'
 import Modal from '../components/common/Modal'
 import Tabs from '../components/ui/Tabs'
@@ -17,7 +17,7 @@ export default function Settings() {
   const { t, i18n } = useTranslation()
   const { user, logout } = useAuth()
   const theme = useThemeStore((s) => s.theme)
-  const notifSettings = useNotificationStore((s) => s.settings)
+  const notifSettings = useNotificationStore(selectNotifSettings)
   const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState('general')

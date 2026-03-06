@@ -1,215 +1,257 @@
-// Mock-Daten fuer das Chat-System
+// Chat-System Daten
 
-const now = Date.now()
-const MINUTE = 60000
-const HOUR = 3600000
-const DAY = 86400000
+// MindForge AI Lernassistent
+export const mindForgeBot = {
+  id: 'mindforge-ai',
+  username: 'ForgeBot',
+  displayName: 'ForgeBot',
+  emoji: '\u2699\uFE0F',
+  isOnline: true,
+  isBot: true,
+  lastSeen: Date.now(),
+}
 
-// Freunde fuer Chat-Konversationen
-export const chatFriends = [
-  {
-    id: 'friend-1',
-    username: 'MaxGamer99',
-    displayName: 'Max',
-    emoji: '\uD83D\uDE0E',
-    isOnline: true,
-    lastSeen: now,
+// Willkommensnachricht vom Bot
+export function getWelcomeMessages() {
+  const now = Date.now()
+  return [
+    {
+      id: 'welcome-1',
+      senderId: 'mindforge-ai',
+      text: 'Hey! Ich bin ForgeBot, dein persoenlicher Lernassistent bei MindForge! \u{1F916}',
+      timestamp: now - 2000,
+      reactions: [],
+    },
+    {
+      id: 'welcome-2',
+      senderId: 'mindforge-ai',
+      text: 'Ich kann dir helfen mit:\n\n\u2022 Lerntipps zu jedem Fach\n\u2022 Spiel-Empfehlungen passend zu deinen Interessen\n\u2022 Motivation und Lernstrategien\n\nSchreib mir einfach, was du lernen moechtest!',
+      timestamp: now - 1000,
+      reactions: [],
+    },
+  ]
+}
+
+// Spiel-Empfehlungen nach Fach
+const gameRecommendations = {
+  mathematik: {
+    tips: [
+      'Versuche taeglich 10-15 Minuten Mathe zu ueben - Regelmaessigkeit schlaegt Intensitaet!',
+      'Verstehe die Konzepte, statt nur Formeln auswendig zu lernen.',
+      'Fehler sind deine besten Lehrer - analysiere jeden Fehler genau.',
+    ],
+    games: [
+      { title: 'Mathe-Meister', desc: 'Teste dein Wissen von Addition bis Multiplikation', id: 'game-001' },
+      { title: 'Bruchrechnung-Challenge', desc: 'Meistere Brueche spielerisch', id: 'game-013' },
+    ],
   },
-  {
-    id: 'friend-2',
-    username: 'LenaLernt',
-    displayName: 'Lena',
-    emoji: '\uD83E\uDD13',
-    isOnline: true,
-    lastSeen: now - MINUTE * 3,
+  physik: {
+    tips: [
+      'Physik wird klarer, wenn du dir Alltagsbeispiele ueberlegst.',
+      'Zeichne Skizzen und Diagramme - sie helfen beim Verstaendnis enorm!',
+      'Experimentiere! Auch gedankliche Experimente helfen.',
+    ],
+    games: [
+      { title: 'Physik-Simulator', desc: 'Experimentiere mit Schwerkraft und Reibung', id: 'game-002' },
+    ],
   },
-  {
-    id: 'friend-3',
-    username: 'PixelPaul',
-    displayName: 'Paul',
-    emoji: '\uD83C\uDFA8',
-    isOnline: false,
-    lastSeen: now - HOUR * 2,
+  chemie: {
+    tips: [
+      'Lerne das Periodensystem in Gruppen, nicht alles auf einmal.',
+      'Verstehe die Elektronenkonfiguration - sie erklaert fast alles!',
+      'Erstelle Karteikarten fuer chemische Reaktionen.',
+    ],
+    games: [
+      { title: 'Chemie-Labor', desc: 'Mische Elemente und entdecke Reaktionen', id: 'game-003' },
+      { title: 'Periodensystem-Explorer', desc: 'Entdecke alle Elemente interaktiv', id: 'game-014' },
+    ],
   },
-  {
-    id: 'friend-4',
-    username: 'SarahStar',
-    displayName: 'Sarah',
-    emoji: '\u2B50',
-    isOnline: false,
-    lastSeen: now - DAY * 1,
+  deutsch: {
+    tips: [
+      'Lies taeglich mindestens 15 Minuten - egal was, Hauptsache lesen!',
+      'Fuehre ein Wortschatz-Tagebuch mit neuen Woertern.',
+      'Uebe Rechtschreibung mit Diktaten.',
+    ],
+    games: [
+      { title: 'Wort-Wizard', desc: 'Erweitere deinen Wortschatz spielerisch', id: 'game-004' },
+      { title: 'Grammatik-Gladiator', desc: 'Kaempfe dich durch Grammatik-Challenges', id: 'game-018' },
+    ],
   },
+  englisch: {
+    tips: [
+      'Schau Filme und Serien auf Englisch mit Untertiteln.',
+      'Denke in Englisch - beschreibe deinen Tag im Kopf auf Englisch!',
+      'Nutze Vokabel-Apps fuer taegliches Training.',
+    ],
+    games: [
+      { title: 'English Vocabulary Master', desc: 'Lerne und uebe englische Vokabeln', id: 'game-007' },
+    ],
+  },
+  biologie: {
+    tips: [
+      'Erstelle Mind-Maps fuer biologische Systeme.',
+      'Verbinde Theorie mit der Natur - beobachte Pflanzen und Tiere!',
+      'Lerne mit Bildern und Diagrammen.',
+    ],
+    games: [
+      { title: 'Bio-Puzzle: Zellen', desc: 'Entdecke den Aufbau der Zelle', id: 'game-006' },
+      { title: 'Oekosystem-Simulator', desc: 'Verwalte dein eigenes Oekosystem', id: 'game-017' },
+    ],
+  },
+  geschichte: {
+    tips: [
+      'Erstelle Zeitleisten - sie helfen, Zusammenhaenge zu sehen.',
+      'Versuche, Geschichte wie eine Story zu verstehen, nicht als Daten.',
+      'Diskutiere historische Ereignisse mit anderen.',
+    ],
+    games: [
+      { title: 'Geschichte-Abenteuer: Mittelalter', desc: 'Erlebe das Mittelalter hautnah', id: 'game-008' },
+      { title: 'Strategie: Roemisches Reich', desc: 'Baue das Roemische Reich auf', id: 'game-015' },
+    ],
+  },
+  geographie: {
+    tips: [
+      'Nutze Google Maps zum Erkunden - virtuelles Reisen bildet!',
+      'Lerne Laender in Gruppen (nach Kontinent).',
+      'Verbinde Geographie mit aktuellen Nachrichten.',
+    ],
+    games: [
+      { title: 'GeoQuest - Weltreise', desc: 'Reise um die Welt und lerne Geographie', id: 'game-005' },
+    ],
+  },
+  informatik: {
+    tips: [
+      'Programmieren lernt man nur durch Programmieren - uebe taeglich!',
+      'Starte mit kleinen Projekten, die dich interessieren.',
+      'Lies Code von anderen und verstehe ihn.',
+    ],
+    games: [
+      { title: 'Code-Knacker', desc: 'Loese Programmier-Raetsel', id: 'game-009' },
+      { title: 'Python-Abenteuer', desc: 'Lerne Python spielerisch', id: 'game-016' },
+    ],
+  },
+  kunst: {
+    tips: [
+      'Uebe taeglich Skizzieren - auch 5 Minuten reichen.',
+      'Studiere Kunstwerke beruehmter Kuenstler.',
+      'Experimentiere mit verschiedenen Techniken.',
+    ],
+    games: [
+      { title: 'Kunst-Atelier', desc: 'Erstelle digitale Kunstwerke', id: 'game-010' },
+    ],
+  },
+  musik: {
+    tips: [
+      'Uebe ein Instrument regelmaessig, auch wenn nur 10 Minuten.',
+      'Hoere verschiedene Musikgenres bewusst an.',
+      'Lerne Noten lesen - es oeffnet eine neue Welt!',
+    ],
+    games: [
+      { title: 'Musik-Memory', desc: 'Trainiere dein musikalisches Gehoer', id: 'game-011' },
+    ],
+  },
+}
+
+// Keyword-Zuordnung zu Faechern
+const subjectKeywords = {
+  mathematik: ['mathe', 'mathematik', 'rechnen', 'zahlen', 'algebra', 'geometrie', 'bruch', 'brueche', 'gleichung', 'formel', 'addition', 'multiplikation', 'division', 'subtraktion', 'prozent'],
+  physik: ['physik', 'kraft', 'energie', 'schwerkraft', 'geschwindigkeit', 'beschleunigung', 'strom', 'spannung', 'widerstand', 'newton', 'elektrizitaet'],
+  chemie: ['chemie', 'element', 'atom', 'molekuel', 'reaktion', 'periodensystem', 'saeure', 'base', 'bindung', 'ion'],
+  deutsch: ['deutsch', 'grammatik', 'rechtschreibung', 'aufsatz', 'lesen', 'schreiben', 'wortschatz', 'diktat', 'literatur', 'gedicht'],
+  englisch: ['englisch', 'english', 'vokabeln', 'vocabulary', 'grammar', 'sprache'],
+  biologie: ['bio', 'biologie', 'zelle', 'evolution', 'oekosystem', 'pflanze', 'tier', 'organ', 'dna', 'genetik', 'koerper'],
+  geschichte: ['geschichte', 'history', 'mittelalter', 'roemer', 'krieg', 'epoche', 'antike', 'revolution', 'kaiser'],
+  geographie: ['geo', 'geographie', 'erdkunde', 'land', 'laender', 'kontinent', 'hauptstadt', 'karte', 'klima'],
+  informatik: ['informatik', 'programmieren', 'coding', 'code', 'python', 'javascript', 'computer', 'algorithmus', 'software', 'programmierung'],
+  kunst: ['kunst', 'malen', 'zeichnen', 'kreativ', 'design', 'farbe', 'skulptur', 'kuenstler'],
+  musik: ['musik', 'instrument', 'noten', 'melodie', 'rhythmus', 'klavier', 'gitarre', 'singen'],
+}
+
+// Allgemeine Lerntipps
+const generalTips = [
+  'Plane feste Lernzeiten ein und halte sie ein - Gewohnheiten sind der Schluessel!',
+  'Nutze die Pomodoro-Technik: 25 Min lernen, 5 Min Pause.',
+  'Erklaere den Stoff laut jemandem (oder dir selbst) - das vertieft das Verstaendnis.',
+  'Abwechslung hilft! Wechsle zwischen verschiedenen Faechern.',
+  'Ausreichend Schlaf ist wichtig - im Schlaf wird Gelerntes gefestigt.',
+  'Trinke genug Wasser beim Lernen - dein Gehirn braucht es!',
+  'Belohne dich nach einer Lernsession - das motiviert langfristig.',
+  'Erstelle Zusammenfassungen in eigenen Worten.',
+  'Nutze verschiedene Sinne: lesen, hoeren, schreiben, zeichnen.',
+  'Fange mit dem schwierigsten Fach an, solange du noch frisch bist.',
 ]
 
-// Mock-Konversationen
-export const mockConversations = {
-  'friend-1': {
-    friendId: 'friend-1',
-    messages: [
-      {
-        id: 'msg-1-1',
-        senderId: 'friend-1',
-        text: 'Hey! Hast du schon das neue Mathe-Spiel ausprobiert?',
-        timestamp: now - HOUR * 3,
-        reactions: [],
-      },
-      {
-        id: 'msg-1-2',
-        senderId: 'me',
-        text: 'Noch nicht, ist es gut?',
-        timestamp: now - HOUR * 3 + MINUTE * 2,
-        reactions: [],
-      },
-      {
-        id: 'msg-1-3',
-        senderId: 'friend-1',
-        text: 'Mega! Ich hab schon 12.000 Punkte geschafft. Die Physik-Levels sind echt knifflig.',
-        timestamp: now - HOUR * 3 + MINUTE * 5,
-        reactions: ['\uD83D\uDD25'],
-      },
-      {
-        id: 'msg-1-4',
-        senderId: 'me',
-        text: 'Nice, das probiere ich heute Abend mal aus!',
-        timestamp: now - HOUR * 2 + MINUTE * 45,
-        reactions: [],
-      },
-      {
-        id: 'msg-1-5',
-        senderId: 'friend-1',
-        text: 'Sag Bescheid wenn du spielst, dann koennen wir zusammen die Quiz-Arena machen!',
-        timestamp: now - HOUR * 2 + MINUTE * 48,
-        reactions: ['\uD83D\uDC4D'],
-      },
-      {
-        id: 'msg-1-6',
-        senderId: 'me',
-        text: 'Klar, mach ich! Bin ab 18 Uhr online.',
-        timestamp: now - HOUR * 1,
-        reactions: [],
-      },
-    ],
-  },
-  'friend-2': {
-    friendId: 'friend-2',
-    messages: [
-      {
-        id: 'msg-2-1',
-        senderId: 'friend-2',
-        text: 'Hi! Kannst du mir bei dem Chemie-Quiz helfen? Ich komm bei Level 5 nicht weiter.',
-        timestamp: now - DAY * 1,
-        reactions: [],
-      },
-      {
-        id: 'msg-2-2',
-        senderId: 'me',
-        text: 'Klar! Bei Level 5 musst du die Elemente nach Elektronegativitaet sortieren.',
-        timestamp: now - DAY * 1 + MINUTE * 15,
-        reactions: ['\u2764\uFE0F'],
-      },
-      {
-        id: 'msg-2-3',
-        senderId: 'friend-2',
-        text: 'Ahh, danke! Das hat geholfen. Hab jetzt 3 Sterne!',
-        timestamp: now - DAY * 1 + MINUTE * 40,
-        reactions: ['\uD83C\uDF89'],
-      },
-      {
-        id: 'msg-2-4',
-        senderId: 'friend-2',
-        text: 'Uebrigens, hast du Lust morgen zusammen ein Spiel zu erstellen?',
-        timestamp: now - HOUR * 5,
-        reactions: [],
-      },
-      {
-        id: 'msg-2-5',
-        senderId: 'me',
-        text: 'Ja, mega gerne! Was fuer ein Thema?',
-        timestamp: now - HOUR * 4,
-        reactions: [],
-      },
-      {
-        id: 'msg-2-6',
-        senderId: 'friend-2',
-        text: 'Ich dachte an ein Biologie-Memory mit Zellen und Organellen. Waere das cool?',
-        timestamp: now - HOUR * 3 + MINUTE * 30,
-        reactions: [],
-      },
-    ],
-  },
-  'friend-3': {
-    friendId: 'friend-3',
-    messages: [
-      {
-        id: 'msg-3-1',
-        senderId: 'me',
-        text: 'Paul, dein neues Spiel sieht echt toll aus!',
-        timestamp: now - DAY * 2,
-        reactions: [],
-      },
-      {
-        id: 'msg-3-2',
-        senderId: 'friend-3',
-        text: 'Danke! Hab ueber 2 Wochen daran gearbeitet. Die Grafiken waren am schwierigsten.',
-        timestamp: now - DAY * 2 + MINUTE * 10,
-        reactions: [],
-      },
-      {
-        id: 'msg-3-3',
-        senderId: 'friend-3',
-        text: 'Hast du schon das Easter Egg auf Level 3 gefunden?',
-        timestamp: now - DAY * 2 + MINUTE * 12,
-        reactions: ['\uD83D\uDC40'],
-      },
-      {
-        id: 'msg-3-4',
-        senderId: 'me',
-        text: 'Nee, noch nicht! Gib mir einen Hinweis?',
-        timestamp: now - DAY * 1 - HOUR * 20,
-        reactions: [],
-      },
-      {
-        id: 'msg-3-5',
-        senderId: 'friend-3',
-        text: 'Klick 3x auf den blauen Kristall! Mehr sag ich nicht.',
-        timestamp: now - DAY * 1 - HOUR * 18,
-        reactions: ['\uD83D\uDE02'],
-      },
-    ],
-  },
-  'friend-4': {
-    friendId: 'friend-4',
-    messages: [
-      {
-        id: 'msg-4-1',
-        senderId: 'friend-4',
-        text: 'Hey, willst du meinem Team fuer das Event am Wochenende beitreten?',
-        timestamp: now - DAY * 3,
-        reactions: [],
-      },
-      {
-        id: 'msg-4-2',
-        senderId: 'me',
-        text: 'Welches Event meinst du?',
-        timestamp: now - DAY * 3 + MINUTE * 30,
-        reactions: [],
-      },
-      {
-        id: 'msg-4-3',
-        senderId: 'friend-4',
-        text: 'Das Wissens-Turnier! 3er-Teams, jeder nimmt ein Fach. Ich mach Geschichte, brauch noch jemanden fuer Mathe und Naturwissenschaften.',
-        timestamp: now - DAY * 3 + MINUTE * 35,
-        reactions: [],
-      },
-      {
-        id: 'msg-4-4',
-        senderId: 'me',
-        text: 'Bin dabei! Ich nehm Mathe.',
-        timestamp: now - DAY * 2 - HOUR * 10,
-        reactions: ['\uD83D\uDE4C'],
-      },
-    ],
-  },
+// Motivations-Sprueche
+const motivationResponses = [
+  'Du schaffst das! Jeder Experte war mal ein Anfaenger. \u{1F4AA}',
+  'Dranbleiben! Fortschritt passiert oft unsichtbar, bevor der Durchbruch kommt.',
+  'Fehler sind keine Niederlagen - sie sind Lernchancen. Weiter so!',
+  'Stell dir vor, wie stolz du sein wirst, wenn du es geschafft hast!',
+  'Kleine Schritte fuehren auch zum Ziel. Du bist auf dem richtigen Weg!',
+]
+
+// Generiert eine Bot-Antwort basierend auf der Nachricht
+export function generateBotResponse(userMessage) {
+  const msg = userMessage.toLowerCase()
+
+  // Begruessungen
+  if (/^(hi|hallo|hey|moin|servus|guten\s*(tag|morgen|abend))/.test(msg)) {
+    return 'Hallo! Wie kann ich dir heute beim Lernen helfen? Sag mir einfach, welches Fach dich interessiert! \u{1F4DA}'
+  }
+
+  // Danke
+  if (/^(danke|thx|thanks|dankeschoen|vielen dank)/.test(msg)) {
+    return 'Gern geschehen! Wenn du noch Fragen hast, bin ich jederzeit hier. \u{1F60A}'
+  }
+
+  // Hilfe
+  if (/^(hilfe|help|was kannst du|was machst du)/.test(msg)) {
+    return 'Ich kann dir helfen mit:\n\n\u2022 Lerntipps zu jedem Fach (z.B. "Tipps fuer Mathe")\n\u2022 Spiel-Empfehlungen (z.B. "Empfehle mir Physik-Spiele")\n\u2022 Motivation wenn du sie brauchst\n\u2022 Lernstrategien und -techniken\n\nFrag einfach los!'
+  }
+
+  // Motivation
+  if (/(motivation|motivier|keine lust|keinen bock|schwer|schaff.*nicht|aufgeben|frustriert|gestresst)/.test(msg)) {
+    return motivationResponses[Math.floor(Math.random() * motivationResponses.length)]
+  }
+
+  // Fach erkennen
+  for (const [subject, keywords] of Object.entries(subjectKeywords)) {
+    if (keywords.some(kw => msg.includes(kw))) {
+      const data = gameRecommendations[subject]
+      if (!data) continue
+
+      const tip = data.tips[Math.floor(Math.random() * data.tips.length)]
+      let response = `\u{1F4A1} Lerntipp fuer ${subject.charAt(0).toUpperCase() + subject.slice(1)}:\n${tip}`
+
+      if (data.games.length > 0) {
+        response += '\n\n\u{1F3AE} Passende Spiele auf MindForge:'
+        for (const game of data.games) {
+          response += `\n\u2022 ${game.title} - ${game.desc}`
+        }
+      }
+
+      return response
+    }
+  }
+
+  // Allgemeine Lernfragen
+  if (/(lern|tipps?|strategie|besser|verbessern|ueben|training|pruefung|klausur|test|hausaufgabe)/.test(msg)) {
+    const tip = generalTips[Math.floor(Math.random() * generalTips.length)]
+    return `\u{1F4A1} Lerntipp:\n${tip}\n\nWenn du mir sagst, welches Fach du uebst, kann ich dir gezieltere Tipps und passende Spiele empfehlen!`
+  }
+
+  // Spiel-Empfehlung allgemein
+  if (/(spiel|game|empfehl|vorschlag|spielen|zocken)/.test(msg)) {
+    return 'Welches Fach interessiert dich? Ich kann dir passende Lernspiele empfehlen fuer:\n\n\u2022 Mathe & Physik\n\u2022 Chemie & Biologie\n\u2022 Deutsch & Englisch\n\u2022 Geschichte & Geographie\n\u2022 Informatik, Kunst & Musik\n\nSag einfach das Fach!'
+  }
+
+  // Fallback
+  const fallbacks = [
+    'Sag mir, welches Fach dich interessiert, und ich gebe dir Lerntipps und passende Spiel-Empfehlungen!',
+    'Ich helfe dir gerne beim Lernen! Nenn mir einfach ein Fach oder frag nach Lerntipps.',
+    'Moechtest du Tipps zu einem bestimmten Schulfach? Oder soll ich dir ein Lernspiel empfehlen?',
+  ]
+  return fallbacks[Math.floor(Math.random() * fallbacks.length)]
 }
 
 // Content-Filter Wortliste (Jugendschutz)

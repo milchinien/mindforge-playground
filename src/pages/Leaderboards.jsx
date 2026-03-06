@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { mockGames } from '../data/mockGames'
 import PremiumBadge from '../components/premium/PremiumBadge'
 import Tabs from '../components/ui/Tabs'
-import { useAchievementStore } from '../stores/achievementStore'
-import { useSeasonStore } from '../stores/seasonStore'
+import { useAchievementStore, selectProgress } from '../stores/achievementStore'
+import { useSeasonStore, selectSeasonXP } from '../stores/seasonStore'
 
 // --- Mock leaderboard data ---
 const MOCK_PLAYERS = [
@@ -147,8 +147,8 @@ export default function Leaderboards() {
   const [showGameDropdown, setShowGameDropdown] = useState(false)
 
   // Real user stats from stores
-  const progress = useAchievementStore((s) => s.progress)
-  const seasonXP = useSeasonStore((s) => s.seasonXP)
+  const progress = useAchievementStore(selectProgress)
+  const seasonXP = useSeasonStore(selectSeasonXP)
 
   const currentUserStats = useMemo(() => ({
     xp: seasonXP,

@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { mockConversations, blockedWords } from '../data/chatData'
+import { blockedWords, getWelcomeMessages, generateBotResponse } from '../data/chatData'
+
+// Stabile leere Objekte fuer Selektoren (verhindert infinite re-renders bei zustand Object.is Vergleich)
+const EMPTY_OBJ = {}
 
 // Content-Filter: Ersetzt verbotene Woerter mit ***
 function filterContent(text) {
@@ -13,19 +16,25 @@ function filterContent(text) {
   return filtered
 }
 
+// Initialisiert Bot-Konversation fuer einen User
+function createBotConversation() {
+  return {
+    friendId: 'mindforge-ai',
+    messages: getWelcomeMessages(),
+  }
+}
+
 export const useChatStore = create(
   persist(
     (set, get) => ({
-      // Konversationen nach FriendId
-      conversations: mockConversations,
+      // Alle Konversationen, pro User gespeichert: { [userId]: { [chatId]: conversation } }
+      userConversations: {},
 
-      // Ungelesene Nachrichten pro Freund
-      unreadCounts: {
-        'friend-1': 1,
-        'friend-2': 2,
-        'friend-3': 0,
-        'friend-4': 0,
-      },
+      // Ungelesene Nachrichten pro User: { [userId]: { [chatId]: count } }
+      userUnreadCounts: {},
+
+      // Aktueller User
+      currentUserId: null,
 
       // Aktuell geoeffneter Chat
       activeChatId: null,
@@ -34,17 +43,57 @@ export const useChatStore = create(
       overlayOpen: false,
       overlayMinimized: false,
 
+      // Aktuellen User setzen (wird beim Login/Auth-Change aufgerufen)
+      setCurrentUser: (userId) => {
+        const state = get()
+        // Bot-Konversation initialisieren falls noch nicht vorhanden
+        if (userId && !state.userConversations[userId]) {
+          set((s) => ({
+            currentUserId: userId,
+            activeChatId: null,
+            userConversations: {
+              ...s.userConversations,
+              [userId]: {
+                'mindforge-ai': createBotConversation(),
+              },
+            },
+            userUnreadCounts: {
+              ...s.userUnreadCounts,
+              [userId]: { 'mindforge-ai': 1 },
+            },
+          }))
+        } else {
+          set({ currentUserId: userId, activeChatId: null })
+        }
+      },
+
+      // Konversationen des aktuellen Users holen
+      getConversations: () => {
+        const { currentUserId, userConversations } = get()
+        if (!currentUserId) return EMPTY_OBJ
+        return userConversations[currentUserId] || EMPTY_OBJ
+      },
+
+      // Unread-Counts des aktuellen Users holen
+      getUnreadCounts: () => {
+        const { currentUserId, userUnreadCounts } = get()
+        if (!currentUserId) return EMPTY_OBJ
+        return userUnreadCounts[currentUserId] || EMPTY_OBJ
+      },
+
       // Aktiven Chat setzen
-      setActiveChat: (friendId) => {
-        set({ activeChatId: friendId })
-        // Beim Oeffnen als gelesen markieren
-        if (friendId) {
-          get().markAsRead(friendId)
+      setActiveChat: (chatId) => {
+        set({ activeChatId: chatId })
+        if (chatId) {
+          get().markAsRead(chatId)
         }
       },
 
       // Nachricht senden
-      sendMessage: (friendId, text) => {
+      sendMessage: (chatId, text) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
+
         const filteredText = filterContent(text)
         const newMessage = {
           id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -55,36 +104,86 @@ export const useChatStore = create(
         }
 
         set((state) => {
-          const conversation = state.conversations[friendId] || {
-            friendId,
-            messages: [],
-          }
+          const userConvs = state.userConversations[currentUserId] || {}
+          const conversation = userConvs[chatId] || { friendId: chatId, messages: [] }
           return {
-            conversations: {
-              ...state.conversations,
-              [friendId]: {
-                ...conversation,
-                messages: [...conversation.messages, newMessage],
+            userConversations: {
+              ...state.userConversations,
+              [currentUserId]: {
+                ...userConvs,
+                [chatId]: {
+                  ...conversation,
+                  messages: [...conversation.messages, newMessage],
+                },
               },
             },
           }
         })
+
+        // Bot-Antwort generieren
+        if (chatId === 'mindforge-ai') {
+          const delay = 800 + Math.random() * 1200
+          setTimeout(() => {
+            const responseText = generateBotResponse(text)
+            const botMessage = {
+              id: `msg-bot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+              senderId: 'mindforge-ai',
+              text: responseText,
+              timestamp: Date.now(),
+              reactions: [],
+            }
+            set((state) => {
+              const uid = state.currentUserId
+              if (!uid) return state
+              const userConvs = state.userConversations[uid] || {}
+              const conversation = userConvs[chatId] || { friendId: chatId, messages: [] }
+              const isActive = state.activeChatId === chatId
+              return {
+                userConversations: {
+                  ...state.userConversations,
+                  [uid]: {
+                    ...userConvs,
+                    [chatId]: {
+                      ...conversation,
+                      messages: [...conversation.messages, botMessage],
+                    },
+                  },
+                },
+                userUnreadCounts: isActive ? state.userUnreadCounts : {
+                  ...state.userUnreadCounts,
+                  [uid]: {
+                    ...(state.userUnreadCounts[uid] || {}),
+                    [chatId]: ((state.userUnreadCounts[uid] || {})[chatId] || 0) + 1,
+                  },
+                },
+              }
+            })
+          }, delay)
+        }
       },
 
       // Nachrichten als gelesen markieren
-      markAsRead: (friendId) => {
+      markAsRead: (chatId) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
         set((state) => ({
-          unreadCounts: {
-            ...state.unreadCounts,
-            [friendId]: 0,
+          userUnreadCounts: {
+            ...state.userUnreadCounts,
+            [currentUserId]: {
+              ...(state.userUnreadCounts[currentUserId] || {}),
+              [chatId]: 0,
+            },
           },
         }))
       },
 
       // Reaktion auf Nachricht hinzufuegen/entfernen
-      toggleReaction: (friendId, messageId, emoji) => {
+      toggleReaction: (chatId, messageId, emoji) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
         set((state) => {
-          const conversation = state.conversations[friendId]
+          const userConvs = state.userConversations[currentUserId] || {}
+          const conversation = userConvs[chatId]
           if (!conversation) return state
 
           const messages = conversation.messages.map((msg) => {
@@ -99,9 +198,12 @@ export const useChatStore = create(
           })
 
           return {
-            conversations: {
-              ...state.conversations,
-              [friendId]: { ...conversation, messages },
+            userConversations: {
+              ...state.userConversations,
+              [currentUserId]: {
+                ...userConvs,
+                [chatId]: { ...conversation, messages },
+              },
             },
           }
         })
@@ -112,7 +214,7 @@ export const useChatStore = create(
 
       // Gesamtzahl ungelesener Nachrichten
       getTotalUnread: () => {
-        const counts = get().unreadCounts
+        const counts = get().getUnreadCounts()
         return Object.values(counts).reduce((sum, c) => sum + c, 0)
       },
 
@@ -140,11 +242,10 @@ export const useChatStore = create(
       },
     }),
     {
-      name: 'mindforge-chat',
+      name: 'mindforge-chat-v2',
       partialize: (state) => ({
-        conversations: state.conversations,
-        unreadCounts: state.unreadCounts,
-        activeChatId: state.activeChatId,
+        userConversations: state.userConversations,
+        userUnreadCounts: state.userUnreadCounts,
       }),
     }
   )

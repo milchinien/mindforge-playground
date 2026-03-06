@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSocialStore } from '../stores/socialStore'
+import { useSocialStore, selectFriends, selectFriendRequests } from '../stores/socialStore'
 import FriendCard from '../components/friends/FriendCard'
 import FriendRequestCard from '../components/friends/FriendRequestCard'
 import AddFriendModal from '../components/friends/AddFriendModal'
@@ -9,8 +9,8 @@ import Tabs from '../components/ui/Tabs'
 export default function Friends() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('all')
-  const friends = useSocialStore((s) => s.friends)
-  const requests = useSocialStore((s) => s.friendRequests)
+  const friends = useSocialStore(selectFriends)
+  const requests = useSocialStore(selectFriendRequests)
   const { acceptFriendRequest, declineFriendRequest, removeFriend, sendFriendRequest } = useSocialStore()
   const [showAddFriendModal, setShowAddFriendModal] = useState(false)
 

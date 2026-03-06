@@ -8,10 +8,9 @@ const DEFAULT_STARTER_ITEMS = [
     id: 'title-neuling',
     type: 'title',
     name: 'Neuling',
-    description: 'Jeder fängt mal an',
+    description: 'Jeder faengt mal an',
     rarity: 'common',
     source: 'default',
-    acquiredAt: new Date().toISOString(),
     equipped: false,
   },
   {
@@ -21,7 +20,6 @@ const DEFAULT_STARTER_ITEMS = [
     description: 'Willkommen bei MindForge!',
     rarity: 'common',
     source: 'default',
-    acquiredAt: new Date().toISOString(),
     equipped: false,
   },
   {
@@ -31,18 +29,50 @@ const DEFAULT_STARTER_ITEMS = [
     description: 'Standard-Hintergrund',
     rarity: 'common',
     source: 'default',
-    acquiredAt: new Date().toISOString(),
     equipped: false,
   },
 ]
 
+function createDefaultItems() {
+  return DEFAULT_STARTER_ITEMS.map((item) => ({
+    ...item,
+    acquiredAt: new Date().toISOString(),
+  }))
+}
+
+const EMPTY_ARR = []
+
+function getUserItems(state) {
+  if (!state.currentUserId) return EMPTY_ARR
+  return state.userItems[state.currentUserId] || EMPTY_ARR
+}
+
+// Selector for components
+export const selectItems = (s) => getUserItems(s)
+
 export const useInventoryStore = create(
   persist(
     (set, get) => ({
-      items: [...DEFAULT_STARTER_ITEMS],
+      userItems: {},
+      currentUserId: null,
+
+      setCurrentUser: (userId) => {
+        set((state) => {
+          if (userId && !state.userItems[userId]) {
+            return {
+              currentUserId: userId,
+              userItems: { ...state.userItems, [userId]: createDefaultItems() },
+            }
+          }
+          return { currentUserId: userId }
+        })
+      },
 
       addItem: ({ id, type, name, description = '', rarity = 'common', source = 'shop' }) => {
-        if (get().items.some((i) => i.id === id)) return false
+        const { currentUserId } = get()
+        if (!currentUserId) return false
+        const items = getUserItems(get())
+        if (items.some((i) => i.id === id)) return false
 
         const newItem = {
           id,
@@ -55,54 +85,78 @@ export const useInventoryStore = create(
           equipped: false,
         }
 
-        set((state) => ({ items: [...state.items, newItem] }))
+        set((state) => ({
+          userItems: {
+            ...state.userItems,
+            [currentUserId]: [...getUserItems(state), newItem],
+          },
+        }))
         return true
       },
 
-      removeItem: (itemId) =>
+      removeItem: (itemId) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
         set((state) => ({
-          items: state.items.filter((i) => i.id !== itemId),
-        })),
+          userItems: {
+            ...state.userItems,
+            [currentUserId]: getUserItems(state).filter((i) => i.id !== itemId),
+          },
+        }))
+      },
 
-      equipItem: (itemId) =>
+      equipItem: (itemId) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
         set((state) => {
-          const item = state.items.find((i) => i.id === itemId)
+          const items = getUserItems(state)
+          const item = items.find((i) => i.id === itemId)
           if (!item) return state
 
           return {
-            items: state.items.map((i) => {
-              if (i.id === itemId) return { ...i, equipped: true }
-              if (EXCLUSIVE_TYPES.includes(item.type) && i.type === item.type)
-                return { ...i, equipped: false }
-              return i
-            }),
+            userItems: {
+              ...state.userItems,
+              [currentUserId]: items.map((i) => {
+                if (i.id === itemId) return { ...i, equipped: true }
+                if (EXCLUSIVE_TYPES.includes(item.type) && i.type === item.type)
+                  return { ...i, equipped: false }
+                return i
+              }),
+            },
           }
-        }),
+        })
+      },
 
-      unequipItem: (itemId) =>
+      unequipItem: (itemId) => {
+        const { currentUserId } = get()
+        if (!currentUserId) return
         set((state) => ({
-          items: state.items.map((i) =>
-            i.id === itemId ? { ...i, equipped: false } : i
-          ),
-        })),
+          userItems: {
+            ...state.userItems,
+            [currentUserId]: getUserItems(state).map((i) =>
+              i.id === itemId ? { ...i, equipped: false } : i
+            ),
+          },
+        }))
+      },
 
-      getItemsByType: (type) => get().items.filter((i) => i.type === type),
+      getItemsByType: (type) => getUserItems(get()).filter((i) => i.type === type),
 
-      getEquippedItems: () => get().items.filter((i) => i.equipped),
+      getEquippedItems: () => getUserItems(get()).filter((i) => i.equipped),
 
       getEquippedTitle: () =>
-        get().items.find((i) => i.type === 'title' && i.equipped)?.name || null,
+        getUserItems(get()).find((i) => i.type === 'title' && i.equipped)?.name || null,
 
-      hasItem: (itemId) => get().items.some((i) => i.id === itemId),
+      hasItem: (itemId) => getUserItems(get()).some((i) => i.id === itemId),
 
-      getItemCount: () => get().items.length,
+      getItemCount: () => getUserItems(get()).length,
 
-      getItemsBySource: (source) => get().items.filter((i) => i.source === source),
+      getItemsBySource: (source) => getUserItems(get()).filter((i) => i.source === source),
     }),
     {
       name: 'mindforge-inventory',
       partialize: (state) => ({
-        items: state.items,
+        userItems: state.userItems,
       }),
     }
   )

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Clock, ChevronRight, Users, Trophy } from 'lucide-react'
-import { useQuestStore } from '../stores/questStore'
+import { useQuestStore, selectDailyQuests, selectWeeklyQuests, selectStoryProgress, selectCommunityQuests, selectUnlockedBadges, selectDailyResetAt, selectWeeklyResetAt } from '../stores/questStore'
 import { QUEST_TABS, RARITY_CONFIG } from '../data/questData'
 import { useCountdown } from '../hooks/useCountdown'
 import QuestCard from '../components/quests/QuestCard'
@@ -35,8 +35,8 @@ function WeeklyCountdown({ resetAt }) {
 
 // --- Daily Tab Content ---
 function DailyTab() {
-  const dailyQuests = useQuestStore((s) => s.dailyQuests)
-  const dailyResetAt = useQuestStore((s) => s.dailyResetAt)
+  const dailyQuests = useQuestStore(selectDailyQuests)
+  const dailyResetAt = useQuestStore(selectDailyResetAt)
   const claimQuestReward = useQuestStore((s) => s.claimQuestReward)
 
   const completedCount = dailyQuests.filter(q => q.status === 'claimed').length
@@ -73,8 +73,8 @@ function DailyTab() {
 
 // --- Weekly Tab Content ---
 function WeeklyTab() {
-  const weeklyQuests = useQuestStore((s) => s.weeklyQuests)
-  const weeklyResetAt = useQuestStore((s) => s.weeklyResetAt)
+  const weeklyQuests = useQuestStore(selectWeeklyQuests)
+  const weeklyResetAt = useQuestStore(selectWeeklyResetAt)
   const claimQuestReward = useQuestStore((s) => s.claimQuestReward)
 
   const completedCount = weeklyQuests.filter(q => q.status === 'claimed').length
@@ -112,7 +112,7 @@ function WeeklyTab() {
 
 // --- Story Tab Content ---
 function StoryTab() {
-  const storyProgress = useQuestStore((s) => s.storyProgress)
+  const storyProgress = useQuestStore(selectStoryProgress)
   const claimQuestReward = useQuestStore((s) => s.claimQuestReward)
 
   const claimedChapters = storyProgress.chapters.filter(c => c.status === 'claimed').length
@@ -165,7 +165,7 @@ function StoryTab() {
 
 // --- Community Tab Content ---
 function CommunityTab() {
-  const communityQuests = useQuestStore((s) => s.communityQuests)
+  const communityQuests = useQuestStore(selectCommunityQuests)
   const claimQuestReward = useQuestStore((s) => s.claimQuestReward)
 
   return (
@@ -275,7 +275,7 @@ function CommunityTab() {
 export default function Quests() {
   const [activeTab, setActiveTab] = useState('daily')
   const checkResets = useQuestStore((s) => s.checkResets)
-  const unlockedBadges = useQuestStore((s) => s.unlockedBadges)
+  const unlockedBadges = useQuestStore(selectUnlockedBadges)
 
   // Check for quest resets on mount
   useEffect(() => {

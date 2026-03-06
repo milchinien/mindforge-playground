@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Gift, Send, User, MessageSquare, Clock, Check, ChevronRight, Search, Heart } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import MindCoinIcon from '../components/common/MindCoinIcon'
-import { usePremiumStore } from '../stores/premiumStore'
+import { usePremiumStore, selectGiftHistory } from '../stores/premiumStore'
 import useEscapeKey from '../hooks/useEscapeKey'
 
 // ──────────── MOCK FRIENDS ────────────
@@ -157,7 +157,8 @@ function ConfirmGiftModal({ friend, amount, message, onClose, onConfirm, userBal
 
 export default function GiftMindCoins() {
   const { user } = useAuth()
-  const { giftHistory, addGiftRecord } = usePremiumStore()
+  const giftHistory = usePremiumStore(selectGiftHistory)
+  const addGiftRecord = usePremiumStore((s) => s.addGiftRecord)
 
   const [selectedFriend, setSelectedFriend] = useState(null)
   const [selectedAmount, setSelectedAmount] = useState(100)

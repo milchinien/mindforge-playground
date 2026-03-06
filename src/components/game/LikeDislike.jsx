@@ -10,10 +10,17 @@ export default function LikeDislike({ gameId }) {
   const { user } = useAuth()
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
 
-  const liked = useGameInteractionStore((s) => s.likes[gameId] === true)
-  const disliked = useGameInteractionStore((s) => s.dislikes[gameId] === true)
+  const liked = useGameInteractionStore((s) => {
+    if (!s.currentUserId) return false
+    return (s.userLikes[s.currentUserId] || {})[gameId] === true
+  })
+  const disliked = useGameInteractionStore((s) => {
+    if (!s.currentUserId) return false
+    return (s.userDislikes[s.currentUserId] || {})[gameId] === true
+  })
   const stats = useGameInteractionStore((s) => s.globalStats[gameId]) || { likes: 0, dislikes: 0 }
-  const { toggleLike, toggleDislike } = useGameInteractionStore()
+  const toggleLike = useGameInteractionStore((s) => s.toggleLike)
+  const toggleDislike = useGameInteractionStore((s) => s.toggleDislike)
 
   const handleLike = () => {
     if (!user) {

@@ -9,6 +9,14 @@ import ErrorBoundary from './components/common/ErrorBoundary'
 import { useTranslation } from 'react-i18next'
 import { useAchievementStore } from './stores/achievementStore'
 import { useSocialStore } from './stores/socialStore'
+import { useGameInteractionStore } from './stores/gameInteractionStore'
+import { useInventoryStore } from './stores/inventoryStore'
+import { useActivityStore } from './stores/activityStore'
+import { useNotificationStore } from './stores/notificationStore'
+import { useQuestStore } from './stores/questStore'
+import { useSeasonStore } from './stores/seasonStore'
+import { usePremiumStore } from './stores/premiumStore'
+import { useChatStore } from './stores/chatStore'
 
 // Lazy-loaded pages for code splitting
 const AuthPage = lazy(() => import('./pages/auth/AuthPage'))
@@ -42,9 +50,10 @@ const GiftMindCoins = lazy(() => import('./pages/GiftMindCoins'))
 
 // PageLoader is imported from LoadingSpinner component
 
-const RESET_VERSION = 'v27-data-persistence'
+const RESET_VERSION = 'v28-user-scoped-stores'
 const STORE_KEYS_TO_CLEAR = [
   'mindforge-game-interactions',
+  'mindforge-game-interactions-v2',
   'mindforge-achievements',
   'mindforge-inventory',
   'mindforge-social',
@@ -76,6 +85,22 @@ function AppInitializer() {
     localStorage.setItem('mindforge-reset-version', RESET_VERSION)
     window.location.reload()
   }, [user])
+
+  // Set current user for all user-scoped stores
+  useEffect(() => {
+    if (user?.uid) {
+      useGameInteractionStore.getState().setCurrentUser(user.uid)
+      useChatStore.getState().setCurrentUser(user.uid)
+      useAchievementStore.getState().setCurrentUser(user.uid)
+      useInventoryStore.getState().setCurrentUser(user.uid)
+      useActivityStore.getState().setCurrentUser(user.uid)
+      useNotificationStore.getState().setCurrentUser(user.uid)
+      useQuestStore.getState().setCurrentUser(user.uid)
+      useSeasonStore.getState().setCurrentUser(user.uid)
+      useSocialStore.getState().setCurrentUser(user.uid)
+      usePremiumStore.getState().setCurrentUser(user.uid)
+    }
+  }, [user?.uid])
 
   // Daily streak check on login
   useEffect(() => {

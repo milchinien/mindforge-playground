@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useCountdown } from '../hooks/useCountdown'
-import { useSeasonStore } from '../stores/seasonStore'
+import { useSeasonStore, selectSeasonXP, selectIsPremiumPass, selectChallengeProgress, selectCurrentWeek } from '../stores/seasonStore'
 import {
   CURRENT_SEASON,
   WEEKLY_CHALLENGES,
@@ -52,12 +52,12 @@ function RankBadge({ rank }) {
 // OVERVIEW TAB
 // ============================================================
 function OverviewTab() {
-  const seasonXP = useSeasonStore((s) => s.seasonXP)
+  const seasonXP = useSeasonStore(selectSeasonXP)
   const getBattlePassTier = useSeasonStore((s) => s.getBattlePassTier)
   const getXPInCurrentTier = useSeasonStore((s) => s.getXPInCurrentTier)
-  const isPremiumPass = useSeasonStore((s) => s.isPremiumPass)
+  const isPremiumPass = useSeasonStore(selectIsPremiumPass)
   const upgradeToPremium = useSeasonStore((s) => s.upgradeToPremium)
-  const challengeProgress = useSeasonStore((s) => s.challengeProgress)
+  const challengeProgress = useSeasonStore(selectChallengeProgress)
   const countdown = useCountdown(CURRENT_SEASON.endDate)
 
   const currentTier = getBattlePassTier()
@@ -219,9 +219,9 @@ function OverviewTab() {
 // BATTLE PASS TAB
 // ============================================================
 function BattlePassTab() {
-  const isPremiumPass = useSeasonStore((s) => s.isPremiumPass)
+  const isPremiumPass = useSeasonStore(selectIsPremiumPass)
   const upgradeToPremium = useSeasonStore((s) => s.upgradeToPremium)
-  const seasonXP = useSeasonStore((s) => s.seasonXP)
+  const seasonXP = useSeasonStore(selectSeasonXP)
   const getBattlePassTier = useSeasonStore((s) => s.getBattlePassTier)
   const currentTier = getBattlePassTier()
 
@@ -260,8 +260,8 @@ function BattlePassTab() {
 // CHALLENGES TAB
 // ============================================================
 function ChallengesTab() {
-  const challengeProgress = useSeasonStore((s) => s.challengeProgress)
-  const currentWeek = useSeasonStore((s) => s.currentWeek)
+  const challengeProgress = useSeasonStore(selectChallengeProgress)
+  const currentWeek = useSeasonStore(selectCurrentWeek)
   const [selectedWeek, setSelectedWeek] = useState(currentWeek)
 
   const weekData = WEEKLY_CHALLENGES.find((w) => w.week === selectedWeek)
@@ -368,9 +368,9 @@ function ChallengesTab() {
 // ============================================================
 function LeaderboardTab() {
   const { user } = useAuth()
-  const seasonXP = useSeasonStore((s) => s.seasonXP)
+  const seasonXP = useSeasonStore(selectSeasonXP)
   const getBattlePassTier = useSeasonStore((s) => s.getBattlePassTier)
-  const challengeProgress = useSeasonStore((s) => s.challengeProgress)
+  const challengeProgress = useSeasonStore(selectChallengeProgress)
   const currentTier = getBattlePassTier()
 
   const currentUid = user?.uid || 'current-user'

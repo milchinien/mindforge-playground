@@ -4,11 +4,11 @@ import { Edit3, Crown, Globe, Twitter, ChevronDown, Lock, Check } from 'lucide-r
 import ShareButtons from '../common/ShareButtons'
 import { formatNumber } from '../../utils/formatters'
 import AvatarRenderer from './AvatarRenderer'
-import { useSocialStore } from '../../stores/socialStore'
-import { useInventoryStore } from '../../stores/inventoryStore'
+import { useSocialStore, selectFollowing } from '../../stores/socialStore'
+import { useInventoryStore, selectItems } from '../../stores/inventoryStore'
 
 function TitleDropdown({ activeTitle, onSelect, onClose, t }) {
-  const items = useInventoryStore((s) => s.items)
+  const items = useInventoryStore(selectItems)
   const titleItems = useMemo(() => items.filter((i) => i.type === 'title'), [items])
 
   const unlockedTitles = titleItems.map((item) => ({
@@ -99,7 +99,7 @@ function TitleDropdown({ activeTitle, onSelect, onClose, t }) {
 }
 
 function FollowButtonStore({ targetUserId, isLoggedIn }) {
-  const isFollowing = useSocialStore((s) => s.following.includes(targetUserId))
+  const isFollowing = useSocialStore((s) => selectFollowing(s).includes(targetUserId))
   const { followUser, unfollowUser } = useSocialStore()
   const [isHovering, setIsHovering] = useState(false)
 

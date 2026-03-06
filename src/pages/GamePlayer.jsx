@@ -7,6 +7,7 @@ import GameRenderer from '../components/gameRenderer/GameRenderer'
 import CustomCodeRenderer from '../components/gameRenderer/CustomCodeRenderer'
 import { useGameInteractionStore } from '../stores/gameInteractionStore'
 import { useAchievementStore } from '../stores/achievementStore'
+import { useAuth } from '../contexts/AuthContext'
 
 function EscHint({ t }) {
   const [visible, setVisible] = useState(true)
@@ -29,6 +30,7 @@ export default function GamePlayer() {
   const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
   const [game, setGame] = useState(null)
@@ -51,7 +53,7 @@ export default function GamePlayer() {
   useEffect(() => {
     if (game) {
       useGameInteractionStore.getState().recordPlay(game.id)
-      addToRecentlyPlayed(game.id)
+      addToRecentlyPlayed(game.id, user?.uid)
       // Achievement tracking
       useAchievementStore.getState().incrementProgress('games_played')
       if (game.subject) {
