@@ -28,14 +28,18 @@ const routeLabels = {
   groups: 'Gruppen',
 }
 
+// Pages that handle their own full-bleed layout and don't need breadcrumbs
+const hiddenOnRoutes = ['/chat']
+
 export default function Breadcrumbs() {
   const location = useLocation()
   const { t } = useTranslation()
 
   const pathSegments = location.pathname.split('/').filter(Boolean)
 
-  // Don't show breadcrumbs on home page
+  // Don't show breadcrumbs on home page or full-bleed pages
   if (pathSegments.length === 0) return null
+  if (hiddenOnRoutes.includes(location.pathname)) return null
 
   const crumbs = pathSegments.map((segment, index) => {
     const path = '/' + pathSegments.slice(0, index + 1).join('/')

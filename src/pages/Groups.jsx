@@ -2,10 +2,9 @@ import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Users, Shield, BookOpen, Compass, Search, Mail,
-  Check, X, Swords
+  Check, X, Swords, Plus, FileText, AlertCircle
 } from 'lucide-react'
 import { useGroupStore } from '../stores/groupStore'
-import { mockLerngruppen, mockClans, mockKlassen } from '../data/groupData'
 import GroupCard from '../components/groups/GroupCard'
 import ClanWarBanner from '../components/groups/ClanWarBanner'
 import Tabs from '../components/ui/Tabs'
@@ -45,22 +44,186 @@ function InviteCard({ invite, onAccept, onDecline }) {
   )
 }
 
+// --- Create Group Modal ---
+function CreateGroupModal({ onClose, onCreate }) {
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [requirements, setRequirements] = useState('')
+  const [subject, setSubject] = useState('')
+
+  const subjects = [
+    { value: '', label: 'Kein Fach (Allgemein)' },
+    { value: 'mathematik', label: 'Mathematik' },
+    { value: 'deutsch', label: 'Deutsch' },
+    { value: 'englisch', label: 'Englisch' },
+    { value: 'physik', label: 'Physik' },
+    { value: 'chemie', label: 'Chemie' },
+    { value: 'biologie', label: 'Biologie' },
+    { value: 'informatik', label: 'Informatik' },
+    { value: 'geschichte', label: 'Geschichte' },
+    { value: 'geographie', label: 'Geographie' },
+    { value: 'kunst', label: 'Kunst' },
+    { value: 'musik', label: 'Musik' },
+  ]
+
+  const canSubmit = name.trim().length >= 3 && description.trim().length >= 10
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!canSubmit) return
+    onCreate({
+      name: name.trim(),
+      description: description.trim(),
+      requirements: requirements.trim(),
+      subject: subject || null,
+    })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Modal */}
+      <div className="relative bg-bg-card border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 border-b border-gray-700/50">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+              <Users className="w-5 h-5 text-accent" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-text-primary">Community Gruppe erstellen</h2>
+              <p className="text-xs text-text-muted">Erstelle deine eigene Lerngruppe und lade andere ein</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Gruppenname *
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="z.B. Mathe-Helden, Bio-Nerds..."
+              maxLength={40}
+              className="w-full bg-bg-secondary border border-gray-700 rounded-lg px-4 py-2.5
+                         text-sm text-text-primary placeholder-text-muted
+                         focus:outline-none focus:border-accent transition-colors"
+            />
+            <p className="text-xs text-text-muted mt-1">{name.length}/40 Zeichen (mind. 3)</p>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Beschreibung *
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Worum geht es in deiner Gruppe? Was macht ihr gemeinsam?"
+              maxLength={200}
+              rows={3}
+              className="w-full bg-bg-secondary border border-gray-700 rounded-lg px-4 py-2.5
+                         text-sm text-text-primary placeholder-text-muted resize-none
+                         focus:outline-none focus:border-accent transition-colors"
+            />
+            <p className="text-xs text-text-muted mt-1">{description.length}/200 Zeichen (mind. 10)</p>
+          </div>
+
+          {/* Requirements */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              <span className="flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5" />
+                Anforderungen
+              </span>
+            </label>
+            <input
+              type="text"
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+              placeholder="z.B. Mindestens Level 5, Aktive Teilnahme..."
+              maxLength={100}
+              className="w-full bg-bg-secondary border border-gray-700 rounded-lg px-4 py-2.5
+                         text-sm text-text-primary placeholder-text-muted
+                         focus:outline-none focus:border-accent transition-colors"
+            />
+            <p className="text-xs text-text-muted mt-1">Optional - Was sollten Mitglieder mitbringen?</p>
+          </div>
+
+          {/* Subject */}
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Fach / Thema
+            </label>
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="w-full bg-bg-secondary border border-gray-700 rounded-lg px-4 py-2.5
+                         text-sm text-text-primary
+                         focus:outline-none focus:border-accent transition-colors"
+            >
+              {subjects.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 rounded-lg bg-bg-secondary text-text-secondary
+                         hover:bg-bg-hover text-sm font-medium transition-colors"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className="flex-1 px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-medium
+                         hover:bg-accent-dark transition-colors
+                         disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Gruppe erstellen
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function Groups() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('lerngruppen')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
   const {
+    lerngruppen, clans, klassen, customGroups,
     myGroups, myClans, myClasses, groupInvites, activeClanWar,
     joinGroup, leaveGroup, joinClan, leaveClan,
-    acceptInvite, declineInvite,
+    acceptInvite, declineInvite, createGroup,
   } = useGroupStore()
+
+  // All lerngruppen (mock + community)
+  const allLerngruppen = useMemo(() => [...lerngruppen, ...customGroups], [lerngruppen, customGroups])
 
   // Filter for "Entdecken" tab
   const allDiscoverItems = useMemo(() => {
     const items = [
-      ...mockLerngruppen.filter(g => g.isPublic),
-      ...mockClans.filter(c => c.isPublic),
+      ...allLerngruppen.filter(g => g.isPublic),
+      ...clans.filter(c => c.isPublic),
     ]
     if (!searchQuery.trim()) return items
     const q = searchQuery.toLowerCase()
@@ -68,17 +231,29 @@ export default function Groups() {
       item.name.toLowerCase().includes(q) ||
       item.description.toLowerCase().includes(q)
     )
-  }, [searchQuery])
+  }, [searchQuery, allLerngruppen, clans])
 
   const TABS = [
-    { id: 'lerngruppen', label: 'Lerngruppen', icon: Users, count: mockLerngruppen.length },
-    { id: 'clans', label: 'Clans', icon: Shield, count: mockClans.length },
-    { id: 'klassen', label: 'Klassen', icon: BookOpen, count: mockKlassen.length },
+    { id: 'lerngruppen', label: 'Lerngruppen', icon: Users, count: allLerngruppen.length },
+    { id: 'clans', label: 'Clans', icon: Shield, count: clans.length },
+    { id: 'klassen', label: 'Klassen', icon: BookOpen, count: klassen.length },
     { id: 'entdecken', label: 'Entdecken', icon: Compass },
   ]
 
   const renderLerngruppen = () => (
     <div>
+      {/* Create Group Button */}
+      <button
+        onClick={() => setShowCreateModal(true)}
+        className="w-full mb-6 flex items-center justify-center gap-2 px-4 py-3 rounded-xl
+                   border-2 border-dashed border-accent/30 bg-accent/5
+                   text-accent hover:bg-accent/10 hover:border-accent/50
+                   transition-colors text-sm font-medium"
+      >
+        <Plus className="w-5 h-5" />
+        Community Gruppe erstellen
+      </button>
+
       {/* Invites for Lerngruppen */}
       {groupInvites.filter(i => i.groupType === 'lerngruppe').length > 0 && (
         <div className="mb-6">
@@ -99,7 +274,7 @@ export default function Groups() {
 
       {/* All Lerngruppen */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {mockLerngruppen.map(group => (
+        {allLerngruppen.map(group => (
           <GroupCard
             key={group.id}
             group={group}
@@ -141,7 +316,7 @@ export default function Groups() {
 
       {/* All Clans */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {mockClans.map(clan => (
+        {clans.map(clan => (
           <GroupCard
             key={clan.id}
             group={clan}
@@ -156,9 +331,8 @@ export default function Groups() {
 
   const renderKlassen = () => (
     <div>
-      {/* Klassen cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {mockKlassen.map(klasse => (
+        {klassen.map(klasse => (
           <GroupCard
             key={klasse.id}
             group={klasse}
@@ -167,7 +341,7 @@ export default function Groups() {
         ))}
       </div>
 
-      {mockKlassen.length <= 2 && (
+      {klassen.length <= 2 && (
         <p className="text-text-muted text-sm text-center mt-6">
           Frage deine Lehrkraft nach dem Einladungscode, um einer Klasse beizutreten.
         </p>
@@ -177,18 +351,28 @@ export default function Groups() {
 
   const renderEntdecken = () => (
     <div>
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Gruppen und Clans suchen..."
-          className="w-full bg-bg-card border border-gray-700 rounded-lg pl-10 pr-4 py-2.5
-                     text-sm text-text-primary placeholder-text-muted
-                     focus:outline-none focus:border-accent transition-colors"
-        />
+      {/* Search + Create */}
+      <div className="flex gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Community Gruppen und Clans suchen..."
+            className="w-full bg-bg-card border border-gray-700 rounded-lg pl-10 pr-4 py-2.5
+                       text-sm text-text-primary placeholder-text-muted
+                       focus:outline-none focus:border-accent transition-colors"
+          />
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-accent text-white
+                     hover:bg-accent-dark text-sm font-medium transition-colors flex-shrink-0"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Erstellen</span>
+        </button>
       </div>
 
       {/* Results */}
@@ -205,7 +389,7 @@ export default function Groups() {
       ) : (
         <>
           <p className="text-sm text-text-muted mb-4">
-            {allDiscoverItems.length} oeffentliche Gruppen & Clans gefunden
+            {allDiscoverItems.length} Community Gruppen & Clans gefunden
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {allDiscoverItems.map(item => {
@@ -233,10 +417,10 @@ export default function Groups() {
   return (
     <div className="p-6">
       <>
-        <title>Gruppen | MindForge</title>
-        <meta name="description" content="Tritt Lerngruppen, Clans und Klassen bei. Lerne gemeinsam und kaempfe in Clan Wars!" />
-        <meta property="og:title" content="Gruppen | MindForge" />
-        <meta property="og:description" content="Tritt Lerngruppen, Clans und Klassen bei. Lerne gemeinsam und kaempfe in Clan Wars!" />
+        <title>Community Gruppen | MindForge</title>
+        <meta name="description" content="Erstelle und tritt Community Lerngruppen, Clans und Klassen bei. Lerne gemeinsam!" />
+        <meta property="og:title" content="Community Gruppen | MindForge" />
+        <meta property="og:description" content="Erstelle und tritt Community Lerngruppen, Clans und Klassen bei. Lerne gemeinsam!" />
         <meta property="og:type" content="website" />
       </>
 
@@ -248,6 +432,14 @@ export default function Groups() {
       {activeTab === 'clans' && renderClans()}
       {activeTab === 'klassen' && renderKlassen()}
       {activeTab === 'entdecken' && renderEntdecken()}
+
+      {/* Create Modal */}
+      {showCreateModal && (
+        <CreateGroupModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={createGroup}
+        />
+      )}
     </div>
   )
 }

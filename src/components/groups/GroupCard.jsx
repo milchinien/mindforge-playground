@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Users, Crown, Shield, Swords, UserPlus, UserMinus, BookOpen, Trophy } from 'lucide-react'
+import { Users, Crown, Shield, Swords, UserPlus, UserMinus, BookOpen, Trophy, AlertCircle, Sparkles } from 'lucide-react'
 import { getSubjectConfig } from '../../data/subjectConfig'
 
 function MemberAvatars({ members, maxShow = 5 }) {
@@ -210,13 +210,23 @@ function GroupCard({ group, isMember, onJoin, onLeave }) {
             <span className="text-xl">{subjectConfig?.icon || '\uD83D\uDCDA'}</span>
           </div>
           <div className="min-w-0">
-            <h3 className="font-bold text-text-primary truncate group-hover:text-accent transition-colors">
-              {group.name}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-text-primary truncate group-hover:text-accent transition-colors">
+                {group.name}
+              </h3>
+              {group.isCommunity && (
+                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-accent/15 text-accent text-[10px] font-semibold flex-shrink-0">
+                  <Sparkles className="w-3 h-3" /> Community
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 text-xs text-text-muted">
               <span className="flex items-center gap-1">
                 <Users className="w-3 h-3" /> {group.memberCount}/{group.maxMembers}
               </span>
+              {group.createdBy && (
+                <span>von {group.createdBy}</span>
+              )}
               {group.activeChallenges && group.activeChallenges.length > 0 && (
                 <span className="text-accent">{group.activeChallenges.length} aktive Challenges</span>
               )}
@@ -231,9 +241,17 @@ function GroupCard({ group, isMember, onJoin, onLeave }) {
       </div>
 
       {/* Description */}
-      <p className="text-sm text-text-secondary mb-4 line-clamp-2">
+      <p className="text-sm text-text-secondary mb-3 line-clamp-2">
         {group.description}
       </p>
+
+      {/* Requirements */}
+      {group.requirements && (
+        <div className="flex items-start gap-2 mb-3 p-2.5 bg-yellow-500/5 border border-yellow-500/15 rounded-lg">
+          <AlertCircle className="w-3.5 h-3.5 text-yellow-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-yellow-400/90">{group.requirements}</p>
+        </div>
+      )}
 
       {/* Active challenge preview */}
       {group.activeChallenges && group.activeChallenges.length > 0 && (

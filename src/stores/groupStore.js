@@ -5,31 +5,35 @@ import { mockLerngruppen, mockClans, mockKlassen, mockGroupInvites, mockClanWar 
 export const useGroupStore = create(
   persist(
     (set, get) => ({
+      // Group data (mutable copies so memberCount updates)
+      lerngruppen: [...mockLerngruppen],
+      clans: [...mockClans],
+      klassen: [...mockKlassen],
+
+      // Custom community groups created by users
+      customGroups: [],
+
       // User's groups
-      myGroups: [mockLerngruppen[0].id],       // User is in "Mathe-Genies"
-      myClans: [mockClans[0].id],              // User is in "Die Wissenskrieger"
-      myClasses: [mockKlassen[0].id],          // User is in "Klasse 10a"
+      myGroups: [mockLerngruppen[0].id],
+      myClans: [mockClans[0].id],
+      myClasses: [mockKlassen[0].id],
       groupInvites: mockGroupInvites,
 
       // Clan war state
       activeClanWar: mockClanWar,
 
       // --- Clan War Actions ---
-
-      // Update a single matchup's scores (live during a duel)
       updateMatchupScore: (matchupId, scoreA, scoreB) => set((state) => {
         if (!state.activeClanWar) return state
         const war = { ...state.activeClanWar }
         war.matchups = war.matchups.map(m =>
           m.id === matchupId ? { ...m, scoreA, scoreB, status: 'active' } : m
         )
-        // Recalculate clan scores from all matchups
         war.clanA = { ...war.clanA, score: war.matchups.reduce((sum, m) => sum + m.scoreA, 0) }
         war.clanB = { ...war.clanB, score: war.matchups.reduce((sum, m) => sum + m.scoreB, 0) }
         return { activeClanWar: war }
       }),
 
-      // Mark a matchup as completed with final scores
       completeMatchup: (matchupId, finalScoreA, finalScoreB) => set((state) => {
         if (!state.activeClanWar) return state
         const war = { ...state.activeClanWar }
@@ -38,16 +42,13 @@ export const useGroupStore = create(
             ? { ...m, scoreA: finalScoreA, scoreB: finalScoreB, status: 'completed' }
             : m
         )
-        // Recalculate clan scores
         war.clanA = { ...war.clanA, score: war.matchups.reduce((sum, m) => sum + m.scoreA, 0) }
         war.clanB = { ...war.clanB, score: war.matchups.reduce((sum, m) => sum + m.scoreB, 0) }
-        // Check if all matchups are done
         const allDone = war.matchups.every(m => m.status === 'completed')
         if (allDone) war.status = 'completed'
         return { activeClanWar: war }
       }),
 
-      // Start a pending matchup
       startMatchup: (matchupId) => set((state) => {
         if (!state.activeClanWar) return state
         const war = { ...state.activeClanWar }
@@ -59,24 +60,57 @@ export const useGroupStore = create(
         return { activeClanWar: war }
       }),
 
-      // --- Actions ---
+      // --- Helper to update memberCount on any group list ---
+      _updateMemberCount: (listKey, groupId, delta) => set((state) => ({
+        [listKey]: state[listKey].map(g =>
+          g.id === groupId ? { ...g, memberCount: (g.memberCount || 0) + delta } : g
+        ),
+      })),
 
+      // --- Actions ---
       joinGroup: (groupId) => set((state) => {
         if (state.myGroups.includes(groupId)) return state
-        return { myGroups: [...state.myGroups, groupId] }
+        // Update memberCount in lerngruppen or customGroups
+        const inLerngruppen = state.lerngruppen.some(g => g.id === groupId)
+        const updatedLerngruppen = inLerngruppen
+          ? state.lerngruppen.map(g => g.id === groupId ? { ...g, memberCount: (g.memberCount || 0) + 1 } : g)
+          : state.lerngruppen
+        const updatedCustom = !inLerngruppen
+          ? state.customGroups.map(g => g.id === groupId ? { ...g, memberCount: (g.memberCount || 0) + 1 } : g)
+          : state.customGroups
+        return {
+          myGroups: [...state.myGroups, groupId],
+          lerngruppen: updatedLerngruppen,
+          customGroups: updatedCustom,
+        }
       }),
 
-      leaveGroup: (groupId) => set((state) => ({
-        myGroups: state.myGroups.filter(id => id !== groupId),
-      })),
+      leaveGroup: (groupId) => set((state) => {
+        const inLerngruppen = state.lerngruppen.some(g => g.id === groupId)
+        const updatedLerngruppen = inLerngruppen
+          ? state.lerngruppen.map(g => g.id === groupId ? { ...g, memberCount: Math.max(0, (g.memberCount || 1) - 1) } : g)
+          : state.lerngruppen
+        const updatedCustom = !inLerngruppen
+          ? state.customGroups.map(g => g.id === groupId ? { ...g, memberCount: Math.max(0, (g.memberCount || 1) - 1) } : g)
+          : state.customGroups
+        return {
+          myGroups: state.myGroups.filter(id => id !== groupId),
+          lerngruppen: updatedLerngruppen,
+          customGroups: updatedCustom,
+        }
+      }),
 
       joinClan: (clanId) => set((state) => {
         if (state.myClans.includes(clanId)) return state
-        return { myClans: [...state.myClans, clanId] }
+        return {
+          myClans: [...state.myClans, clanId],
+          clans: state.clans.map(c => c.id === clanId ? { ...c, memberCount: (c.memberCount || 0) + 1 } : c),
+        }
       }),
 
       leaveClan: (clanId) => set((state) => ({
         myClans: state.myClans.filter(id => id !== clanId),
+        clans: state.clans.map(c => c.id === clanId ? { ...c, memberCount: Math.max(0, (c.memberCount || 1) - 1) } : c),
       })),
 
       joinClass: (classId) => set((state) => {
@@ -88,10 +122,29 @@ export const useGroupStore = create(
         myClasses: state.myClasses.filter(id => id !== classId),
       })),
 
-      createGroup: (group) => {
-        // In production this would call Firebase. For MVP we just join it.
-        const id = `lg-custom-${Date.now()}`
+      createGroup: ({ name, description, requirements, subject }) => {
+        const id = `lg-community-${Date.now()}`
+        const newGroup = {
+          id,
+          type: 'lerngruppe',
+          name,
+          description,
+          requirements: requirements || '',
+          subject: subject || null,
+          memberCount: 1,
+          maxMembers: 30,
+          isPublic: true,
+          isCommunity: true,
+          createdAt: new Date(),
+          createdBy: 'Du',
+          members: [
+            { id: 'current-user', username: 'Du', displayName: 'Du', level: 1, role: 'leader' },
+          ],
+          leaderboard: [],
+          activeChallenges: [],
+        }
         set((state) => ({
+          customGroups: [...state.customGroups, newGroup],
           myGroups: [...state.myGroups, id],
         }))
         return id
@@ -116,8 +169,14 @@ export const useGroupStore = create(
 
         if (invite.groupType === 'clan') {
           updates.myClans = [...state.myClans, invite.groupId]
+          updates.clans = state.clans.map(c =>
+            c.id === invite.groupId ? { ...c, memberCount: (c.memberCount || 0) + 1 } : c
+          )
         } else if (invite.groupType === 'lerngruppe') {
           updates.myGroups = [...state.myGroups, invite.groupId]
+          updates.lerngruppen = state.lerngruppen.map(g =>
+            g.id === invite.groupId ? { ...g, memberCount: (g.memberCount || 0) + 1 } : g
+          )
         } else if (invite.groupType === 'klasse') {
           updates.myClasses = [...state.myClasses, invite.groupId]
         }
@@ -133,15 +192,36 @@ export const useGroupStore = create(
       isInGroup: (groupId) => get().myGroups.includes(groupId),
       isInClan: (clanId) => get().myClans.includes(clanId),
       isInClass: (classId) => get().myClasses.includes(classId),
+
+      // Get all lerngruppen (mock + custom)
+      getAllLerngruppen: () => [...get().lerngruppen, ...get().customGroups],
     }),
     {
       name: 'mindforge-groups',
+      version: 2,
+      migrate: (persisted, version) => {
+        if (version < 2) {
+          // Old store didn't have group data — reset to fresh mock data
+          return {
+            ...persisted,
+            lerngruppen: [...mockLerngruppen],
+            clans: [...mockClans],
+            klassen: [...mockKlassen],
+            customGroups: [],
+          }
+        }
+        return persisted
+      },
       partialize: (state) => ({
         myGroups: state.myGroups,
         myClans: state.myClans,
         myClasses: state.myClasses,
         groupInvites: state.groupInvites,
         activeClanWar: state.activeClanWar,
+        lerngruppen: state.lerngruppen,
+        clans: state.clans,
+        klassen: state.klassen,
+        customGroups: state.customGroups,
       }),
     }
   )

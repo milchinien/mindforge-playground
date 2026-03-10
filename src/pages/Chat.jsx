@@ -133,7 +133,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="-m-3 sm:-m-6 -mt-14">
+    <div className="-m-3 sm:-m-6">
       <>
         <title>Chat | MindForge</title>
         <meta name="description" content="Chatte mit ForgeBot auf MindForge" />
