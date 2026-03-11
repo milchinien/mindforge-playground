@@ -58,9 +58,12 @@ function createDefaultUserData() {
   }
 }
 
+// Cached default so selectors always return the same reference when no user is set
+const DEFAULT_USER_DATA = createDefaultUserData()
+
 function getUserData(state) {
-  if (!state.currentUserId) return createDefaultUserData()
-  return state.userData[state.currentUserId] || createDefaultUserData()
+  if (!state.currentUserId) return DEFAULT_USER_DATA
+  return state.userData[state.currentUserId] || DEFAULT_USER_DATA
 }
 
 // Selectors for components

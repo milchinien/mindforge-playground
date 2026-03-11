@@ -87,6 +87,7 @@ export default function Navbar({ onToggleSidebar }) {
 
         <div className="hidden md:flex items-center gap-8">
           <Link to="/browse" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.mindbrowser')}</Link>
+          <Link to="/seasons" className="text-sm font-semibold transition-colors bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent hover:from-yellow-300 hover:to-amber-400">Mind Pass</Link>
           <Link to="/events" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.events')}</Link>
           <Link to="/marketplace" className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.marketplace')}</Link>
           <Link to={user?.isPremium ? '/create' : user ? '/premium' : '/login'} className="text-text-secondary hover:text-text-primary text-sm transition-colors">{t('nav.create')}</Link>

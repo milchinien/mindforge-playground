@@ -11,7 +11,7 @@ const navItems = [
   { to: '/', icon: Home, labelKey: 'nav.home', public: true },
   { to: '/quests', icon: Scroll, labelKey: 'Quests', public: true, children: [
     { to: '/achievements', icon: Trophy, labelKey: 'nav.achievements' },
-    { to: '/seasons', icon: Shield, labelKey: 'Seasons', public: true },
+    { to: '/seasons', icon: Shield, labelKey: 'Mind Pass', public: true },
   ]},
   { to: '/chat', icon: MessageCircle, labelKey: 'Chat' },
   { to: '/groups', icon: Users, labelKey: 'Gruppen' },
