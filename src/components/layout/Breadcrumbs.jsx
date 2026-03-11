@@ -29,7 +29,7 @@ const routeLabels = {
 }
 
 // Pages that handle their own full-bleed layout and don't need breadcrumbs
-const hiddenOnRoutes = ['/chat']
+const hiddenOnRoutes = ['/chat', '/seasons']
 
 export default function Breadcrumbs() {
   const location = useLocation()

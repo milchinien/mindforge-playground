@@ -41,7 +41,7 @@ function createDefaultUserData() {
     currentSeasonId: CURRENT_SEASON.id,
     seasonXP: 8450,
     isPremiumPass: false,
-    claimedRewards: ['1-free', '1-premium', '2-free', '2-premium', '3-premium', '4-free', '5-free', '5-premium', '6-free', '7-premium', '8-free', '8-premium'],
+    claimedRewards: ['1-free', '7-free'],
     currentWeek: getCurrentWeek(),
     challengeProgress: {
       'w1-c1': { current: 5, completed: true, claimed: true },

@@ -1,11 +1,11 @@
-import { useRef, useEffect, useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Lock, CheckCircle2, Gift, Zap, Award, Tag, Image,
-  Sparkles, ShieldCheck, Shield, Crown, Gem, Star, Frame,
+  Sparkles, ShieldCheck, Crown, Gem, Star, Frame,
   ChevronLeft, ChevronRight,
 } from 'lucide-react'
-import { BATTLE_PASS_TIERS, RARITY_CONFIG, CURRENT_SEASON } from '../../data/seasonData'
-import { useSeasonStore, selectSeasonXP, selectIsPremiumPass } from '../../stores/seasonStore'
+import { BATTLE_PASS_TIERS, CURRENT_SEASON } from '../../data/seasonData'
+import { useSeasonStore, selectIsPremiumPass } from '../../stores/seasonStore'
 
 // ─── Icon mapping ───────────────────────────────────────────
 const ICON_MAP = {
@@ -21,429 +21,452 @@ function getRewardIcon(iconName) {
   return ICON_MAP[iconName] || Gift
 }
 
-// ─── Rarity visual config ──────────────────────────────────
-const RARITY_STYLES = {
+// ─── Fortnite-style rarity visuals ──────────────────────────
+const RARITY_VISUAL = {
   common: {
-    border: 'border-gray-500/25',
-    bg: 'bg-gradient-to-b from-gray-700/30 via-gray-800/40 to-gray-900/50',
-    glow: '',
-    iconBg: 'bg-gray-600/20',
-    accent: 'gray',
+    cardBg: 'from-gray-400 via-gray-500 to-gray-700',
+    label: 'GEWOEHNLICH',
+    labelBg: 'bg-gray-500',
+    iconColor: 'text-gray-100',
+    glowHex: '#9ca3af',
   },
   uncommon: {
-    border: 'border-green-400/35',
-    bg: 'bg-gradient-to-b from-green-800/20 via-green-900/30 to-gray-900/50',
-    glow: 'shadow-green-500/10',
-    iconBg: 'bg-green-500/15',
-    accent: 'green',
+    cardBg: 'from-green-400 via-green-500 to-green-800',
+    label: 'UNGEWOEHNLICH',
+    labelBg: 'bg-green-600',
+    iconColor: 'text-green-50',
+    glowHex: '#22c55e',
   },
   rare: {
-    border: 'border-blue-400/35',
-    bg: 'bg-gradient-to-b from-blue-800/20 via-blue-900/30 to-gray-900/50',
-    glow: 'shadow-blue-500/15',
-    iconBg: 'bg-blue-500/15',
-    accent: 'blue',
+    cardBg: 'from-sky-400 via-blue-500 to-blue-800',
+    label: 'SELTEN',
+    labelBg: 'bg-blue-500',
+    iconColor: 'text-blue-50',
+    glowHex: '#3b82f6',
   },
   epic: {
-    border: 'border-purple-400/40',
-    bg: 'bg-gradient-to-b from-purple-800/20 via-purple-900/30 to-gray-900/50',
-    glow: 'shadow-purple-500/20',
-    iconBg: 'bg-purple-500/15',
-    accent: 'purple',
+    cardBg: 'from-fuchsia-400 via-purple-500 to-purple-900',
+    label: 'EPISCH',
+    labelBg: 'bg-purple-600',
+    iconColor: 'text-purple-50',
+    glowHex: '#a855f7',
   },
   legendary: {
-    border: 'border-amber-400/50',
-    bg: 'bg-gradient-to-b from-amber-800/20 via-amber-900/30 to-gray-900/50',
-    glow: 'shadow-amber-500/25',
-    iconBg: 'bg-amber-500/20',
-    accent: 'amber',
+    cardBg: 'from-amber-300 via-orange-500 to-amber-800',
+    label: 'LEGENDAER',
+    labelBg: 'bg-amber-600',
+    iconColor: 'text-amber-50',
+    glowHex: '#f59e0b',
   },
-}
-
-// ─── Bottom rarity color stripe ────────────────────────────
-const RARITY_STRIPE = {
-  common: 'from-gray-500/20 to-gray-600/10',
-  uncommon: 'from-green-400/30 to-green-500/15',
-  rare: 'from-blue-400/30 to-blue-500/15',
-  epic: 'from-purple-400/35 to-purple-500/15',
-  legendary: 'from-amber-400/40 to-amber-500/20',
-}
-
-// ─── REWARD CARD ───────────────────────────────────────────
-function RewardCard({ reward, tier, track, currentTier, isPremium, isClaimed }) {
-  const claimReward = useSeasonStore((s) => s.claimReward)
-
-  // Empty slot
-  if (!reward) {
-    return (
-      <div className="w-full h-full rounded-lg border border-dashed border-gray-700/20 flex items-center justify-center bg-gray-900/15">
-        <span className="text-[8px] text-gray-700 select-none">—</span>
-      </div>
-    )
-  }
-
-  const isLocked = tier > currentTier
-  const isPremiumLocked = track === 'premium' && !isPremium
-  const canClaim = !isLocked && !isPremiumLocked && !isClaimed
-  const rarity = RARITY_CONFIG[reward.rarity] || RARITY_CONFIG.common
-  const style = RARITY_STYLES[reward.rarity] || RARITY_STYLES.common
-  const stripe = RARITY_STRIPE[reward.rarity] || RARITY_STRIPE.common
-  const IconComponent = getRewardIcon(reward.icon)
-
-  function handleClaim(e) {
-    e.stopPropagation()
-    if (canClaim) claimReward(tier, track)
-  }
-
-  return (
-    <div
-      className={`relative w-full h-full rounded-lg border-2 overflow-hidden transition-all duration-300 group ${
-        isClaimed
-          ? 'border-green-500/40 shadow-md shadow-green-500/10'
-          : canClaim
-            ? `${style.border} shadow-lg ${style.glow} hover:scale-[1.05] hover:brightness-110`
-            : isLocked || isPremiumLocked
-              ? 'border-gray-800/30 opacity-30'
-              : `${style.border} shadow-md ${style.glow}`
-      }`}
-    >
-      {/* Card background */}
-      <div className={`absolute inset-0 ${
-        isClaimed ? 'bg-gradient-to-b from-green-900/25 via-green-950/35 to-gray-900/60'
-        : isLocked || isPremiumLocked ? 'bg-gray-900/80'
-        : style.bg
-      }`} />
-
-      {/* Rarity bottom stripe */}
-      {!isLocked && !isPremiumLocked && (
-        <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r ${stripe}`} />
-      )}
-
-      {/* Pulse for claimable */}
-      {canClaim && (
-        <div className="absolute inset-0 rounded-lg border border-white/8 animate-pulse" />
-      )}
-
-      {/* Content */}
-      <div className="relative flex flex-col items-center justify-center h-full p-1.5 gap-1 z-10">
-        {/* Icon */}
-        <div className={`w-8 h-8 rounded-md flex items-center justify-center ${
-          isClaimed ? 'bg-green-500/20' : isLocked || isPremiumLocked ? 'bg-gray-800/60' : style.iconBg
-        }`}>
-          {isClaimed ? (
-            <CheckCircle2 className="w-4.5 h-4.5 text-green-400" />
-          ) : isLocked || isPremiumLocked ? (
-            <Lock className="w-3 h-3 text-gray-600" />
-          ) : (
-            <IconComponent className={`w-4.5 h-4.5 ${rarity.color} drop-shadow-sm`} />
-          )}
-        </div>
-
-        {/* Reward name */}
-        <p className={`text-[8px] leading-tight text-center font-bold line-clamp-2 px-0.5 ${
-          isClaimed ? 'text-green-400/80' : isLocked || isPremiumLocked ? 'text-gray-600' : 'text-white/85'
-        }`}>
-          {reward.name}
-        </p>
-      </div>
-
-      {/* Hover claim overlay */}
-      {canClaim && (
-        <button
-          onClick={handleClaim}
-          className="absolute inset-0 z-20 flex items-center justify-center bg-black/0 hover:bg-black/50 transition-all cursor-pointer rounded-lg"
-          title={`${reward.name} einsammeln`}
-        >
-          <span className="opacity-0 group-hover:opacity-100 transition-all text-[9px] font-black text-white bg-accent/90 px-2 py-1 rounded-md shadow-xl border border-accent/40">
-            Claim
-          </span>
-        </button>
-      )}
-
-      {/* Premium lock crown */}
-      {isPremiumLocked && !isLocked && (
-        <div className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-bl-md rounded-tr-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-md z-10">
-          <Crown className="w-2.5 h-2.5 text-black" />
-        </div>
-      )}
-    </div>
-  )
 }
 
 // ─── Constants ──────────────────────────────────────────────
-const TIER_W = 116 // pixel width per tier column
-const CARD_H = 88  // card height in pixels
-const BAR_ROW_H = 40 // progress bar row height
+const LEVELS_PER_PAGE = 6
+const TOTAL_PAGES = Math.ceil(BATTLE_PASS_TIERS.length / LEVELS_PER_PAGE)
 
-// ─── MAIN BATTLE PASS TRACK ────────────────────────────────
+// ─── Reward Card (Fortnite style) ───────────────────────────
+function RewardCard({ reward, isSelected, onClick, currentTier, isPremium, isClaimed }) {
+  const rarity = reward.rarity || 'common'
+  const vis = RARITY_VISUAL[rarity] || RARITY_VISUAL.common
+  const IconComponent = getRewardIcon(reward.icon)
+  const isLocked = reward.tier > currentTier
+  const isPremiumLocked = reward.track === 'premium' && !isPremium
+
+  return (
+    <button
+      onClick={onClick}
+      data-testid={`reward-card-${reward.tier}-${reward.track}`}
+      className={`relative flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 border-[3px]
+        w-[100px] h-[140px] sm:w-[115px] sm:h-[158px] md:w-[130px] md:h-[178px] lg:w-[148px] lg:h-[198px] xl:w-[158px] xl:h-[210px]
+        ${isSelected
+          ? 'border-white scale-[1.08] shadow-2xl z-10'
+          : 'border-white/10 hover:scale-[1.04] hover:border-white/40'
+        } ${(isLocked || isPremiumLocked) && !isClaimed ? 'brightness-[0.4] saturate-50' : ''
+      }`}
+    >
+      {/* Full rarity gradient background */}
+      <div className={`absolute inset-0 bg-gradient-to-b ${
+        isClaimed ? 'from-green-400 via-green-600 to-green-900' : vis.cardBg
+      }`} />
+
+      {/* Diagonal shine effect */}
+      {!isLocked && !isPremiumLocked && !isClaimed && (
+        <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent" />
+      )}
+
+      {/* Selected inner glow */}
+      {isSelected && (
+        <div className="absolute inset-[3px] rounded-lg border-2 border-white/40 z-10" />
+      )}
+
+      {/* Lock badge */}
+      {isPremiumLocked && !isLocked && !isClaimed && (
+        <div className="absolute top-2 right-2 z-20 w-7 h-7 rounded bg-red-500 flex items-center justify-center shadow-lg">
+          <Lock className="w-4 h-4 text-white" />
+        </div>
+      )}
+      {isLocked && !isClaimed && (
+        <div className="absolute top-2 right-2 z-20 w-7 h-7 rounded bg-black/70 flex items-center justify-center">
+          <Lock className="w-4 h-4 text-gray-400" />
+        </div>
+      )}
+
+      {/* Claimed badge */}
+      {isClaimed && (
+        <div className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-lg">
+          <CheckCircle2 className="w-5 h-5 text-green-600" />
+        </div>
+      )}
+
+      {/* FREE tag */}
+      {reward.track === 'free' && !isClaimed && (
+        <div className="absolute top-2 left-2 z-20 px-2 py-0.5 rounded-md bg-white/30 backdrop-blur-sm text-[10px] font-extrabold text-white uppercase tracking-wider shadow">
+          Free
+        </div>
+      )}
+
+      {/* Premium crown */}
+      {reward.track === 'premium' && !isPremiumLocked && !isLocked && !isClaimed && (
+        <div className="absolute top-2 left-2 z-20">
+          <Crown className="w-5 h-5 text-yellow-300 drop-shadow-lg" />
+        </div>
+      )}
+
+      {/* Card content */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full p-2 gap-2">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-18 lg:h-18 xl:w-20 xl:h-20 rounded-xl flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <IconComponent className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-11 xl:h-11 ${
+            isClaimed ? 'text-white/80' : vis.iconColor
+          } drop-shadow-lg`} />
+        </div>
+        <p className="text-[10px] sm:text-[11px] md:text-xs lg:text-sm font-bold text-white text-center leading-tight line-clamp-2 px-1 drop-shadow-md">
+          {reward.name}
+        </p>
+      </div>
+    </button>
+  )
+}
+
+// ─── MAIN BATTLE PASS TRACK (Fortnite Layout) ──────────────
 export default function MindPassTrack({ onPurchaseClick }) {
-  const seasonXP = useSeasonStore(selectSeasonXP)
   const isPremiumPass = useSeasonStore(selectIsPremiumPass)
   const isRewardClaimed = useSeasonStore((s) => s.isRewardClaimed)
+  const claimReward = useSeasonStore((s) => s.claimReward)
   const currentTier = useSeasonStore((s) => s.getBattlePassTier)()
 
-  const scrollRef = useRef(null)
-  const [showLeftArrow, setShowLeftArrow] = useState(false)
-  const [showRightArrow, setShowRightArrow] = useState(true)
+  const [currentPage, setCurrentPage] = useState(() =>
+    Math.min(TOTAL_PAGES - 1, Math.max(0, Math.floor((currentTier - 1) / LEVELS_PER_PAGE)))
+  )
+  const [selectedIndex, setSelectedIndex] = useState(0)
 
-  const TOTAL_W = BATTLE_PASS_TIERS.length * TIER_W
+  // Build rewards for current page: first=free, middle=premium, last=free
+  const pageRewards = useMemo(() => {
+    const startTier = currentPage * LEVELS_PER_PAGE + 1
+    const endTier = startTier + LEVELS_PER_PAGE - 1
+    const tiers = BATTLE_PASS_TIERS.filter(t => t.tier >= startTier && t.tier <= endTier)
+    const rewards = []
 
-  // Progress bar geometry
-  const currentTierIndex = BATTLE_PASS_TIERS.findIndex(t => t.tier === currentTier)
-  const barStart = TIER_W / 2
-  const barTotalW = (BATTLE_PASS_TIERS.length - 1) * TIER_W
-  const filledW = currentTierIndex >= 0 ? currentTierIndex * TIER_W : 0
+    // Position 1: free reward from first tier
+    const firstTier = tiers[0]
+    if (firstTier?.free) rewards.push({ ...firstTier.free, tier: firstTier.tier, track: 'free' })
 
-  // Scroll to current tier on mount
-  useEffect(() => {
-    if (!scrollRef.current) return
-    const tierIdx = Math.max(0, currentTier - 1)
-    const target = tierIdx * TIER_W - scrollRef.current.clientWidth / 2 + TIER_W / 2
-    scrollRef.current.scrollTo({ left: Math.max(0, target), behavior: 'smooth' })
-  }, [currentTier])
+    // Positions 2-5: premium rewards from all tiers that have them
+    for (const t of tiers) {
+      if (t.premium) rewards.push({ ...t.premium, tier: t.tier, track: 'premium' })
+    }
 
-  function updateArrows() {
-    if (!scrollRef.current) return
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-    setShowLeftArrow(scrollLeft > 10)
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10)
+    // Position 6: free reward from last tier
+    const lastTier = tiers[tiers.length - 1]
+    if (lastTier?.free) rewards.push({ ...lastTier.free, tier: lastTier.tier, track: 'free' })
+
+    return rewards
+  }, [currentPage])
+
+  // Page tier range
+  const startTier = currentPage * LEVELS_PER_PAGE + 1
+  const endTier = Math.min(startTier + LEVELS_PER_PAGE - 1, CURRENT_SEASON.maxTier)
+
+  // Level track progress for this page
+  const trackProgress = useMemo(() => {
+    if (currentTier < startTier) return 0
+    if (currentTier >= endTier) return 100
+    return ((currentTier - startTier) / (endTier - startTier)) * 100
+  }, [currentTier, startTier, endTier])
+
+  const safeIndex = selectedIndex >= pageRewards.length ? 0 : selectedIndex
+  const featured = pageRewards[safeIndex]
+  const featuredVis = featured ? (RARITY_VISUAL[featured.rarity] || RARITY_VISUAL.common) : RARITY_VISUAL.common
+  const FeaturedIcon = featured ? getRewardIcon(featured.icon) : Gift
+  const fIsLocked = featured ? featured.tier > currentTier : true
+  const fIsPremiumLocked = featured ? featured.track === 'premium' && !isPremiumPass : false
+  const fIsClaimed = featured ? isRewardClaimed(featured.tier, featured.track) : false
+  const fCanClaim = featured && !fIsLocked && !fIsPremiumLocked && !fIsClaimed
+
+  const handlePageChange = (delta) => {
+    setCurrentPage(p => Math.max(0, Math.min(TOTAL_PAGES - 1, p + delta)))
+    setSelectedIndex(0)
   }
 
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-    el.addEventListener('scroll', updateArrows, { passive: true })
-    updateArrows()
-    return () => el.removeEventListener('scroll', updateArrows)
-  }, [])
-
-  function scroll(direction) {
-    scrollRef.current?.scrollBy({ left: direction * 460, behavior: 'smooth' })
+  const handleClaim = () => {
+    if (featured && fCanClaim) claimReward(featured.tier, featured.track)
   }
 
   return (
-    <div className="space-y-3">
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
-            <Shield className="w-5 h-5 text-accent" />
-            Mind Pass
-          </h2>
-          <div className="flex items-center gap-2 bg-bg-card/60 rounded-lg px-3 py-1.5 border border-gray-700/50">
-            <span className="text-sm text-text-muted">Lvl</span>
-            <span className="text-sm font-bold text-text-primary">{currentTier}</span>
-            <span className="text-xs text-text-muted">/ {CURRENT_SEASON.maxTier}</span>
-          </div>
-          <span className="text-sm text-accent font-semibold">
-            {seasonXP.toLocaleString('de-DE')} XP
-          </span>
-        </div>
-        {!isPremiumPass && (
-          <button
-            onClick={onPurchaseClick}
-            className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-bold rounded-lg px-4 py-2 text-sm transition-all cursor-pointer shadow-lg shadow-yellow-500/20"
-          >
-            <Crown className="w-4 h-4" />
-            Premium freischalten
-          </button>
+    <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 10rem)' }}>
+
+      {/* ═══════ FEATURED ITEM DISPLAY ═══════ */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-12 xl:px-16 py-4 lg:py-8 relative">
+        {/* Rarity-colored background aura */}
+        {featured && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `radial-gradient(ellipse 70% 60% at center, ${featuredVis.glowHex}22 0%, ${featuredVis.glowHex}08 40%, transparent 70%)`,
+            }}
+          />
         )}
-      </div>
 
-      {/* ── TRACK CONTAINER ── */}
-      <div className="relative rounded-2xl overflow-hidden border border-gray-700/40">
-        {/* Background layers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-gray-900/90 to-slate-950/70" />
-        <div className="absolute inset-0 opacity-[0.015]"
-          style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '20px 20px' }}
-        />
+        <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-center justify-center lg:justify-between w-full max-w-7xl gap-6 lg:gap-10">
 
-        <div className="flex relative z-10">
-          {/* ── Fixed Left Labels ── */}
-          <div className="flex-shrink-0 w-11 sm:w-14 border-r border-gray-700/30 bg-gray-950/50 z-10 select-none">
-            {/* Free label */}
-            <div className="flex items-center justify-center" style={{ height: CARD_H + 12 }}>
-              <span className="text-[8px] sm:text-[9px] font-extrabold text-white/20 uppercase tracking-[0.15em] [writing-mode:vertical-lr] rotate-180">
-                Free
-              </span>
-            </div>
-            {/* Progress bar spacer */}
-            <div className="flex items-center justify-center border-y border-gray-700/20" style={{ height: BAR_ROW_H }} />
-            {/* Premium label */}
-            <div
-              className="flex items-center justify-center bg-gradient-to-b from-amber-500/[0.10] via-amber-600/[0.12] to-amber-700/[0.06] border-t border-amber-500/15"
-              style={{ height: CARD_H + 12 }}
-            >
-              <div className="flex items-center gap-1.5 [writing-mode:vertical-lr] rotate-180">
-                <Crown className="w-2.5 h-2.5 text-yellow-500/60 rotate-90" />
-                <span className="text-[8px] sm:text-[9px] font-extrabold text-yellow-400/40 uppercase tracking-[0.15em]">
-                  Premium
-                </span>
+          {/* ── Left: Item Info ── */}
+          {featured && (
+            <div className="flex-shrink-0 text-center lg:text-left max-w-[320px] lg:max-w-[340px] order-2 lg:order-1">
+              <div className={`inline-block px-3 py-1 rounded text-[10px] sm:text-xs font-black uppercase tracking-wider text-white mb-3 ${featuredVis.labelBg}`}>
+                {featuredVis.label}
               </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-white uppercase tracking-tight leading-[0.95] mb-3">
+                {featured.name}
+              </h2>
+              <p className="text-xs sm:text-sm lg:text-base text-white/50 leading-relaxed mb-4">
+                {featured.description}
+              </p>
+              {featured.track === 'premium' && (
+                <div className="flex items-center justify-center lg:justify-start gap-2">
+                  <Crown className="w-5 h-5 text-yellow-400" />
+                  <span className="text-sm lg:text-base text-yellow-400/80 font-semibold">Premium Belohnung</span>
+                </div>
+              )}
+              {featured.track === 'free' && (
+                <span className="text-sm lg:text-base text-white/40 font-semibold">Kostenlose Belohnung</span>
+              )}
             </div>
-          </div>
+          )}
 
-          {/* ── Scrollable Track ── */}
-          <div className="flex-1 relative overflow-hidden">
-            {/* Left scroll arrow */}
-            {showLeftArrow && (
-              <button
-                onClick={() => scroll(-1)}
-                className="absolute left-0 top-0 bottom-0 z-20 w-9 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center justify-center cursor-pointer group"
-              >
-                <div className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-white/25 flex items-center justify-center transition-all border border-white/10 group-hover:border-white/30 backdrop-blur-sm">
-                  <ChevronLeft className="w-3.5 h-3.5 text-white/70 group-hover:text-white transition-colors" />
-                </div>
-              </button>
-            )}
-            {/* Right scroll arrow */}
-            {showRightArrow && (
-              <button
-                onClick={() => scroll(1)}
-                className="absolute right-0 top-0 bottom-0 z-20 w-9 bg-gradient-to-l from-black/80 via-black/50 to-transparent flex items-center justify-center cursor-pointer group"
-              >
-                <div className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-white/25 flex items-center justify-center transition-all border border-white/10 group-hover:border-white/30 backdrop-blur-sm">
-                  <ChevronRight className="w-3.5 h-3.5 text-white/70 group-hover:text-white transition-colors" />
-                </div>
-              </button>
-            )}
-
-            <div ref={scrollRef} className="overflow-x-auto hide-scrollbar">
-              <div style={{ width: TOTAL_W }} className="flex flex-col">
-
-                {/* ═══════ FREE REWARD ROW ═══════ */}
-                <div className="flex pt-2.5 pb-1">
-                  {BATTLE_PASS_TIERS.map(tierData => (
-                    <div key={tierData.tier} className="flex-shrink-0 px-[3px]" style={{ width: TIER_W }}>
-                      <div style={{ height: CARD_H }}>
-                        <RewardCard
-                          reward={tierData.free}
-                          tier={tierData.tier}
-                          track="free"
-                          currentTier={currentTier}
-                          isPremium={true}
-                          isClaimed={isRewardClaimed(tierData.tier, 'free')}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* ═══════ CONTINUOUS PROGRESS BAR ═══════ */}
-                <div className="relative flex items-center" style={{ height: BAR_ROW_H }}>
-                  {/* Background track line (full span between first and last tier centers) */}
-                  <div
-                    className="absolute h-[3px] rounded-full bg-gray-700/40"
-                    style={{ left: barStart, width: barTotalW }}
-                  />
-                  {/* Filled progress line */}
-                  {filledW > 0 && (
-                    <div
-                      className="absolute h-[3px] rounded-full transition-all duration-700"
-                      style={{
-                        left: barStart,
-                        width: filledW,
-                        background: 'linear-gradient(90deg, #6366f1, #f97316, #eab308)',
-                      }}
-                    />
+          {/* ── Center: Large Icon Showcase ── */}
+          {featured && (
+            <div className="flex-1 flex items-center justify-center order-1 lg:order-2 min-h-[180px] lg:min-h-[260px]">
+              <div className="relative">
+                {/* Outer glow ring */}
+                <div
+                  className="absolute rounded-full blur-[60px] lg:blur-[80px] opacity-50"
+                  style={{
+                    background: `radial-gradient(${featuredVis.glowHex}, transparent)`,
+                    inset: '-50%',
+                  }}
+                />
+                {/* Secondary glow */}
+                <div
+                  className="absolute rounded-full blur-[40px] opacity-25"
+                  style={{
+                    background: featuredVis.glowHex,
+                    inset: '-20%',
+                  }}
+                />
+                {/* Icon container */}
+                <div className={`relative w-36 h-36 sm:w-44 sm:h-44 lg:w-56 lg:h-56 xl:w-64 xl:h-64 rounded-2xl lg:rounded-3xl flex items-center justify-center shadow-2xl border-2 ${
+                  fIsClaimed
+                    ? 'bg-green-500/15 border-green-400/30'
+                    : 'bg-white/[0.06] border-white/10'
+                } backdrop-blur-sm`}>
+                  <div className={`absolute inset-0 rounded-2xl lg:rounded-3xl bg-gradient-to-b ${
+                    fIsClaimed ? 'from-green-400/10 to-transparent' : 'from-white/5 to-transparent'
+                  }`} />
+                  {fIsLocked || fIsPremiumLocked ? (
+                    <Lock className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 xl:w-32 xl:h-32 text-gray-500/80 drop-shadow-lg" />
+                  ) : (
+                    <FeaturedIcon className={`relative w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 xl:w-32 xl:h-32 ${
+                      fIsClaimed ? 'text-green-300/90' : featuredVis.iconColor
+                    } drop-shadow-xl`} />
                   )}
-
-                  {/* Tier number circles */}
-                  <div className="flex w-full relative z-10">
-                    {BATTLE_PASS_TIERS.map(tierData => {
-                      const isCurrent = tierData.tier === currentTier
-                      const isReached = tierData.tier <= currentTier
-                      const milestone = tierData.tier % 5 === 0 || tierData.tier === 1 || tierData.tier === CURRENT_SEASON.maxTier
-
-                      return (
-                        <div key={tierData.tier} className="flex-shrink-0 flex items-center justify-center" style={{ width: TIER_W }}>
-                          <div className={`relative flex items-center justify-center rounded-full transition-all duration-300 ${
-                            isCurrent
-                              ? 'w-8 h-8 bg-gradient-to-br from-accent via-orange-500 to-amber-500 shadow-lg shadow-accent/50 ring-2 ring-white/25'
-                              : milestone && isReached
-                                ? 'w-[26px] h-[26px] bg-accent/20 ring-[1.5px] ring-accent/35'
-                                : isReached
-                                  ? 'w-[22px] h-[22px] bg-accent/15 ring-1 ring-accent/25'
-                                  : milestone
-                                    ? 'w-[26px] h-[26px] bg-gray-800 ring-[1.5px] ring-gray-600/40'
-                                    : 'w-[22px] h-[22px] bg-gray-800 ring-1 ring-gray-700/30'
-                          }`}>
-                            {isCurrent && (
-                              <div className="absolute inset-0 rounded-full bg-white/15 animate-pulse" />
-                            )}
-                            <span className={`relative font-black select-none ${
-                              isCurrent
-                                ? 'text-white text-[11px]'
-                                : milestone && isReached
-                                  ? 'text-accent text-[10px]'
-                                  : isReached
-                                    ? 'text-accent/80 text-[9px]'
-                                    : milestone
-                                      ? 'text-gray-400 text-[10px]'
-                                      : 'text-gray-500 text-[9px]'
-                            }`}>
-                              {tierData.tier}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* ═══════ PREMIUM REWARD ROW ═══════ */}
-                <div className="flex relative pt-1 pb-2.5">
-                  {/* Premium golden background - more visible */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-amber-500/[0.07] via-amber-600/[0.10] to-amber-800/[0.05]" />
-                  {/* Golden top border line */}
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500/10 via-amber-400/30 to-amber-500/10" />
-                  {/* Subtle left gold accent */}
-                  <div className="absolute top-0 left-0 bottom-0 w-[2px] bg-gradient-to-b from-amber-400/25 via-amber-500/15 to-transparent" />
-
-                  {BATTLE_PASS_TIERS.map(tierData => (
-                    <div key={tierData.tier} className="flex-shrink-0 px-[3px] relative z-10" style={{ width: TIER_W }}>
-                      <div style={{ height: CARD_H }}>
-                        <RewardCard
-                          reward={tierData.premium}
-                          tier={tierData.tier}
-                          track="premium"
-                          currentTier={currentTier}
-                          isPremium={isPremiumPass}
-                          isClaimed={isRewardClaimed(tierData.tier, 'premium')}
-                        />
-                      </div>
+                  {fIsClaimed && (
+                    <div className="absolute -bottom-3 -right-3 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-green-500 border-4 border-[#0c1535] flex items-center justify-center shadow-xl">
+                      <CheckCircle2 className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
                     </div>
-                  ))}
+                  )}
                 </div>
-
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* ── Bottom Info Bar ── */}
-      <div className="flex items-center justify-between bg-bg-card/50 rounded-xl p-3.5 border border-gray-800 flex-wrap gap-3">
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-text-muted">Naechstes Level:</span>
-          {currentTier < CURRENT_SEASON.maxTier ? (
-            <>
-              <span className="text-text-primary font-semibold">Level {currentTier + 1}</span>
-              <span className="text-text-muted text-xs">
-                ({((currentTier + 1) * CURRENT_SEASON.xpPerTier).toLocaleString('de-DE')} XP)
-              </span>
-            </>
-          ) : (
-            <span className="flex items-center gap-1.5 text-yellow-400 font-bold">
-              <Star className="w-4 h-4" />
-              Max Level erreicht!
-            </span>
+          {/* ── Right: Actions ── */}
+          {featured && (
+            <div className="flex-shrink-0 flex flex-col gap-3 w-full sm:w-auto sm:min-w-[220px] lg:min-w-[260px] xl:min-w-[280px] order-3">
+              {/* Cost/Tier display */}
+              <div className="bg-black/50 border border-white/15 rounded-xl px-5 py-3 flex items-center justify-between">
+                <span className="text-xs lg:text-sm text-white/50 font-bold uppercase tracking-wide">Stufe</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl lg:text-2xl font-black text-white">{featured.tier}</span>
+                  <Star className="w-5 h-5 lg:w-6 lg:h-6 text-yellow-400" fill="currentColor" />
+                </div>
+              </div>
+
+              {/* Claim button */}
+              {fCanClaim ? (
+                <button
+                  onClick={handleClaim}
+                  data-testid="claim-reward-btn"
+                  className="w-full py-3.5 lg:py-4 bg-yellow-400 hover:bg-yellow-300 text-black font-black rounded-xl transition-all uppercase tracking-wide text-sm lg:text-base cursor-pointer shadow-lg shadow-yellow-500/30 hover:shadow-yellow-400/50 active:scale-95 flex items-center justify-center gap-3"
+                >
+                  <span className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs font-black">A</span>
+                  EINLOESEN
+                </button>
+              ) : fIsClaimed ? (
+                <div className="w-full py-3.5 lg:py-4 bg-green-500/20 border-2 border-green-500/40 text-green-400 font-black rounded-xl text-center uppercase tracking-wide text-sm lg:text-base">
+                  ✓ Eingeloest
+                </div>
+              ) : fIsPremiumLocked ? (
+                <button
+                  onClick={onPurchaseClick}
+                  className="w-full py-3.5 lg:py-4 bg-yellow-500/20 border-2 border-yellow-500/40 text-yellow-400 font-black rounded-xl uppercase tracking-wide text-sm lg:text-base cursor-pointer hover:bg-yellow-500/30 transition-all flex items-center justify-center gap-3"
+                >
+                  <Crown className="w-5 h-5" />
+                  Premium noetig
+                </button>
+              ) : (
+                <div className="w-full py-3.5 lg:py-4 bg-gray-800/50 border-2 border-gray-700/40 text-gray-500 font-black rounded-xl text-center uppercase tracking-wide text-sm lg:text-base flex items-center justify-center gap-3">
+                  <Lock className="w-5 h-5" />
+                  Gesperrt
+                </div>
+              )}
+
+              {/* View button */}
+              <button className="w-full py-3 lg:py-3.5 bg-blue-600/80 hover:bg-blue-500 text-white font-bold rounded-xl transition-all uppercase tracking-wide text-sm lg:text-base cursor-pointer flex items-center justify-center gap-3">
+                <span className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-[10px] font-black">Y</span>
+                ANSEHEN
+              </button>
+            </div>
           )}
         </div>
-        <div className="text-xs text-text-muted">
-          {BATTLE_PASS_TIERS.filter(t => t.tier <= currentTier && t.free).length +
-            BATTLE_PASS_TIERS.filter(t => t.tier <= currentTier && t.premium && isPremiumPass).length} Belohnungen verfuegbar
+      </div>
+
+      {/* ═══════ HINT TEXT ═══════ */}
+      <div className="px-4 sm:px-6 lg:px-8 mb-3">
+        <div className="inline-flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg px-4 py-2">
+          <span className="text-xs sm:text-sm text-white/50">
+            <span className="text-yellow-300 font-bold">Klicke</span> auf eine Belohnung um sie auszuwaehlen
+          </span>
+          <Star className="w-3.5 h-3.5 text-yellow-300 flex-shrink-0" fill="currentColor" />
         </div>
+      </div>
+
+      {/* ═══════ LEVEL PROGRESSION TRACK ═══════ */}
+      <div className="px-6 sm:px-10 lg:px-14 xl:px-20 mb-1">
+        <div className="relative flex justify-between items-center">
+          {/* Background track line */}
+          <div className="absolute top-1/2 left-0 right-0 h-1 bg-white/[0.06] rounded-full -translate-y-1/2" />
+          {/* Progress fill */}
+          <div
+            className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-yellow-400 to-amber-400 rounded-full -translate-y-1/2 transition-all duration-500"
+            style={{ width: `${trackProgress}%` }}
+          />
+          {/* Level dots */}
+          {pageRewards.map((reward, i) => {
+            const isPast = reward.tier <= currentTier
+            const isCurrent = reward.tier === currentTier
+            return (
+              <div
+                key={`dot-${reward.tier}-${reward.track}`}
+                className="relative z-10 flex flex-col items-center gap-1"
+              >
+                <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${
+                  isCurrent ? 'text-yellow-400' : isPast ? 'text-yellow-400/60' : 'text-white/15'
+                }`}>
+                  Lv {reward.tier}
+                </span>
+                <div className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full transition-all duration-300 ${
+                  isCurrent
+                    ? 'bg-yellow-400 ring-[3px] ring-yellow-400/30 shadow-lg shadow-yellow-400/40'
+                    : isPast
+                      ? 'bg-yellow-400'
+                      : 'bg-white/10 border border-white/15'
+                }`} />
+                {reward.track === 'free' && (
+                  <span className="text-[8px] sm:text-[9px] font-bold text-white/20 uppercase">Free</span>
+                )}
+                {reward.track === 'premium' && (
+                  <span className="text-[8px] sm:text-[9px] font-bold text-yellow-400/20 uppercase">
+                    <Crown className="w-2.5 h-2.5 inline" />
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ═══════ BOTTOM CARD STRIP (6 cards per page) ═══════ */}
+      <div
+        className="px-3 sm:px-4 lg:px-6 xl:px-8 py-3"
+        data-testid="reward-card-strip"
+        style={{
+          background: 'linear-gradient(180deg, transparent 0%, rgba(8,12,32,0.6) 40%, rgba(12,16,40,0.8) 100%)',
+        }}
+      >
+        <div className="flex gap-2 sm:gap-3 lg:gap-4 justify-evenly overflow-x-auto pb-1 hide-scrollbar">
+          {pageRewards.map((reward, i) => (
+            <RewardCard
+              key={`${reward.tier}-${reward.track}`}
+              reward={reward}
+              isSelected={i === safeIndex}
+              onClick={() => setSelectedIndex(i)}
+              currentTier={currentTier}
+              isPremium={isPremiumPass}
+              isClaimed={isRewardClaimed(reward.tier, reward.track)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ═══════ PAGE NAVIGATION ═══════ */}
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3" data-testid="page-navigation">
+        <div className="text-xs sm:text-sm text-white/25 font-medium">
+          Level {startTier} – {endTier}
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-5">
+          <button
+            onClick={() => handlePageChange(-1)}
+            disabled={currentPage === 0}
+            data-testid="page-prev"
+            className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-all cursor-pointer border border-white/10"
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+
+          <span className="text-sm sm:text-base font-bold text-white/60 tracking-widest uppercase min-w-[120px] text-center" data-testid="page-indicator">
+            Seite {currentPage + 1} / {TOTAL_PAGES}
+          </span>
+
+          <button
+            onClick={() => handlePageChange(1)}
+            disabled={currentPage === TOTAL_PAGES - 1}
+            data-testid="page-next"
+            className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-all cursor-pointer border border-white/10"
+          >
+            <ChevronRight className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        <div className="text-xs sm:text-sm text-white/25 font-medium">
+          Lvl {currentTier} / {CURRENT_SEASON.maxTier}
+        </div>
+      </div>
+
+      {/* ═══════ BOTTOM DISCLAIMER ═══════ */}
+      <div className="px-4 sm:px-6 lg:px-8 pb-4">
+        <p className="text-[10px] text-white/10">
+          Season {CURRENT_SEASON.number} – {CURRENT_SEASON.name}. Belohnungen sind nur waehrend der Season verfuegbar.
+        </p>
       </div>
     </div>
   )

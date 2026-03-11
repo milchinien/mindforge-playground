@@ -25,7 +25,7 @@ const pageTitleKeys = {
   '/create': 'nav.create',
   '/premium': 'Premium',
   '/teacher': 'nav.teacherDashboard',
-  '/seasons': 'Seasons',
+  // '/seasons' - full-bleed Fortnite-style layout, no page title
   '/quests': 'Quests',
   // '/chat' - eigene Layout-Steuerung in Chat.jsx
   '/groups': 'Gruppen',
