@@ -8,50 +8,10 @@ import Tabs from '../components/ui/Tabs'
 import { useAchievementStore, selectProgress } from '../stores/achievementStore'
 import { useSeasonStore, selectSeasonXP } from '../stores/seasonStore'
 
-// --- Mock leaderboard data ---
-const MOCK_PLAYERS = [
-  { id: 'user-100', username: 'PixelMaster', xp: 48750, level: 47, gamesPlayed: 312, streak: 21, premiumTier: 'creator' },
-  { id: 'user-101', username: 'BrainStorm99', xp: 42300, level: 43, gamesPlayed: 278, streak: 14, premiumTier: 'pro' },
-  { id: 'user-102', username: 'QuizKoenig', xp: 38900, level: 40, gamesPlayed: 245, streak: 32, premiumTier: 'teacher' },
-  { id: 'user-103', username: 'LernFuchs', xp: 35200, level: 37, gamesPlayed: 210, streak: 9, premiumTier: null },
-  { id: 'user-104', username: 'WissenHeld', xp: 31800, level: 34, gamesPlayed: 198, streak: 18, premiumTier: 'pro' },
-  { id: 'user-105', username: 'CodeNinja42', xp: 29400, level: 32, gamesPlayed: 187, streak: 7, premiumTier: 'creator' },
-  { id: 'user-106', username: 'MathGenius', xp: 27100, level: 30, gamesPlayed: 165, streak: 25, premiumTier: null },
-  { id: 'user-107', username: 'ScienceGirl', xp: 24500, level: 28, gamesPlayed: 152, streak: 11, premiumTier: 'pro' },
-  { id: 'user-108', username: 'HistoryPro', xp: 22800, level: 26, gamesPlayed: 143, streak: 5, premiumTier: null },
-  { id: 'user-109', username: 'GeoExpert', xp: 20100, level: 24, gamesPlayed: 130, streak: 16, premiumTier: null },
-  { id: 'user-110', username: 'PhysikFan', xp: 18700, level: 22, gamesPlayed: 118, streak: 3, premiumTier: null },
-  { id: 'user-111', username: 'BioNerd', xp: 16200, level: 20, gamesPlayed: 105, streak: 8, premiumTier: 'pro' },
-  { id: 'user-112', username: 'SprachProfi', xp: 14800, level: 18, gamesPlayed: 94, streak: 12, premiumTier: null },
-  { id: 'user-113', username: 'KunstFan', xp: 12500, level: 16, gamesPlayed: 82, streak: 4, premiumTier: null },
-  { id: 'user-114', username: 'MusikStar', xp: 10900, level: 14, gamesPlayed: 71, streak: 6, premiumTier: null },
-]
-
-const WEEKLY_PLAYERS = [
-  { id: 'user-102', username: 'QuizKoenig', xp: 4200, level: 40, gamesPlayed: 38, streak: 32 },
-  { id: 'user-106', username: 'MathGenius', xp: 3800, level: 30, gamesPlayed: 34, streak: 25 },
-  { id: 'user-100', username: 'PixelMaster', xp: 3500, level: 47, gamesPlayed: 29, streak: 21 },
-  { id: 'user-104', username: 'WissenHeld', xp: 3100, level: 34, gamesPlayed: 26, streak: 18 },
-  { id: 'user-109', username: 'GeoExpert', xp: 2800, level: 24, gamesPlayed: 22, streak: 16 },
-  { id: 'user-101', username: 'BrainStorm99', xp: 2400, level: 43, gamesPlayed: 19, streak: 14 },
-  { id: 'user-112', username: 'SprachProfi', xp: 2100, level: 18, gamesPlayed: 17, streak: 12 },
-  { id: 'user-107', username: 'ScienceGirl', xp: 1900, level: 28, gamesPlayed: 15, streak: 11 },
-  { id: 'user-103', username: 'LernFuchs', xp: 1700, level: 37, gamesPlayed: 13, streak: 9 },
-  { id: 'user-111', username: 'BioNerd', xp: 1500, level: 20, gamesPlayed: 11, streak: 8 },
-]
-
-const MONTHLY_PLAYERS = [
-  { id: 'user-100', username: 'PixelMaster', xp: 12400, level: 47, gamesPlayed: 89, streak: 21 },
-  { id: 'user-102', username: 'QuizKoenig', xp: 11800, level: 40, gamesPlayed: 82, streak: 32 },
-  { id: 'user-101', username: 'BrainStorm99', xp: 10200, level: 43, gamesPlayed: 74, streak: 14 },
-  { id: 'user-106', username: 'MathGenius', xp: 9600, level: 30, gamesPlayed: 68, streak: 25 },
-  { id: 'user-104', username: 'WissenHeld', xp: 8800, level: 34, gamesPlayed: 61, streak: 18 },
-  { id: 'user-103', username: 'LernFuchs', xp: 8100, level: 37, gamesPlayed: 55, streak: 9 },
-  { id: 'user-109', username: 'GeoExpert', xp: 7300, level: 24, gamesPlayed: 48, streak: 16 },
-  { id: 'user-105', username: 'CodeNinja42', xp: 6800, level: 32, gamesPlayed: 43, streak: 7 },
-  { id: 'user-107', username: 'ScienceGirl', xp: 6200, level: 28, gamesPlayed: 39, streak: 11 },
-  { id: 'user-112', username: 'SprachProfi', xp: 5500, level: 18, gamesPlayed: 34, streak: 12 },
-]
+// Leaderboard data will come from the database. Empty arrays until real data is connected.
+const MOCK_PLAYERS = []
+const WEEKLY_PLAYERS = []
+const MONTHLY_PLAYERS = []
 
 // CURRENT_USER_STATS is now derived from stores (see component body)
 

@@ -15,19 +15,11 @@ export default function AddFriendModal({ onClose, onSendRequest }) {
     if (!searchQuery.trim()) return
     setIsSearching(true)
 
-    // MVP: Mock-Suche
-    const mockResults = [
-      { uid: 'user-301', username: 'NeuerFreund', displayName: 'Neuer Freund', avatar: null },
-      { uid: 'user-302', username: 'SpielProfi', displayName: 'Spiel Profi', avatar: null },
-      { uid: 'user-303', username: 'LernChampion', displayName: 'Lern Champion', avatar: null },
-    ].filter(u =>
-      u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.displayName.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    // Search results will come from the database. Empty until real backend is connected.
+    const results = []
 
-    // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 300))
-    setSearchResults(mockResults)
+    setSearchResults(results)
     setIsSearching(false)
     setHasSearched(true)
   }

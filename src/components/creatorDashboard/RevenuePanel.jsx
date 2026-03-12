@@ -3,36 +3,27 @@ import { Coins, TrendingUp, Info, Play, Eye, ChevronDown, ChevronUp, Clock, Doll
 import MindCoinIcon from '../common/MindCoinIcon'
 import { formatNumber } from '../../utils/formatters'
 
-// ──────────── MOCK DATA ────────────
-
-const MOCK_GAME_EARNINGS = [
-  { id: 'g1', title: 'Mathe-Meister', plays: 1832, earningsPerPlay: 2, totalEarnings: 2564, trend: 12 },
-  { id: 'g2', title: 'Physik-Simulator', plays: 945, earningsPerPlay: 3, totalEarnings: 1984, trend: 8 },
-  { id: 'g3', title: 'Geschichte Quiz', plays: 678, earningsPerPlay: 2, totalEarnings: 949, trend: -3 },
-  { id: 'g4', title: 'Bio-Entdecker', plays: 412, earningsPerPlay: 2, totalEarnings: 577, trend: 15 },
-  { id: 'g5', title: 'Deutsch-Profi', plays: 289, earningsPerPlay: 1, totalEarnings: 202, trend: 5 },
-]
-
-// Last 30 days mock earnings
-function generateDailyEarnings() {
-  const days = []
-  const now = new Date()
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now)
-    date.setDate(date.getDate() - i)
-    const dayName = date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
-    const base = Math.floor(Math.random() * 80) + 20
-    const weekendBoost = (date.getDay() === 0 || date.getDay() === 6) ? 30 : 0
-    days.push({ date: dayName, earnings: base + weekendBoost })
-  }
-  return days
-}
-
-const DAILY_EARNINGS = generateDailyEarnings()
+// Earnings data will come from the database. Empty until real data is connected.
+const MOCK_GAME_EARNINGS = []
+const DAILY_EARNINGS = []
 
 // ──────────── EARNINGS CHART ────────────
 
 function EarningsChart({ data }) {
+  if (data.length === 0) {
+    return (
+      <div className="bg-bg-card rounded-xl p-5 border border-gray-700">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp className="w-5 h-5 text-accent" />
+          <h3 className="font-bold text-text-primary">Einnahmen (letzte 30 Tage)</h3>
+        </div>
+        <div className="flex items-center justify-center h-40 text-text-muted text-sm">
+          Noch keine Einnahmen-Daten vorhanden.
+        </div>
+      </div>
+    )
+  }
+
   const maxEarnings = Math.max(...data.map(d => d.earnings))
   // Show every 5th label to avoid crowding
   const showLabel = (i) => i % 5 === 0 || i === data.length - 1

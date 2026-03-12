@@ -39,22 +39,11 @@ function initChallengeProgress(weekNumber) {
 function createDefaultUserData() {
   return {
     currentSeasonId: CURRENT_SEASON.id,
-    seasonXP: 8450,
+    seasonXP: 0,
     isPremiumPass: false,
-    claimedRewards: ['1-free', '7-free'],
+    claimedRewards: [],
     currentWeek: getCurrentWeek(),
-    challengeProgress: {
-      'w1-c1': { current: 5, completed: true, claimed: true },
-      'w1-c2': { current: 3, completed: true, claimed: true },
-      'w1-c3': { current: 3, completed: true, claimed: true },
-      'w1-c4': { current: 10, completed: true, claimed: false },
-      'w1-c5': { current: 0, completed: false, claimed: false },
-      'w2-c1': { current: 2, completed: false, claimed: false },
-      'w2-c2': { current: 1200, completed: false, claimed: false },
-      'w2-c3': { current: 3, completed: false, claimed: false },
-      'w2-c4': { current: 1, completed: false, claimed: false },
-      'w2-c5': { current: 4, completed: false, claimed: false },
-    },
+    challengeProgress: initChallengeProgress(getCurrentWeek()),
   }
 }
 

@@ -7,8 +7,8 @@ export default function GameStats({ game, onClose }) {
     : 0
 
   const mockEarnings = Math.round((game.plays || 0) * (game.price || 0) * 0.1)
-  const avgPlayTime = '2m 34s'
-  const completionRate = '78%'
+  const avgPlayTime = '--'
+  const completionRate = '--'
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">

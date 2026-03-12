@@ -8,44 +8,23 @@ function createDefaultUserData() {
     activeFrame: null,
     unlockedFrames: [],
     detailedStats: {
-      strengths: [
-        { subject: 'Mathematik', score: 85 },
-        { subject: 'Physik', score: 72 },
-        { subject: 'Geschichte', score: 91 },
-        { subject: 'Biologie', score: 68 },
-        { subject: 'Deutsch', score: 78 },
-        { subject: 'Informatik', score: 94 },
-      ],
+      strengths: [],
       streakCalendar: generateStreakCalendar(),
-      subjectBreakdown: [
-        { subject: 'Mathematik', percentage: 28, color: '#6366f1' },
-        { subject: 'Informatik', percentage: 22, color: '#06b6d4' },
-        { subject: 'Geschichte', percentage: 18, color: '#f59e0b' },
-        { subject: 'Physik', percentage: 15, color: '#10b981' },
-        { subject: 'Deutsch', percentage: 10, color: '#ec4899' },
-        { subject: 'Biologie', percentage: 7, color: '#8b5cf6' },
-      ],
+      subjectBreakdown: [],
       dailyTime: [
-        { day: 'Mo', minutes: 45 },
-        { day: 'Di', minutes: 62 },
-        { day: 'Mi', minutes: 30 },
-        { day: 'Do', minutes: 78 },
-        { day: 'Fr', minutes: 55 },
-        { day: 'Sa', minutes: 90 },
-        { day: 'So', minutes: 40 },
+        { day: 'Mo', minutes: 0 },
+        { day: 'Di', minutes: 0 },
+        { day: 'Mi', minutes: 0 },
+        { day: 'Do', minutes: 0 },
+        { day: 'Fr', minutes: 0 },
+        { day: 'Sa', minutes: 0 },
+        { day: 'So', minutes: 0 },
       ],
-      improvements: [
-        { subject: 'Mathematik', change: 12, direction: 'up' },
-        { subject: 'Physik', change: 8, direction: 'up' },
-        { subject: 'Geschichte', change: 5, direction: 'up' },
-        { subject: 'Biologie', change: -3, direction: 'down' },
-        { subject: 'Deutsch', change: 15, direction: 'up' },
-        { subject: 'Informatik', change: 2, direction: 'up' },
-      ],
-      totalLearningHours: 142,
-      averageScore: 81,
-      bestStreak: 21,
-      currentStreak: 4,
+      improvements: [],
+      totalLearningHours: 0,
+      averageScore: 0,
+      bestStreak: 0,
+      currentStreak: 0,
     },
     giftHistory: [],
   }
@@ -166,15 +145,9 @@ function generateStreakCalendar() {
     for (let d = 0; d < 7; d++) {
       const date = new Date(today)
       date.setDate(date.getDate() - (w * 7 + (6 - d)))
-      const activity = Math.random()
-      let level = 0
-      if (activity > 0.3) level = 1
-      if (activity > 0.5) level = 2
-      if (activity > 0.7) level = 3
-      if (activity > 0.85) level = 4
       week.push({
         date: date.toISOString().split('T')[0],
-        level,
+        level: 0,
       })
     }
     weeks.push(week)

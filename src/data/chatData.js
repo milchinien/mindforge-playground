@@ -40,10 +40,7 @@ const gameRecommendations = {
       'Verstehe die Konzepte, statt nur Formeln auswendig zu lernen.',
       'Fehler sind deine besten Lehrer - analysiere jeden Fehler genau.',
     ],
-    games: [
-      { title: 'Mathe-Meister', desc: 'Teste dein Wissen von Addition bis Multiplikation', id: 'game-001' },
-      { title: 'Bruchrechnung-Challenge', desc: 'Meistere Brueche spielerisch', id: 'game-013' },
-    ],
+    games: [],
   },
   physik: {
     tips: [
@@ -51,9 +48,7 @@ const gameRecommendations = {
       'Zeichne Skizzen und Diagramme - sie helfen beim Verstaendnis enorm!',
       'Experimentiere! Auch gedankliche Experimente helfen.',
     ],
-    games: [
-      { title: 'Physik-Simulator', desc: 'Experimentiere mit Schwerkraft und Reibung', id: 'game-002' },
-    ],
+    games: [],
   },
   chemie: {
     tips: [
@@ -61,10 +56,7 @@ const gameRecommendations = {
       'Verstehe die Elektronenkonfiguration - sie erklaert fast alles!',
       'Erstelle Karteikarten fuer chemische Reaktionen.',
     ],
-    games: [
-      { title: 'Chemie-Labor', desc: 'Mische Elemente und entdecke Reaktionen', id: 'game-003' },
-      { title: 'Periodensystem-Explorer', desc: 'Entdecke alle Elemente interaktiv', id: 'game-014' },
-    ],
+    games: [],
   },
   deutsch: {
     tips: [
@@ -72,10 +64,7 @@ const gameRecommendations = {
       'Fuehre ein Wortschatz-Tagebuch mit neuen Woertern.',
       'Uebe Rechtschreibung mit Diktaten.',
     ],
-    games: [
-      { title: 'Wort-Wizard', desc: 'Erweitere deinen Wortschatz spielerisch', id: 'game-004' },
-      { title: 'Grammatik-Gladiator', desc: 'Kaempfe dich durch Grammatik-Challenges', id: 'game-018' },
-    ],
+    games: [],
   },
   englisch: {
     tips: [
@@ -83,9 +72,7 @@ const gameRecommendations = {
       'Denke in Englisch - beschreibe deinen Tag im Kopf auf Englisch!',
       'Nutze Vokabel-Apps fuer taegliches Training.',
     ],
-    games: [
-      { title: 'English Vocabulary Master', desc: 'Lerne und uebe englische Vokabeln', id: 'game-007' },
-    ],
+    games: [],
   },
   biologie: {
     tips: [
@@ -93,10 +80,7 @@ const gameRecommendations = {
       'Verbinde Theorie mit der Natur - beobachte Pflanzen und Tiere!',
       'Lerne mit Bildern und Diagrammen.',
     ],
-    games: [
-      { title: 'Bio-Puzzle: Zellen', desc: 'Entdecke den Aufbau der Zelle', id: 'game-006' },
-      { title: 'Oekosystem-Simulator', desc: 'Verwalte dein eigenes Oekosystem', id: 'game-017' },
-    ],
+    games: [],
   },
   geschichte: {
     tips: [
@@ -104,10 +88,7 @@ const gameRecommendations = {
       'Versuche, Geschichte wie eine Story zu verstehen, nicht als Daten.',
       'Diskutiere historische Ereignisse mit anderen.',
     ],
-    games: [
-      { title: 'Geschichte-Abenteuer: Mittelalter', desc: 'Erlebe das Mittelalter hautnah', id: 'game-008' },
-      { title: 'Strategie: Roemisches Reich', desc: 'Baue das Roemische Reich auf', id: 'game-015' },
-    ],
+    games: [],
   },
   geographie: {
     tips: [
@@ -115,9 +96,7 @@ const gameRecommendations = {
       'Lerne Laender in Gruppen (nach Kontinent).',
       'Verbinde Geographie mit aktuellen Nachrichten.',
     ],
-    games: [
-      { title: 'GeoQuest - Weltreise', desc: 'Reise um die Welt und lerne Geographie', id: 'game-005' },
-    ],
+    games: [],
   },
   informatik: {
     tips: [
@@ -125,10 +104,7 @@ const gameRecommendations = {
       'Starte mit kleinen Projekten, die dich interessieren.',
       'Lies Code von anderen und verstehe ihn.',
     ],
-    games: [
-      { title: 'Code-Knacker', desc: 'Loese Programmier-Raetsel', id: 'game-009' },
-      { title: 'Python-Abenteuer', desc: 'Lerne Python spielerisch', id: 'game-016' },
-    ],
+    games: [],
   },
   kunst: {
     tips: [
@@ -136,9 +112,7 @@ const gameRecommendations = {
       'Studiere Kunstwerke beruehmter Kuenstler.',
       'Experimentiere mit verschiedenen Techniken.',
     ],
-    games: [
-      { title: 'Kunst-Atelier', desc: 'Erstelle digitale Kunstwerke', id: 'game-010' },
-    ],
+    games: [],
   },
   musik: {
     tips: [
@@ -146,9 +120,7 @@ const gameRecommendations = {
       'Hoere verschiedene Musikgenres bewusst an.',
       'Lerne Noten lesen - es oeffnet eine neue Welt!',
     ],
-    games: [
-      { title: 'Musik-Memory', desc: 'Trainiere dein musikalisches Gehoer', id: 'game-011' },
-    ],
+    games: [],
   },
 }
 

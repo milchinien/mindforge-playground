@@ -38,7 +38,7 @@ function createDefaultUserData() {
     dailyResetAt: getNextMidnight(),
     weeklyResetAt: getNextMonday(),
     unlockedBadges: BADGE_DEFINITIONS.filter(b => b.unlocked).map(b => b.id),
-    selectedBadges: ['badge-beta-tester', 'badge-first-steps', 'badge-streak-7'],
+    selectedBadges: [],
   }
 }
 

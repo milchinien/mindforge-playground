@@ -4,18 +4,8 @@ import { Star, ThumbsUp, ThumbsDown, Send, User, Clock, ChevronDown, MessageSqua
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 
-const MOCK_REVIEWS = [
-  { id: '1', userId: 'u1', username: 'MaxMustermann', avatar: null, rating: 5, text: 'Absolut geniales Lernspiel! Meine Schüler lieben es und die Ergebnisse sprechen für sich.', date: '2026-02-20T10:30:00Z', helpful: 14, notHelpful: 1 },
-  { id: '2', userId: 'u2', username: 'LenaLernt', avatar: null, rating: 4, text: 'Sehr gut aufgebaut, nur das letzte Level ist etwas zu schwer für Anfänger. Ansonsten top!', date: '2026-02-18T14:15:00Z', helpful: 9, notHelpful: 2 },
-  { id: '3', userId: 'u3', username: 'ProGamerTom', avatar: null, rating: 5, text: 'Endlich ein Spiel, bei dem man wirklich was lernt und trotzdem Spaß hat. Perfekt!', date: '2026-02-15T09:00:00Z', helpful: 22, notHelpful: 0 },
-  { id: '4', userId: 'u4', username: 'SarahSchule', avatar: null, rating: 3, text: 'Ganz okay, aber die Grafik könnte besser sein. Inhaltlich aber solide.', date: '2026-02-12T16:45:00Z', helpful: 5, notHelpful: 3 },
-  { id: '5', userId: 'u5', username: 'MatheMaster', avatar: null, rating: 5, text: 'Als Mathelehrer bin ich begeistert. Die Aufgaben sind didaktisch sehr gut aufbereitet.', date: '2026-02-10T11:20:00Z', helpful: 18, notHelpful: 1 },
-  { id: '6', userId: 'u6', username: 'KleinerFuchs', avatar: null, rating: 4, text: 'Macht echt Spaß! Ich spiele es jeden Tag nach der Schule. Wünsche mir mehr Level.', date: '2026-02-08T13:00:00Z', helpful: 7, notHelpful: 0 },
-  { id: '7', userId: 'u7', username: 'TechNerd99', avatar: null, rating: 2, text: 'Idee ist gut, aber es gibt noch einige Bugs. Manchmal lädt das Spiel nicht richtig.', date: '2026-02-05T08:30:00Z', helpful: 11, notHelpful: 4 },
-  { id: '8', userId: 'u8', username: 'BiologieFan', avatar: null, rating: 4, text: 'Tolles Konzept! Besonders die interaktiven Elemente sind super gemacht.', date: '2026-02-03T17:10:00Z', helpful: 6, notHelpful: 1 },
-  { id: '9', userId: 'u9', username: 'AnnaAdmin', avatar: null, rating: 5, text: 'Nutze es in meiner Klasse - die Kinder sind motivierter als je zuvor. Klare Empfehlung!', date: '2026-01-28T10:00:00Z', helpful: 25, notHelpful: 2 },
-  { id: '10', userId: 'u10', username: 'CoolCoder', avatar: null, rating: 3, text: 'Für den Anfang nicht schlecht. Es fehlen aber noch Features wie Multiplayer oder Ranglisten.', date: '2026-01-25T15:30:00Z', helpful: 4, notHelpful: 2 },
-]
+// Review data will come from the database. Empty until real data is connected.
+const MOCK_REVIEWS = []
 
 function StarRating({ rating, size = 16, interactive = false, onChange }) {
   const [hovered, setHovered] = useState(0)

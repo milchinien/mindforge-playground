@@ -14,10 +14,10 @@ export const useGroupStore = create(
       customGroups: [],
 
       // User's groups
-      myGroups: [mockLerngruppen[0].id],
-      myClans: [mockClans[0].id],
-      myClasses: [mockKlassen[0].id],
-      groupInvites: mockGroupInvites,
+      myGroups: [],
+      myClans: [],
+      myClasses: [],
+      groupInvites: [],
 
       // Clan war state
       activeClanWar: mockClanWar,
@@ -198,16 +198,21 @@ export const useGroupStore = create(
     }),
     {
       name: 'mindforge-groups',
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
-        if (version < 2) {
-          // Old store didn't have group data — reset to fresh mock data
+        if (version < 3) {
+          // Reset to empty state — mock data has been removed
           return {
             ...persisted,
-            lerngruppen: [...mockLerngruppen],
-            clans: [...mockClans],
-            klassen: [...mockKlassen],
-            customGroups: [],
+            lerngruppen: [],
+            clans: [],
+            klassen: [],
+            customGroups: persisted?.customGroups || [],
+            myGroups: [],
+            myClans: [],
+            myClasses: [],
+            groupInvites: [],
+            activeClanWar: null,
           }
         }
         return persisted

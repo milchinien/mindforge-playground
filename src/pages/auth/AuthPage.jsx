@@ -79,6 +79,7 @@ function GameBackground() {
 
   // Build rows with offset so each row starts at a different game
   const rows = useMemo(() => {
+    if (sortedGames.length === 0) return []
     const result = []
     for (let r = 0; r < ROW_COUNT; r++) {
       const offset = (r * 4) % sortedGames.length

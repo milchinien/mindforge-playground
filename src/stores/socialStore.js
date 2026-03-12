@@ -186,7 +186,7 @@ export const useSocialStore = create(
           username: request.fromUsername,
           avatar: request.fromAvatar,
           addedAt: new Date().toISOString(),
-          isOnline: Math.random() > 0.5,
+          isOnline: false,
         }
 
         set((state) => {

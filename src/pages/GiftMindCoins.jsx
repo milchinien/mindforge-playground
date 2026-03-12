@@ -5,18 +5,8 @@ import MindCoinIcon from '../components/common/MindCoinIcon'
 import { usePremiumStore, selectGiftHistory } from '../stores/premiumStore'
 import useEscapeKey from '../hooks/useEscapeKey'
 
-// ──────────── MOCK FRIENDS ────────────
-
-const GIFT_FRIENDS = [
-  { id: 'f-1', username: 'PixelMaster', level: 47, isOnline: true },
-  { id: 'f-2', username: 'BrainStorm99', level: 43, isOnline: true },
-  { id: 'f-3', username: 'QuizKoenig', level: 40, isOnline: false },
-  { id: 'f-4', username: 'LernFuchs', level: 37, isOnline: true },
-  { id: 'f-5', username: 'WissenHeld', level: 34, isOnline: false },
-  { id: 'f-6', username: 'CodeNinja42', level: 32, isOnline: false },
-  { id: 'f-7', username: 'MathGenius', level: 30, isOnline: true },
-  { id: 'f-8', username: 'ScienceGirl', level: 28, isOnline: false },
-]
+// Friends list will come from the database. Empty until real data is connected.
+const GIFT_FRIENDS = []
 
 const GIFT_AMOUNTS = [
   { amount: 50, label: '50 MC', popular: false },

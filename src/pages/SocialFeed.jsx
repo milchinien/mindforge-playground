@@ -28,26 +28,8 @@ const now = Date.now()
 const HOUR = 3600000
 const DAY = 86400000
 
-const MOCK_ACTIVITIES = [
-  { id: 1, user: { name: 'MaxGamer99', emoji: '\uD83D\uDE0E' }, type: 'achievement', text: 'hat das Achievement "Erste Schritte" freigeschaltet', detail: '\uD83C\uDFC6 Spiele dein erstes Lernspiel', timestamp: now - HOUR * 0.5 },
-  { id: 2, user: { name: 'LenaLernt', emoji: '\uD83E\uDD13' }, type: 'highscore', text: 'hat einen neuen Highscore in "Mathe-Meister" aufgestellt', detail: '12.450 Punkte', timestamp: now - HOUR * 1 },
-  { id: 3, user: { name: 'PixelPaul', emoji: '\uD83C\uDFA8' }, type: 'game_uploaded', text: 'hat ein neues Spiel hochgeladen', detail: '"Chemie-Chaos" \u2013 Lerne das Periodensystem', timestamp: now - HOUR * 2 },
-  { id: 4, user: { name: 'SarahStar', emoji: '\u2B50' }, type: 'game_played', text: 'hat "Geographie-Quiz Europa" abgeschlossen', detail: '95% richtig \u2013 Ausgezeichnet!', timestamp: now - HOUR * 3 },
-  { id: 5, user: { name: 'TimTech', emoji: '\uD83D\uDE80' }, type: 'item_purchased', text: 'hat einen neuen Avatar-Hut gekauft', detail: '\uD83E\uDDE2 Astronauten-Helm', timestamp: now - HOUR * 5 },
-  { id: 6, user: { name: 'AnnaAbenteuer', emoji: '\uD83C\uDF1F' }, type: 'achievement', text: 'hat das Achievement "Wissensdurst" freigeschaltet', detail: '\uD83D\uDCDA 50 Spiele abgeschlossen', timestamp: now - HOUR * 8 },
-  { id: 7, user: { name: 'BenBuilder', emoji: '\uD83D\uDD27' }, type: 'game_uploaded', text: 'hat ein neues Spiel hochgeladen', detail: '"Physik-Puzzle" \u2013 Gravitation verstehen', timestamp: now - HOUR * 10 },
-  { id: 8, user: { name: 'MaxGamer99', emoji: '\uD83D\uDE0E' }, type: 'highscore', text: 'hat einen neuen Highscore in "Vokabel-Sprint" aufgestellt', detail: '8.200 Punkte', timestamp: now - HOUR * 14 },
-  { id: 9, user: { name: 'LenaLernt', emoji: '\uD83E\uDD13' }, type: 'star_rating', text: 'hat "Biologie-Basics" mit 5 Sternen bewertet', detail: '\u2B50\u2B50\u2B50\u2B50\u2B50', timestamp: now - HOUR * 18 },
-  { id: 10, user: { name: 'JuliaJaguar', emoji: '\uD83D\uDC06' }, type: 'game_played', text: 'hat "Geschichte-Rallye" abgeschlossen', detail: '88% richtig \u2013 Sehr gut!', timestamp: now - DAY * 1 - HOUR * 2 },
-  { id: 11, user: { name: 'SarahStar', emoji: '\u2B50' }, type: 'achievement', text: 'hat das Achievement "Sozialer Schmetterling" freigeschaltet', detail: '\uD83E\uDD8B 10 Freunde hinzugefuegt', timestamp: now - DAY * 1 - HOUR * 5 },
-  { id: 12, user: { name: 'TimTech', emoji: '\uD83D\uDE80' }, type: 'highscore', text: 'hat einen neuen Highscore in "Code-Knacker" aufgestellt', detail: '15.800 Punkte', timestamp: now - DAY * 1 - HOUR * 9 },
-  { id: 13, user: { name: 'PixelPaul', emoji: '\uD83C\uDFA8' }, type: 'item_purchased', text: 'hat ein neues Hintergrund-Theme gekauft', detail: '\uD83C\uDF0C Galaxie-Hintergrund', timestamp: now - DAY * 2 },
-  { id: 14, user: { name: 'AnnaAbenteuer', emoji: '\uD83C\uDF1F' }, type: 'game_played', text: 'hat "Englisch-Express" abgeschlossen', detail: '100% richtig \u2013 Perfekt!', timestamp: now - DAY * 3 },
-  { id: 15, user: { name: 'BenBuilder', emoji: '\uD83D\uDD27' }, type: 'achievement', text: 'hat das Achievement "Creator" freigeschaltet', detail: '\uD83C\uDFAE Erstes Spiel erstellt', timestamp: now - DAY * 3 - HOUR * 6 },
-  { id: 16, user: { name: 'JuliaJaguar', emoji: '\uD83D\uDC06' }, type: 'highscore', text: 'hat einen neuen Highscore in "Mathe-Meister" aufgestellt', detail: '11.900 Punkte', timestamp: now - DAY * 4 },
-  { id: 17, user: { name: 'MaxGamer99', emoji: '\uD83D\uDE0E' }, type: 'game_played', text: 'hat "Kunst-Quiz" abgeschlossen', detail: '76% richtig \u2013 Gut!', timestamp: now - DAY * 5 },
-  { id: 18, user: { name: 'LenaLernt', emoji: '\uD83E\uDD13' }, type: 'game_uploaded', text: 'hat ein neues Spiel hochgeladen', detail: '"Musik-Memory" \u2013 Instrumente erkennen', timestamp: now - DAY * 6 },
-]
+// Activity data will come from the database. Empty until real data is connected.
+const MOCK_ACTIVITIES = []
 
 function getTimeGroup(timestamp, t) {
   const diff = now - timestamp
@@ -71,7 +53,7 @@ function formatRelativeTime(timestamp, t) {
 
 function ActivityCard({ activity, isNew, t }) {
   const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 12))
+  const [likeCount, setLikeCount] = useState(0)
   const typeConfig = ACTIVITY_TYPES[activity.type]
   const Icon = typeConfig.icon
 
